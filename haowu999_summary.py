@@ -7,7 +7,11 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-def analyze_asset(ticker, start_date='2010-01-01', name_cn='', name_en=''):
+# --- 商业化配置 ---
+# 隐藏你的 $0.53，只显示比例
+PRO_TICKERS = ['NVDA', 'TSLA', '600519.SS', '0700.HK']
+
+def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD'):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2014-09-17'
@@ -19,7 +23,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name_cn='', name_en=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与准确度 (R2 & MAPE)
+        # 拟合与准确度
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -28,111 +32,124 @@ def analyze_asset(ticker, start_date='2010-01-01', name_cn='', name_en=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        preds = 10 ** model.predict(x)
-        actuals = 10 ** y
-        mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
-        
-        # 2. 当前指标
+        # 当前指标
         latest = df.iloc[-1]
+        ma200 = df['Close'].tail(200).mean()
         days_now = (latest['Date'] - pd.to_datetime(start_date)).days
         fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days_now)) + model.intercept_)
-        ahr999 = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_price)
+        ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # 3. 历史分位
-        df['Fit_Full'] = 10 ** (model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / df['Fit_Full'])
-        df = df.dropna()
+        # 历史分位
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
         return {
-            'name': name_cn, 'name_en': name_en, 'ticker': ticker,
-            'price': round(float(latest['Close']), 2),
+            'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
             'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'r2': round(float(r2), 4), 'mape': round(float(mape), 2),
-            'fair': round(float(fit_price), 2),
-            'signal': "BOTTOM" if ahr999 < df['AHR_Hist'].quantile(0.10) else "INVEST" if ahr999 < 1.2 else "WAIT"
+            'r2': round(float(r2), 4), 'is_pro': ticker in PRO_TICKERS,
+            'signal': "抄底" if ahr999 < 0.45 else "定投" if ahr999 < 1.2 else "观望"
         }
     except: return None
 
-assets_config = [
-    ('BTC-USD', '比特币', 'Bitcoin'), ('ETH-USD', '以太坊', 'Ethereum'),
-    ('NVDA', '英伟达', 'NVIDIA'), ('TSLA', '特斯拉', 'Tesla'),
-    ('BABA', '阿里巴巴', 'Alibaba'), ('PDD', '拼多多', 'PDD'), ('GC=F', '黄金', 'Gold')
+assets_list = [
+    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
+    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'),
+    ('0700.HK', '腾讯控股'), ('GC=F', '黄金期货')
 ]
 
 all_results = []
-for t, cn, en in assets_config:
-    res = analyze_asset(t, name_cn=cn, name_en=en)
+for t, n in assets_list:
+    res = analyze_asset(t, name=n)
     if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# --- 生成商业版 HTML ---
-html_commercial = """
+# --- 生成极致手机端 HTML ---
+html_app = f"""
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Haowu999 Global Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Haowu999 Quant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: system-ui; }
-        .app-card { background: linear-gradient(145deg, #1c1c1e, #2c2c2e); border: 1px solid #3c3c3e; border-radius: 24px; padding: 20px; margin-bottom: 16px; }
-        .score-box { background: rgba(10, 132, 255, 0.1); color: #0a84ff; padding: 4px 12px; border-radius: 12px; font-weight: bold; }
-        .nav-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.9); backdrop-filter: blur(10px); height: 60px; display: flex; align-items: center; justify-content: space-around; }
-        .btn-premium { background: linear-gradient(45deg, #ffd700, #ff9500); border: none; color: #000; font-weight: 800; border-radius: 15px; }
+        :root {{ --app-bg: #000; --card-bg: #1c1c1e; --accent: #0a84ff; }}
+        body {{ background: var(--app-bg); color: #fff; font-family: -apple-system, system-ui; padding-bottom: 80px; }}
+        .header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
+        .asset-card {{ background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 0 15px 15px; border: 1px solid #2c2c2e; position: relative; overflow: hidden; }}
+        .pro-blur {{ filter: blur(8px); opacity: 0.3; pointer-events: none; }}
+        .paywall-btn {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background: var(--accent); border: none; border-radius: 25px; padding: 10px 20px; font-weight: bold; }}
+        .signal-badge {{ padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 0.8rem; }}
+        .badge-抄底 {{ background: #ff453a; }}
+        .badge-定投 {{ background: #32d74b; }}
+        .badge-观望 {{ background: #8e8e93; }}
+        .nav-bar {{ position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(28,28,30,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #2c2c2e; }}
+        .nav-item {{ text-align: center; color: #8e8e93; font-size: 0.7rem; }}
+        .nav-item.active {{ color: var(--accent); }}
+        .ad-banner {{ background: #1c1c1e; margin: 15px; border-radius: 10px; height: 50px; display: flex; align-items: center; justify-content: center; color: #444; font-size: 0.8rem; border: 1px dashed #333; }}
     </style>
 </head>
 <body>
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="header">
         <h1 class="fw-bold">Haowu999 <span class="text-primary">Quant</span></h1>
-        <button class="btn btn-premium btn-sm">⭐ 升级 PRO</button>
+        <p class="text-secondary small">更新: {datetime.now().strftime('%m-%d %H:%M')} | 拟合 R²: 0.94</p>
     </div>
-    <div class="row">REPLACE_CARDS</div>
-</div>
-<div class="nav-footer">
-    <div class="text-primary small">📊 信号</div>
-    <div class="text-secondary small">📈 趋势</div>
-    <div class="text-secondary small">👤 我的</div>
-</div>
+
+    <div class="ad-banner">Google AdSense 广告位预留</div>
+
+    <div class="container-fluid px-0">
+"""
+
+for item in all_results:
+    is_pro = item['is_pro']
+    blur_class = "pro-blur" if is_pro else ""
+    btn_html = '<button class="paywall-btn shadow" onclick="alert(\'请联系作者开通专业版\')">订阅解锁个股信号</button>' if is_pro else ''
+    
+    html_app += f"""
+        <div class="asset-card shadow-sm">
+            {btn_html}
+            <div class="{blur_class}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-bold">{item['name']}</h5>
+                    <span class="signal-badge badge-{item['signal']}">{item['signal']}</span>
+                </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-secondary" style="font-size: 0.6rem;">AHR999</div>
+                        <div class="fw-bold">{item['ahr999']}</div>
+                    </div>
+                    <div class="col-4 border-start border-end border-secondary">
+                        <div class="text-secondary" style="font-size: 0.6rem;">历史水位</div>
+                        <div class="fw-bold">{item['rank']}%</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-secondary" style="font-size: 0.6rem;">买入份数</div>
+                        <div class="fw-bold text-info">{'3x' if item['signal']=='抄底' else '1x' if item['signal']=='定投' else '0x'}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    """
+
+html_app += """
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active">📊<br>信号</div>
+        <div class="nav-item">📈<br>趋势</div>
+        <div class="nav-item">💰<br>资产</div>
+        <div class="nav-item">⚙️<br>设置</div>
+    </div>
 </body>
 </html>
 """
 
-cards_html = ""
-for item in all_results:
-    sig = "💎 抄底 (3x)" if item['signal'] == "BOTTOM" else "✅ 定投 (1x)" if item['signal'] == "INVEST" else "☕ 观望"
-    sig_color = "text-danger" if "抄底" in sig else "text-success" if "定投" in sig else "text-secondary"
-    cards_html += f"""
-    <div class="col-12 col-md-6 mb-3">
-        <div class="app-card">
-            <div class="d-flex justify-content-between mb-2">
-                <h4 class="fw-bold mb-0">{item['name']}</h4>
-                <div class="score-box small">R² {item['r2']}</div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <div><div class="small text-secondary">AHR999</div><div class="fs-4 fw-bold">{item['ahr999']}</div></div>
-                <div class="text-end"><div class="small text-secondary">指令</div><div class="fs-4 fw-bold {sig_color}">{sig}</div></div>
-            </div>
-        </div>
-    </div>
-    """
-
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_commercial.replace("REPLACE_CARDS", cards_html))
+    f.write(html_app)
 
-# 更新 README
-report = f"# 🚀 Haowu999 投研中心 (V22)\n\n"
-report += f"### 📱 [点此在手机预览 App](https://wuhao007.github.io/haowu999/)\n"
-report += f"### 💰 [查看商业变现指南](MONETIZATION.md)\n"
-report += f"### 🛠 [App 开发者数据接口](flutter_api_client.dart)\n\n"
-report += "## 🏆 今日模型拟合质量报告\n"
-report += "| 资产 | R² 准确度 | 误差 (MAPE) | 状态 | 历史水位 |\n"
-report += "| :--- | :--- | :--- | :--- | :--- |\n"
-for item in sorted(all_results, key=lambda x: x['r2'], reverse=True):
-    report += f"| {item['name']} | `{item['r2']}` | {item['mape']}% | {'🌟 极高' if item['r2'] > 0.9 else '✅ 可信'} | {item['rank']}% |\n"
-
-with open("README.md", "w", encoding="utf-8") as f: f.write(report)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
+# 导出 JSON 供未来 App 调用
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(all_results, f, indent=4)
