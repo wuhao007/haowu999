@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Haowu999 Super App</title>
+    <title>Haowu999 Terminal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system; margin:0; padding-bottom:100px; }
@@ -18,167 +18,162 @@
 </head>
 <body>
     <div id="tab-signals" class="tab-content active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">实时对数回归终端 | 2026-04-25 14:48</p></div>
+        <div class="header">
+            <h1 style="font-weight:900; margin:0;">Haowu <span style="color:#0a84ff;">Quant</span></h1>
+            <p style="color:#8e8e93; font-size:0.8rem;">全市场情绪: <span style="color:#ffd60a;">63.8 (贪婪)</span> | 04-25 14:49</p>
+        </div>
         <div>
     <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:1.1rem;">Ethereum </span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 60%</span>
-        </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_0"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">0.459</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
-        </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="ETH-USD" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
-        </div>
-    </div>
-    
-    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <span style="font-weight:700; font-size:1.1rem;">Bitcoin </span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 92%</span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.9201 | Sharpe -0.53</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_1"></canvas></div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_0"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">0.535</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="BTC-USD" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: -113.1%</span>
+            <span onclick="alert('分享海报功能已激活: Bitcoin ✅定投')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
         </div>
     </div>
     
     <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:1.1rem;">Alibaba </span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 2%</span>
-        </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_2"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">0.962</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
+            <span style="font-weight:700; font-size:1.1rem;">Ethereum </span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.6061 | Sharpe -0.51</span>
         </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="BABA" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
-        </div>
-    </div>
-    
-    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:1.1rem;">Tesla <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; vertical-align:middle;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 82%</span>
-        </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_3"></canvas></div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_1"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">1.757</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">0.459</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="TSLA" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: -173.2%</span>
+            <span onclick="alert('分享海报功能已激活: Ethereum ✅定投')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
         </div>
     </div>
     
     <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:1.1rem;">Gold </span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 23%</span>
-        </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_4"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">2.779</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+            <span style="font-weight:700; font-size:1.1rem;">NVIDIA <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.5944 | Sharpe 0.0</span>
         </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="GC=F" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
-        </div>
-    </div>
-    
-    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:1.1rem;">NVIDIA <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; vertical-align:middle;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem;">拟合信度 59%</span>
-        </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_5"></canvas></div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_2"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">11.952</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日指令</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:10px; border-top:0.5px solid #222; padding-top:10px;">
-            <input type="number" step="0.01" class="hold-input" data-ticker="NVDA" placeholder="输入持仓 Units (仅存本地)" onchange="saveHoldings()" style="background:transparent; border:none; color:#555; font-size:0.7rem; width:100%;">
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: 0.0%</span>
+            <span onclick="alert('分享海报功能已激活: NVIDIA ☕️观望')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
+        </div>
+    </div>
+    
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:1.1rem;">Tesla <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.8245 | Sharpe -0.25</span>
+        </div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_3"></canvas></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">1.757</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: -53.0%</span>
+            <span onclick="alert('分享海报功能已激活: Tesla ☕️观望')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
+        </div>
+    </div>
+    
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:1.1rem;">Apple <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.7285 | Sharpe -0.71</span>
+        </div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_4"></canvas></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">2.409</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: -5.0%</span>
+            <span onclick="alert('分享海报功能已激活: Apple ☕️观望')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
+        </div>
+    </div>
+    
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:1.1rem;">Alibaba </span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.0205 | Sharpe 0.23</span>
+        </div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_5"></canvas></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">0.962</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">✅定投</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: -44.5%</span>
+            <span onclick="alert('分享海报功能已激活: Alibaba ✅定投')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
+        </div>
+    </div>
+    
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:1.1rem;">Gold </span>
+            <span style="color:#8e8e93; font-size:0.6rem;">R² 0.2356 | Sharpe 0.0</span>
+        </div>
+        <div style="height:80px; margin:15px 0;"><canvas id="c_6"></canvas></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">2.779</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日信号</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">☕️观望</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大历史回撤: 0.0%</span>
+            <span onclick="alert('分享海报功能已激活: Gold ☕️观望')" style="color:#0a84ff; cursor:pointer;">📤 分享信号</span>
         </div>
     </div>
     </div>
     </div>
 
     <div id="tab-portfolio" class="tab-content" style="padding-top:60px;">
-        <h2 style="font-weight:800;">我的资产</h2>
+        <h2 style="font-weight:800;">本地资产</h2>
         <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #0a84ff;">
-            <div style="color:#8e8e93; font-size:0.8rem;">总资产估值 (Units)</div>
-            <div id="total-val" style="font-size:2.5rem; font-weight:900; margin:10px 0;">0.00</div>
-            <div id="total-status" style="color:#32d74b; font-weight:bold;">运行正常</div>
+            <div style="color:#8e8e93; font-size:0.8rem;">我的持仓价值 (Units)</div>
+            <div style="font-size:2.5rem; font-weight:900; margin:10px 0;">0.00</div>
         </div>
-        <p style="color:#444; font-size:0.7rem; margin-top:20px;">* 注：数据仅保存在手机浏览器本地。1 Unit 可代表你的任何投资基数（如 $0.53）。</p>
-    </div>
-
-    <div id="tab-settings" class="tab-content" style="padding-top:60px;">
-        <h2 style="font-weight:800;">系统设置</h2>
-        <div style="background:#1c1c1e; border-radius:15px; padding:20px; margin-top:20px;">
-            <h5 style="color:#0a84ff;">🔔 信号推送</h5>
-            <p style="font-size:0.8rem; color:#8e8e93;">如需 Telegram 告警，请在 GitHub Actions 中配置 SIGNAL_WEBHOOK。</p>
-        </div>
-        <div style="margin-top:20px; text-align:center; color:#333; font-size:0.7rem;">版本 V40.0 | 隐私加密已启用</div>
+        <p style="color:#444; font-size:0.7rem; margin-top:20px;">* 所有数据均保存在本地 LocalStorage，我们无法访问。1 Unit = 你的定投基数（如 $0.53）。</p>
     </div>
 
     <div class="nav-bar">
         <button class="nav-item active" onclick="showTab('signals', this)">📊<br>机会</button>
         <button class="nav-item" onclick="showTab('portfolio', this)">💰<br>资产</button>
-        <button class="nav-item" onclick="showTab('settings', this)">⚙️<br>设置</button>
+        <button class="nav-item" onclick="alert('分享中心已激活，点击卡片导出海报')">📤<br>分享</button>
     </div>
 
     <script>
-    function render(id, labels, actual, fair) {
+    function render(id, labels, data) {
         new Chart(document.getElementById(id), {
             type: 'line',
-            data: { labels: labels, datasets: [{ data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }, { data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false }] },
+            data: { labels: labels, datasets: [{ data: data, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
         });
     }
-
     function showTab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('tab-' + id).classList.add('active-tab');
         btn.classList.add('active');
-        if(id === 'portfolio') { calcPortfolio(); }
     }
-
-    function saveHoldings() {
-        let h = {};
-        document.querySelectorAll('.hold-input').forEach(i => { h[i.dataset.ticker] = i.value; });
-        localStorage.setItem('holdings', JSON.stringify(h));
-    }
-
-    function calcPortfolio() {
-        let h = JSON.parse(localStorage.getItem('holdings') || '{}');
-        let total = 0;
-        // 简单模拟计算：持仓 Units 的累计
-        Object.values(h).forEach(v => { total += parseFloat(v || 0); });
-        document.getElementById('total-val').innerText = total.toFixed(2);
-    }
-
-    window.onload = function() {
-        let h = JSON.parse(localStorage.getItem('holdings') || '{}');
-        document.querySelectorAll('.hold-input').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-        render('c_0', ["01-26", "01-27", "01-28", "01-29", "01-30", "01-31", "02-01", "02-02", "02-03", "02-04", "02-05", "02-06", "02-07", "02-08", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-15", "02-16", "02-17", "02-18", "02-19", "02-20", "02-21", "02-22", "02-23", "02-24", "02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [2926.46, 3022.21, 3006.61, 2818.23, 2702.38, 2445.09, 2267.96, 2344.36, 2227.56, 2143.5, 1821.68, 2063.39, 2090.55, 2088.76, 2103.57, 2019.5, 1940.62, 1946.94, 2048.53, 2086.01, 1966.04, 1997.92, 1992.19, 1953.97, 1948.2, 1969.02, 1973.74, 1957.81, 1855.5, 1852.97, 2054.63, 2026.79, 1930.76, 1965.05, 1939.07, 2027.27, 1982.77, 2126.51, 2071.61, 1978.75, 1969.46, 1936.6, 1992.94, 2037.12, 2051.57, 2073.14, 2092.56, 2097.09, 2177.48, 2351.18, 2318.05, 2203.67, 2137.42, 2146.5, 2076.69, 2053.05, 2152.15, 2155.7, 2168.02, 2059.58, 1991.27, 1992.69, 1982.56, 2023.51, 2104.71, 2138.74, 2056.85, 2053.39, 2065.35, 2109.0, 2107.76, 2241.81, 2190.34, 2189.14, 2245.15, 2285.39, 2192.2, 2370.71, 2323.31, 2359.44, 2348.65, 2421.07, 2351.1, 2264.92, 2315.21, 2327.97, 2376.09, 2331.51, 2315.69, 2315.33], [3928.19, 3931.04, 3933.9, 3936.76, 3939.63, 3942.49, 3945.36, 3948.23, 3951.1, 3953.97, 3956.84, 3959.71, 3962.59, 3965.47, 3968.35, 3971.23, 3974.11, 3976.99, 3979.88, 3982.77, 3985.66, 3988.55, 3991.44, 3994.33, 3997.23, 4000.12, 4003.02, 4005.92, 4008.82, 4011.73, 4014.63, 4017.54, 4020.45, 4023.36, 4026.27, 4029.18, 4032.09, 4035.01, 4037.93, 4040.85, 4043.77, 4046.69, 4049.61, 4052.54, 4055.47, 4058.4, 4061.33, 4064.26, 4067.19, 4070.13, 4073.07, 4076.01, 4078.95, 4081.89, 4084.83, 4087.78, 4090.72, 4093.67, 4096.62, 4099.57, 4102.53, 4105.48, 4108.44, 4111.4, 4114.36, 4117.32, 4120.28, 4123.25, 4126.21, 4129.18, 4132.15, 4135.12, 4138.1, 4141.07, 4144.05, 4147.02, 4150.0, 4152.98, 4155.97, 4158.95, 4161.94, 4164.93, 4167.91, 4170.91, 4173.9, 4176.89, 4179.89, 4182.89, 4185.89, 4188.89]);
-render('c_1', ["01-26", "01-27", "01-28", "01-29", "01-30", "01-31", "02-01", "02-02", "02-03", "02-04", "02-05", "02-06", "02-07", "02-08", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-15", "02-16", "02-17", "02-18", "02-19", "02-20", "02-21", "02-22", "02-23", "02-24", "02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [88267.14, 89102.57, 89184.57, 84561.59, 84128.66, 78621.12, 76974.45, 78688.77, 75633.55, 73019.7, 62702.1, 70555.39, 69281.97, 70264.73, 70120.78, 68793.96, 66991.97, 66221.84, 68857.84, 69767.62, 68788.19, 68843.16, 67494.22, 66425.32, 66957.52, 68005.42, 68003.77, 67659.39, 64616.74, 64080.04, 67960.12, 67453.77, 65881.8, 66995.86, 65738.1, 68775.85, 68293.65, 72710.58, 70841.12, 68136.49, 67272.59, 65969.78, 68402.38, 69926.92, 70204.88, 70493.46, 70968.27, 71214.62, 72789.91, 74861.09, 73922.48, 71245.58, 69912.79, 70522.59, 68711.52, 67845.21, 70914.86, 70517.86, 71309.88, 68791.62, 66338.38, 66319.7, 65954.92, 66691.45, 68233.31, 68078.55, 66888.57, 66931.1, 67290.52, 68981.9, 68859.83, 71940.7, 71123.36, 71767.83, 72979.05, 73054.27, 70753.41, 74484.64, 74181.61, 74805.08, 75152.13, 77126.88, 75726.21, 73856.35, 75872.52, 76352.77, 78203.1, 78268.95, 77455.31, 77509.67], [121493.25, 121605.58, 121718.0, 121830.5, 121943.08, 122055.75, 122168.5, 122281.34, 122394.27, 122507.28, 122620.37, 122733.55, 122846.82, 122960.17, 123073.6, 123187.13, 123300.73, 123414.42, 123528.2, 123642.06, 123756.01, 123870.05, 123984.17, 124098.37, 124212.66, 124327.04, 124441.5, 124556.05, 124670.69, 124785.41, 124900.21, 125015.11, 125130.09, 125245.15, 125360.3, 125475.54, 125590.87, 125706.28, 125821.77, 125937.36, 126053.03, 126168.79, 126284.63, 126400.56, 126516.58, 126632.68, 126748.87, 126865.15, 126981.52, 127097.97, 127214.51, 127331.14, 127447.85, 127564.65, 127681.54, 127798.51, 127915.58, 128032.73, 128149.97, 128267.29, 128384.7, 128502.2, 128619.79, 128737.47, 128855.23, 128973.09, 129091.02, 129209.05, 129327.17, 129445.37, 129563.66, 129682.04, 129800.51, 129919.07, 130037.71, 130156.45, 130275.27, 130394.18, 130513.18, 130632.26, 130751.44, 130870.7, 130990.06, 131109.5, 131229.03, 131348.65, 131468.36, 131588.15, 131708.04, 131828.02]);
-render('c_2', ["12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-26", "12-29", "12-30", "12-31", "01-02", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [150.09, 149.29, 147.09, 147.32, 149.79, 150.96, 151.23, 150.06, 152.24, 148.49, 147.36, 146.58, 155.74, 156.26, 150.9, 146.75, 154.47, 150.96, 166.31, 167.01, 169.9, 170.93, 165.4, 162.39, 168.67, 177.18, 173.23, 171.37, 172.72, 175.66, 174.25, 169.56, 168.39, 163.65, 159.14, 157.76, 162.51, 163.0, 166.51, 164.32, 158.73, 155.73, 155.43, 155.77, 154.27, 154.45, 152.78, 153.11, 152.28, 148.05, 144.11, 142.56, 135.59, 133.27, 130.35, 130.79, 132.64, 136.85, 136.29, 134.2, 135.21, 136.71, 136.57, 134.43, 124.9, 122.41, 126.06, 125.48, 129.87, 125.41, 122.69, 121.98, 125.46, 123.73, 122.05, 122.31, 119.72, 125.32, 127.68, 127.33, 128.01, 131.35, 133.28, 138.59, 141.01, 140.17, 135.38, 136.42, 131.7, 135.82], [129.34, 129.34, 129.34, 129.35, 129.35, 129.36, 129.37, 129.37, 129.38, 129.39, 129.39, 129.4, 129.4, 129.41, 129.42, 129.42, 129.42, 129.43, 129.44, 129.44, 129.45, 129.45, 129.45, 129.47, 129.47, 129.48, 129.48, 129.49, 129.49, 129.5, 129.5, 129.51, 129.52, 129.52, 129.52, 129.53, 129.53, 129.54, 129.55, 129.55, 129.55, 129.56, 129.57, 129.57, 129.58, 129.58, 129.59, 129.6, 129.6, 129.6, 129.61, 129.62, 129.62, 129.63, 129.63, 129.63, 129.64, 129.65, 129.65, 129.66, 129.66, 129.67, 129.67, 129.68, 129.68, 129.68, 129.7, 129.7, 129.7, 129.71, 129.71, 129.72, 129.72, 129.73, 129.73, 129.75, 129.75, 129.75, 129.76, 129.76, 129.77, 129.78, 129.78, 129.78, 129.79, 129.8, 129.8, 129.8, 129.81, 129.81]);
-render('c_3', ["12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-26", "12-29", "12-30", "12-31", "01-02", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [475.31, 489.88, 467.26, 483.37, 481.2, 488.73, 485.56, 485.4, 475.19, 459.64, 454.43, 449.72, 438.07, 451.67, 432.96, 431.41, 435.8, 445.01, 448.96, 447.2, 439.2, 438.57, 437.5, 419.25, 431.44, 449.36, 449.06, 435.2, 430.9, 431.46, 416.56, 430.41, 421.81, 421.96, 406.01, 397.21, 411.11, 417.32, 425.21, 428.27, 417.07, 417.44, 410.63, 411.32, 411.71, 411.82, 399.83, 409.38, 417.4, 408.58, 402.51, 403.32, 392.43, 405.94, 405.55, 396.73, 398.68, 399.24, 407.82, 395.01, 391.2, 395.56, 399.27, 392.78, 380.3, 367.96, 380.85, 383.03, 385.95, 372.11, 361.83, 355.28, 371.75, 381.26, 360.59, 352.82, 346.65, 343.25, 345.62, 348.95, 352.42, 364.2, 391.95, 388.9, 400.62, 392.5, 386.42, 387.51, 373.72, 376.3], [191.98, 192.05, 192.12, 192.19, 192.26, 192.46, 192.53, 192.6, 192.74, 192.95, 193.02, 193.09, 193.23, 193.43, 193.5, 193.57, 193.64, 193.71, 193.92, 193.99, 194.06, 194.13, 194.2, 194.48, 194.55, 194.62, 194.69, 194.9, 194.97, 195.04, 195.11, 195.18, 195.39, 195.46, 195.53, 195.6, 195.67, 195.88, 195.95, 196.01, 196.08, 196.15, 196.44, 196.51, 196.58, 196.65, 196.86, 196.93, 197.0, 197.07, 197.14, 197.35, 197.42, 197.49, 197.56, 197.63, 197.84, 197.91, 197.98, 198.05, 198.12, 198.33, 198.4, 198.47, 198.54, 198.61, 198.82, 198.9, 198.97, 199.04, 199.11, 199.32, 199.39, 199.46, 199.53, 199.81, 199.88, 199.95, 200.03, 200.1, 200.31, 200.38, 200.45, 200.52, 200.59, 200.8, 200.87, 200.95, 201.02, 201.09]);
-render('c_4', ["12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-26", "12-29", "12-30", "12-31", "01-02", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [4306.7, 4304.5, 4347.5, 4339.5, 4361.4, 4444.6, 4482.8, 4480.6, 4529.1, 4325.1, 4370.1, 4325.6, 4314.4, 4436.9, 4482.2, 4449.3, 4449.7, 4490.3, 4604.3, 4589.2, 4626.3, 4616.3, 4588.4, 4759.6, 4831.8, 4908.8, 4976.2, 5079.7, 5079.9, 5301.6, 5318.4, 4713.9, 4622.5, 4903.7, 4920.4, 4861.4, 4951.2, 5050.9, 5003.8, 5071.6, 4923.7, 5022.0, 4882.9, 4986.5, 4975.9, 5059.3, 5204.7, 5155.8, 5206.4, 5176.5, 5230.5, 5294.4, 5107.4, 5120.2, 5065.3, 5146.1, 5091.5, 5229.7, 5167.4, 5115.8, 5052.5, 4994.0, 5001.0, 4889.9, 4600.7, 4570.4, 4404.1, 4399.3, 4549.8, 4375.5, 4492.0, 4526.0, 4647.6, 4783.2, 4651.5, 4656.8, 4657.1, 4749.5, 4792.2, 4761.9, 4742.4, 4825.0, 4800.0, 4785.4, 4857.6, 4806.6, 4698.4, 4732.5, 4705.1, 4722.3], [1893.47, 1893.52, 1893.57, 1893.62, 1893.67, 1893.83, 1893.88, 1893.93, 1894.03, 1894.19, 1894.24, 1894.29, 1894.39, 1894.55, 1894.6, 1894.65, 1894.7, 1894.75, 1894.91, 1894.96, 1895.01, 1895.06, 1895.11, 1895.32, 1895.37, 1895.42, 1895.47, 1895.63, 1895.68, 1895.73, 1895.78, 1895.83, 1895.98, 1896.04, 1896.09, 1896.14, 1896.19, 1896.34, 1896.39, 1896.44, 1896.5, 1896.55, 1896.75, 1896.8, 1896.85, 1896.9, 1897.06, 1897.11, 1897.16, 1897.21, 1897.26, 1897.41, 1897.46, 1897.52, 1897.57, 1897.62, 1897.77, 1897.82, 1897.87, 1897.92, 1897.97, 1898.13, 1898.18, 1898.23, 1898.28, 1898.33, 1898.48, 1898.53, 1898.58, 1898.63, 1898.69, 1898.84, 1898.89, 1898.94, 1898.99, 1899.19, 1899.24, 1899.29, 1899.34, 1899.4, 1899.55, 1899.6, 1899.65, 1899.7, 1899.75, 1899.9, 1899.95, 1900.0, 1900.05, 1900.1]);
-render('c_5', ["12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-26", "12-29", "12-30", "12-31", "01-02", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [176.28, 177.71, 170.93, 174.13, 180.98, 183.68, 189.2, 188.6, 190.52, 188.21, 187.53, 186.49, 188.84, 188.11, 187.23, 189.1, 185.03, 184.85, 184.93, 185.8, 183.13, 187.04, 186.22, 178.06, 183.31, 184.83, 187.66, 186.46, 188.51, 191.51, 192.5, 191.12, 185.6, 180.33, 174.18, 171.87, 185.4, 190.03, 188.53, 190.04, 186.93, 182.8, 184.96, 187.97, 187.89, 189.81, 191.54, 192.84, 195.55, 184.88, 177.18, 182.47, 180.04, 183.03, 183.33, 177.81, 182.64, 184.76, 186.03, 183.14, 180.25, 183.22, 181.93, 180.4, 178.56, 172.7, 175.64, 175.2, 178.68, 171.24, 167.52, 165.17, 174.4, 175.75, 177.39, 177.64, 178.1, 182.08, 183.91, 188.63, 189.31, 196.51, 198.87, 198.35, 201.68, 202.06, 199.88, 202.5, 199.64, 208.27], [19.14, 19.14, 19.15, 19.15, 19.16, 19.17, 19.18, 19.19, 19.2, 19.21, 19.22, 19.22, 19.23, 19.25, 19.26, 19.26, 19.27, 19.27, 19.29, 19.29, 19.3, 19.31, 19.31, 19.33, 19.34, 19.34, 19.35, 19.37, 19.37, 19.38, 19.38, 19.39, 19.4, 19.41, 19.42, 19.42, 19.43, 19.44, 19.45, 19.45, 19.46, 19.46, 19.49, 19.49, 19.5, 19.5, 19.52, 19.53, 19.53, 19.54, 19.54, 19.56, 19.56, 19.57, 19.57, 19.58, 19.6, 19.6, 19.61, 19.61, 19.62, 19.64, 19.64, 19.65, 19.65, 19.66, 19.67, 19.68, 19.68, 19.69, 19.7, 19.71, 19.72, 19.72, 19.73, 19.75, 19.76, 19.76, 19.77, 19.77, 19.79, 19.8, 19.8, 19.81, 19.81, 19.83, 19.83, 19.84, 19.85, 19.85]);
-
-    }
+    window.onload = function() { render('c_0', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [67960.125, 67453.7734375, 65881.796875, 66995.859375, 65738.1015625, 68775.8515625, 68293.6484375, 72710.578125, 70841.125, 68136.4921875, 67272.59375, 65969.78125, 68402.3828125, 69926.921875, 70204.8828125, 70493.4609375, 70968.265625, 71214.625, 72789.9140625, 74861.0859375, 73922.4765625, 71245.578125, 69912.7890625, 70522.5859375, 68711.5234375, 67845.2109375, 70914.859375, 70517.859375, 71309.8828125, 68791.625, 66338.375, 66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77513.6328125]);
+render('c_1', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [2054.6279296875, 2026.7926025390625, 1930.7618408203125, 1965.050537109375, 1939.066650390625, 2027.2689208984375, 1982.7689208984375, 2126.50537109375, 2071.60546875, 1978.751220703125, 1969.4554443359375, 1936.604736328125, 1992.938232421875, 2037.1204833984375, 2051.5732421875, 2073.13623046875, 2092.5634765625, 2097.086669921875, 2177.476318359375, 2351.176025390625, 2318.053466796875, 2203.671630859375, 2137.423828125, 2146.4970703125, 2076.68994140625, 2053.04833984375, 2152.14599609375, 2155.704345703125, 2168.021484375, 2059.578369140625, 1991.27197265625, 1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2315.52001953125]);
+render('c_2', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [192.49957275390625, 191.11965942382812, 185.59996032714844, 180.33023071289062, 174.18057250976562, 171.87069702148438, 185.39996337890625, 190.0297088623047, 188.52978515625, 190.0397186279297, 186.9298858642578, 182.80010986328125, 184.95999145507812, 187.96981811523438, 187.88983154296875, 189.8097381591797, 191.53964233398438, 192.83956909179688, 195.54940795898438, 184.87998962402344, 177.180419921875, 182.47012329101562, 180.04025268554688, 183.03009033203125, 183.330078125, 177.8103790283203, 182.64010620117188, 184.760009765625, 186.02999877929688, 183.13999938964844, 180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
+render('c_3', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [416.55999755859375, 430.4100036621094, 421.80999755859375, 421.9599914550781, 406.010009765625, 397.2099914550781, 411.1099853515625, 417.32000732421875, 425.2099914550781, 428.2699890136719, 417.07000732421875, 417.44000244140625, 410.6300048828125, 411.32000732421875, 411.7099914550781, 411.82000732421875, 399.8299865722656, 409.3800048828125, 417.3999938964844, 408.5799865722656, 402.510009765625, 403.32000732421875, 392.42999267578125, 405.94000244140625, 405.54998779296875, 396.7300109863281, 398.67999267578125, 399.239990234375, 407.82000732421875, 395.010009765625, 391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
+render('c_4', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [258.0385437011719, 259.2374267578125, 269.7575988769531, 269.22808837890625, 276.23150634765625, 275.6520690917969, 277.8599853515625, 274.6199951171875, 273.67999267578125, 275.5, 261.7300109863281, 255.77999877929688, 263.8800048828125, 264.3500061035156, 260.5799865722656, 264.5799865722656, 266.17999267578125, 272.1400146484375, 274.2300109863281, 272.95001220703125, 264.17999267578125, 264.7200012207031, 263.75, 262.5199890136719, 260.2900085449219, 257.4599914550781, 259.8800048828125, 260.8299865722656, 260.80999755859375, 255.75999450683594, 250.1199951171875, 252.82000732421875, 254.22999572753906, 249.94000244140625, 248.9600067138672, 247.99000549316406, 251.49000549316406, 251.63999938964844, 252.6199951171875, 252.88999938964844, 248.8000030517578, 246.6300048828125, 253.7899932861328, 255.6300048828125, 255.9199981689453, 258.8599853515625, 253.5, 258.8999938964844, 260.489990234375, 260.4800109863281, 259.20001220703125, 258.8299865722656, 266.42999267578125, 263.3999938964844, 270.2300109863281, 273.04998779296875, 266.1700134277344, 273.1700134277344, 273.42999267578125, 271.05999755859375]);
+render('c_5', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [174.25, 169.55999755859375, 168.38999938964844, 163.64999389648438, 159.13999938964844, 157.75999450683594, 162.50999450683594, 163.0, 166.50999450683594, 164.32000732421875, 158.72999572753906, 155.72999572753906, 155.42999267578125, 155.77000427246094, 154.27000427246094, 154.4499969482422, 152.77999877929688, 153.11000061035156, 152.27999877929688, 148.0500030517578, 144.11000061035156, 142.55999755859375, 135.58999633789062, 133.27000427246094, 130.35000610351562, 130.7899932861328, 132.63999938964844, 136.85000610351562, 136.2899932861328, 134.1999969482422, 135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
+render('c_6', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [5318.39990234375, 4713.89990234375, 4622.5, 4903.7001953125, 4920.39990234375, 4861.39990234375, 4951.2001953125, 5050.89990234375, 5003.7998046875, 5071.60009765625, 4923.7001953125, 5022.0, 4882.89990234375, 4986.5, 4975.89990234375, 5059.2998046875, 5204.7001953125, 5155.7998046875, 5206.39990234375, 5176.5, 5230.5, 5294.39990234375, 5107.39990234375, 5120.2001953125, 5065.2998046875, 5146.10009765625, 5091.5, 5229.7001953125, 5167.39990234375, 5115.7998046875, 5052.5, 4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875]);
+ }
     </script>
 </body>
 </html>
