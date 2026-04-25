@@ -1,15 +1,15 @@
 {
     "base_unit": 1.0,
-    "bottom_multiplier": 3.0,
-    "admob_id": "ca-app-pub-3940256099942544/6300978111", 
+    "publisher_id": "pub-5787134782741442",
+    "ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
     "assets": [
         {"ticker": "BTC-USD", "name": "Bitcoin", "type": "Crypto", "is_pro": false},
         {"ticker": "ETH-USD", "name": "Ethereum", "type": "Crypto", "is_pro": false},
-        {"ticker": "GC=F", "name": "黄金期货", "type": "Metals", "is_pro": false},
-        {"ticker": "NVDA", "name": "英伟达", "type": "Stocks", "is_pro": true},
-        {"ticker": "TSLA", "name": "特斯拉", "type": "Stocks", "is_pro": true},
-        {"ticker": "9992.HK", "name": "泡泡玛特", "type": "Stocks", "is_pro": true},
-        {"ticker": "0700.HK", "name": "腾讯控股", "type": "Stocks", "is_pro": true},
-        {"ticker": "600519.SS", "name": "贵州茅台", "type": "Stocks", "is_pro": true}
+        {"ticker": "GC=F", "name": "Gold", "type": "Metals", "is_pro": false},
+        {"ticker": "NVDA", "name": "NVIDIA", "type": "Stocks", "is_pro": true},
+        {"ticker": "TSLA", "name": "Tesla", "type": "Stocks", "is_pro": true},
+        {"ticker": "9992.HK", "name": "Pop Mart", "type": "Stocks", "is_pro": true},
+        {"ticker": "0700.HK", "name": "Tencent", "type": "Stocks", "is_pro": true},
+        {"ticker": "600519.SS", "name": "Moutai", "type": "Stocks", "is_pro": true}
     ]
 }
