@@ -46,10 +46,14 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         hist_dates = hist_data['Date'].dt.strftime('%Y-%m-%d').tolist()
         hist_prices = hist_data['Close'].round(2).tolist()
         
-        # Calculate historical Rank
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
-        df = df.dropna()
-        rank = (df['AHR_Hist'] < ahr999).mean() * 100
+        # Rank
+        df_p = df.copy()
+        df_p['MA200'] = df_p['Close'].rolling(200).mean()
+        df_p['Days'] = (df_p['Date'] - pd.to_datetime(start_date)).dt.days
+        df_p['Fit'] = 10 ** (model.coef_[0] * np.log10(df_p['Days'].clip(lower=1)) + model.intercept_)
+        df_p['AHR_Hist'] = (df_p['Close'] / df_p['MA200']) * (df_p['Close'] / df_p['Fit'])
+        df_p = df_p.dropna()
+        rank = (df_p['AHR_Hist'] < ahr999).mean() * 100
         
         return {
             'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
@@ -74,69 +78,7 @@ for ticker, name in assets_config:
 
 all_results.sort(key=lambda x: x['score'], reverse=True)
 
-# --- 生成 HTML ---
-html_template = """
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haowu999 专业投研仪表盘</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui; }
-        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); border-color: #38bdf8; }
-        .score-badge { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
-        .buy-3 { color: #f43f5e; }
-        .buy-1 { color: #10b981; }
-        .header-gradient { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .monetize-btn { background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 20px; }
-    </style>
-</head>
-<body>
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="display-4 fw-bold header-gradient">Haowu999 Quant</h1>
-            <p class="text-secondary">全球资产对数回归抄底系统 | 更新: {time}</p>
-        </div>
-        <button class="btn monetize-btn px-4">解锁专业版 (Ads/Pro)</button>
-    </div>
-
-    <div class="row g-4">
-        {cards}
-    </div>
-</div>
-<script>
-    function initChart(id, labels, data) {
-        new Chart(document.getElementById(id), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Price',
-                    data: data,
-                    borderColor: '#38bdf8',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { x: { display: false }, y: { display: false } }
-            }
-        });
-    }
-    {chart_scripts}
-</script>
-</body>
-</html>
-"""
-
+# --- 生成 HTML (采用 % 替换以避开 CSS 的大括号) ---
 cards_html = ""
 chart_scripts = ""
 for i, item in enumerate(all_results):
@@ -145,14 +87,14 @@ for i, item in enumerate(all_results):
     
     cards_html += f"""
     <div class="col-md-4">
-        <div class="card p-4 h-100">
+        <div class="card p-4 h-100 shadow-sm">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h4 class="fw-bold mb-0">{item['name']}</h4>
                 <div class="score-badge">{item['score']}分</div>
             </div>
             <div class="text-secondary small">{item['ticker']} | R²: {item['r2']}</div>
             <div class="my-3">
-                <canvas id="chart_{i}" height="80"></canvas>
+                <canvas id="chart_{i}" height="100"></canvas>
             </div>
             <div class="d-flex justify-content-between mb-1">
                 <span>建议操作:</span><span class="fw-bold {color_class}">{units}</span>
@@ -168,8 +110,66 @@ for i, item in enumerate(all_results):
     """
     chart_scripts += f"initChart('chart_{i}', {json.dumps(item['chart_labels'])}, {json.dumps(item['chart_values'])});\n"
 
+final_html = """
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haowu999 专业投研仪表盘</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui; }
+        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        .score-badge { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
+        .buy-3 { color: #f43f5e; }
+        .buy-1 { color: #10b981; }
+        .monetize-btn { background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 20px; border: none; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-bold">Haowu999 Quant</h1>
+            <p class="text-secondary">全球资产对数回归抄底系统 | 更新: REPLACE_TIME</p>
+        </div>
+        <button class="btn monetize-btn px-4">解锁专业版 (Ads/Pro)</button>
+    </div>
+    <div class="row g-4">REPLACE_CARDS</div>
+</div>
+<script>
+    function initChart(id, labels, data) {
+        new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderColor: '#38bdf8',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+    }
+    REPLACE_SCRIPTS
+</script>
+</body>
+</html>
+""".replace("REPLACE_TIME", datetime.now().strftime('%Y-%m-%d %H:%M')) \
+   .replace("REPLACE_CARDS", cards_html) \
+   .replace("REPLACE_SCRIPTS", chart_scripts)
+
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_template.format(time=datetime.now().strftime('%Y-%m-%d %H:%M'), cards=cards_html, chart_scripts=chart_scripts))
+    f.write(final_html)
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4)
