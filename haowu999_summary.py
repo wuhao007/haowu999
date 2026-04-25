@@ -7,25 +7,11 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置 ---
+# --- 商业化配置 ---
 PRO_LIST = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
 
-def solve_target_price(target_ahr, ma200_sum_199, fit_price):
-    """
-    逆推币价方程: 200 * P^2 - (target * fit) * P - (target * fit * sum199) = 0
-    """
+def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
-        a = 200
-        b = - (target_ahr * fit_price)
-        c = - (target_ahr * fit_price * ma200_sum_199)
-        delta = b**2 - 4*a*c
-        if delta < 0: return 0.0
-        return round((-b + math.sqrt(delta)) / (2 * a), 2)
-    except: return 0.0
-
-def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD'):
-    try:
-        # 比特币改用 2015 年后数据，拟合更准
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2015-01-01'
         if 'ETH' in ticker: actual_start = '2017-11-09'
@@ -36,7 +22,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与精度
+        # 1. 拟合
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -45,121 +31,96 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD'):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        preds = 10 ** model.predict(x)
-        actuals = 10 ** y
-        mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
+        # 2. 回测过去 180 天 (实际 vs 拟合)
+        hist = df.tail(180).copy()
+        hist['Days'] = (hist['Date'] - pd.to_datetime(start_date)).dt.days
+        hist['Fit'] = 10 ** (model.coef_[0] * np.log10(hist['Days'].clip(lower=1)) + model.intercept_)
         
-        # 2. 实时
         latest = df.iloc[-1]
-        ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        days_now = (latest['Date'] - pd.to_datetime(start_date)).days
-        fit_p = 10 ** (model.coef_[0] * math.log10(max(1, days_now)) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
-        
-        # 3. 价格预测 (重点功能)
-        p_045 = solve_target_price(0.45, ma200_sum_199, fit_p)
-        p_120 = solve_target_price(1.20, ma200_sum_199, fit_p)
+        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / hist['Fit'].iloc[-1])
         
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
-            'price': round(float(latest['Close']), 2),
-            'target_045': p_045, 'target_120': p_120,
+            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'actual_values': hist['Close'].round(2).tolist(),
+            'fair_values': hist['Fit'].round(2).tolist(),
             'is_pro': ticker in PRO_LIST,
             'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
         }
     except: return None
 
-assets_list = [
-    ('BTC-USD', 'Bitcoin', 'USD'), ('ETH-USD', 'Ethereum', 'USD'),
-    ('NVDA', 'NVIDIA', 'USD'), ('TSLA', 'Tesla', 'USD'),
-    ('BABA', 'Alibaba', 'USD'), ('PDD', 'PDD', 'USD'), ('GC=F', 'Gold', 'USD')
-]
+assets = [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'), ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold')]
+results = []
+for t, n in assets:
+    res = analyze_asset(t, name=n)
+    if res: results.append(res)
 
-all_results = []
-for t, n, c in assets_list:
-    res = analyze_asset(t, name=n, currency=c)
-    if res: all_results.append(res)
-
-all_results.sort(key=lambda x: x['r2'], reverse=True)
-
-# --- 生成商业旗舰版 HTML V31 ---
-html_v31 = f"""
+# --- 生成极致交互式 App HTML V32 ---
+html_v32 = """
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Haowu999 Global Quant</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Haowu999 Terminal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background: #000; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }}
-        .header {{ padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
-        .asset-card {{ background: #1c1c1e; border-radius: 24px; padding: 20px; margin: 15px; border: 0.5px solid #333; }}
-        .target-box {{ background: rgba(10, 132, 255, 0.1); border-radius: 12px; padding: 12px; margin-top: 15px; }}
-        .accuracy-badge {{ font-size: 0.7rem; font-weight: bold; background: #32d74b22; color: #32d74b; padding: 2px 8px; border-radius: 6px; }}
-        .pro-mask {{ filter: blur(12px); opacity: 0.3; pointer-events: none; }}
-        .paywall {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background: #0a84ff; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; }}
+        body { background: #000; color: #fff; font-family: -apple-system; padding: 20px; }
+        .card { background: #1c1c1e; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+        .chart-box { height: 100px; margin: 15px 0; }
+        .pro-mask { filter: blur(10px); opacity: 0.3; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 class="fw-bold">智能 <span class="text-primary">定投</span></h1>
-        <p class="text-secondary small">V31 商业版 | 价格预测与拟合审计</p>
-    </div>
-
-    <div class="container-fluid px-0">
-"""
-
-for item in all_results:
-    is_pro = item['is_pro']
-    paywall = f'<button class="paywall shadow" onclick="alert(\'升级 Pro 会员解锁个股预测价\')">解锁 Pro 预测价</button>' if is_pro else ''
-    blur_class = "pro-mask" if is_pro else ""
-    
-    html_v31 += f"""
-        <div class="asset-card position-relative shadow-lg">
-            {paywall}
-            <div class="{blur_class}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4 class="mb-0 fw-bold">{item['name']}</h4>
-                    <span class="accuracy-badge">信度 R²: {item['r2']}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">{item['ahr999']}</div></div>
-                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">{item['signal']}</div></div>
-                </div>
-                <div class="target-box">
-                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
-                    <div class="d-flex justify-content-between">
-                        <span>抄底买入价:</span><strong class="text-danger">${item['target_045']}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>定投截止价:</span><strong class="text-success">${item['target_120']}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    """
-
-html_v31 += """
-    </div>
-    <div style="text-align:center; padding:30px; opacity:0.3; font-size:0.7rem;">
-        © 2026 Haowu999 Quantitative | 拟合误差: MAPE 系统平均 2.1%
-    </div>
+    <h1 style="font-weight: 800;">投资 <span style="color:#0a84ff">PRO</span></h1>
+    <p style="color:#8e8e93; font-size: 0.8rem;">实时对数回归验证 | REPLACE_TIME</p>
+    <div id="app">REPLACE_CARDS</div>
+<script>
+function renderChart(id, labels, actual, fair) {
+    new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false },
+                { data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+}
+REPLACE_SCRIPTS
+</script>
 </body>
 </html>
 """
 
-with open("index.html", "w", encoding="utf-8") as f: f.write(html_v31)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
+cards_html = ""
+scripts_html = ""
+for i, item in enumerate(results):
+    is_pro = item['is_pro']
+    content_class = "pro-mask" if is_pro else ""
+    pro_msg = '<div style="color:#0a84ff; font-weight:bold; text-align:center;">🔒 订阅解锁 Pro 信号图表</div>' if is_pro else ""
+    
+    cards_html += f"""
+    <div class="card">
+        <div style="display:flex; justify-content:space-between;">
+            <span style="font-weight:bold; font-size:1.1rem;">{item['name']}</span>
+            <span style="color:#32d74b; font-size:0.7rem;">R² 准度: {item['r2']}</span>
+        </div>
+        <div class="chart-box {content_class}"><canvas id="c_{i}"></canvas></div>
+        {pro_msg}
+        <div class="{"pro-mask" if is_pro else ""}" style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">状态</div><div style="font-size:1.2rem; font-weight:800; color:#0a84ff;">{item['signal']}</div></div>
+        </div>
+    </div>
+    """
+    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['actual_values'])}, {json.dumps(item['fair_values'])});\n"
 
-# 更新 README 准确度报告
-report = f"# 🚀 Haowu999 全资产智能定投中心 (V31)\n\n"
-report += "## 🏆 模型拟合准确度审计榜 (Accuracy Leaderboard)\n"
-report += "| 资产 | 准确度 (R²) | 平均误差 (MAPE) | 抄底心理价 (0.45) | 定投截止价 (1.2) |\n"
-report += "| :--- | :--- | :--- | :--- | :--- |\n"
-for item in all_results:
-    report += f"| {item['name']} | `{item['r2']}` | {item['mape']}% | **${item['target_045']}** | ${item['target_120']} |\n"
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_v32.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
 
-report += "\n---\n*注：拟合准确度 R² 越接近 1.0 信号越强。具体金额已根据隐私保护隐藏，Units 请自行定义。*"
-with open("README.md", "w", encoding="utf-8") as f: f.write(report)
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, indent=4)
