@@ -4,7 +4,8 @@
         "ticker": "ETH-USD",
         "ahr999": 0.459,
         "r2": 0.6061,
-        "sharpe": -0.14,
+        "score": 98,
+        "mdd": -94.0,
         "is_pro": false,
         "signal": "\u2705\u5b9a\u6295"
     },
@@ -13,7 +14,8 @@
         "ticker": "BTC-USD",
         "ahr999": 0.535,
         "r2": 0.9201,
-        "sharpe": -0.16,
+        "score": 88,
+        "mdd": -83.4,
         "is_pro": false,
         "signal": "\u2705\u5b9a\u6295"
     },
@@ -22,7 +24,8 @@
         "ticker": "PDD",
         "ahr999": 0.559,
         "r2": 0.5676,
-        "sharpe": -0.01,
+        "score": 85,
+        "mdd": -87.4,
         "is_pro": true,
         "signal": "\u2705\u5b9a\u6295"
     },
@@ -31,7 +34,8 @@
         "ticker": "BABA",
         "ahr999": 0.962,
         "r2": 0.0205,
-        "sharpe": 1.0,
+        "score": 31,
+        "mdd": -80.1,
         "is_pro": true,
         "signal": "\u2705\u5b9a\u6295"
     },
@@ -40,43 +44,18 @@
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "sharpe": 0.93,
+        "score": 26,
+        "mdd": -72.8,
         "is_pro": true,
         "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "\u8d35\u5dde\u8305\u53f0",
-        "ticker": "600519.SS",
-        "ahr999": 1.339,
-        "r2": 0.6545,
-        "sharpe": -0.06,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
-    },
-    {
-        "name": "\u7279\u65af\u62c9",
-        "ticker": "TSLA",
-        "ahr999": 1.757,
-        "r2": 0.8245,
-        "sharpe": 1.09,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
-    },
-    {
-        "name": "\u82f9\u679c",
-        "ticker": "AAPL",
-        "ahr999": 2.409,
-        "r2": 0.7285,
-        "sharpe": 1.02,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
     },
     {
         "name": "\u9ec4\u91d1\u671f\u8d27",
         "ticker": "GC=F",
         "ahr999": 2.779,
         "r2": 0.2356,
-        "sharpe": 1.67,
+        "score": 0,
+        "mdd": -44.4,
         "is_pro": false,
         "signal": "\u2615\ufe0f\u89c2\u671b"
     },
@@ -85,7 +64,8 @@
         "ticker": "SI=F",
         "ahr999": 4.148,
         "r2": 0.0041,
-        "sharpe": 1.3,
+        "score": 0,
+        "mdd": -75.8,
         "is_pro": false,
         "signal": "\u2615\ufe0f\u89c2\u671b"
     },
@@ -94,7 +74,38 @@
         "ticker": "NVDA",
         "ahr999": 11.952,
         "r2": 0.5944,
-        "sharpe": 1.24,
+        "score": 0,
+        "mdd": -66.3,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "\u7279\u65af\u62c9",
+        "ticker": "TSLA",
+        "ahr999": 1.757,
+        "r2": 0.8245,
+        "score": 0,
+        "mdd": -73.6,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "\u82f9\u679c",
+        "ticker": "AAPL",
+        "ahr999": 2.409,
+        "r2": 0.7285,
+        "score": 0,
+        "mdd": -43.8,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "\u8d35\u5dde\u8305\u53f0",
+        "ticker": "600519.SS",
+        "ahr999": 1.339,
+        "r2": 0.6545,
+        "score": 0,
+        "mdd": -53.3,
         "is_pro": true,
         "signal": "\u2615\ufe0f\u89c2\u671b"
     }
