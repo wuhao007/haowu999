@@ -7,10 +7,11 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置 ---
-PRO_TICKERS = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
+# --- 商业化配置 ---
+# 1.0 Unit = 用户心里默认的步长 ($0.53)
+PRO_LIST = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
 
-def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
+def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2014-09-17'
@@ -22,7 +23,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与精度
+        # 1. 拟合逻辑 (R2 & MAPE)
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -31,91 +32,78 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 2. 当前指标
+        # 2. 实时指标
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         fit_p = 10 ** (model.coef_[0] * math.log10(max(1, (latest['Date'] - pd.to_datetime(start_date)).days)) + model.intercept_)
         ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
         
-        # 3. 机会评分 (Score 0-100)
-        # 逻辑：AHR999 越低分越高，同时 R2 越高分越高
-        df['Fit_Full'] = 10 ** (model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / df['Fit_Full'])
-        df = df.dropna()
-        rank = (df['AHR_Hist'] < ahr).mean() * 100
-        score = round((100 - rank) * 0.8 + (r2 * 20), 1)
+        # 3. 历史分位与安全边际
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / fit_p) # 估算
+        rank = (df['AHR_Hist'].dropna() < ahr).mean() * 100
+        safety_margin = round((fit_p / latest['Close'] - 1) * 100, 1)
         
-        # 4. 近期稳定性
-        recent_r2 = LinearRegression().fit(x[-30:], y[-30:]).score(x[-30:], y[-30:])
-        stability = "🌟稳定" if recent_r2 > 0.8 else "⚠️漂移"
+        # 4. 颜色分配逻辑
+        color = "#8e8e93" # 默认观望(灰)
+        if ahr < 0.45: color = "#32d74b" # 强力抄底(绿)
+        elif ahr < 1.2: color = "#64d2ff" # 稳健定投(蓝)
+        elif ahr > 3.0: color = "#ff453a" # 极度风险(红)
         
         return {
-            'name': name, 'ticker': ticker, 'sector': sector,
-            'ahr999': round(float(ahr), 3), 'rank': round(float(rank), 1),
-            'r2': round(float(r2), 4), 'score': score, 'stability': stability,
-            'is_pro': ticker in PRO_TICKERS,
-            'price': round(float(latest['Close']), 2)
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'rank': round(float(rank), 1), 'r2': round(float(r2), 4),
+            'safety': safety_margin, 'color': color,
+            'is_pro': ticker in PRO_LIST,
+            'price': round(float(latest['Close']), 2),
+            'signal': "抄底" if ahr < 0.45 else "定投" if ahr < 1.2 else "减仓" if ahr > 3.0 else "观望"
         }
     except: return None
 
 assets_config = [
-    ('BTC-USD', 'Bitcoin', 'Crypto'), ('ETH-USD', 'Ethereum', 'Crypto'),
-    ('NVDA', 'NVIDIA', 'Tech'), ('TSLA', 'Tesla', 'Tech'),
-    ('BABA', 'Alibaba', 'CN-Tech'), ('PDD', 'PDD', 'CN-Tech'), ('GC=F', 'Gold', 'Metals')
+    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
+    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('AAPL', 'Apple'),
+    ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold'), ('SI=F', 'Silver')
 ]
 
 all_results = []
-for t, n, s in assets_config:
-    res = analyze_asset(t, name=n, sector=s)
+for t, n in assets_config:
+    res = analyze_asset(t, name=n)
     if res: all_results.append(res)
 
-all_results.sort(key=lambda x: x['score'], reverse=True)
+all_results.sort(key=lambda x: x['ahr999'])
 
-# --- 生成 HTML (机会雷达版) ---
-html_template = f"""
+# --- 生成热力图风格 HTML V29 ---
+html_heatmap = f"""
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Haowu999 Terminal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <title>Haowu999 Heatmap</title>
     <style>
         body {{ background: #000; color: #fff; font-family: -apple-system; padding: 20px; }}
-        .header {{ padding: 40px 0 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
-        .hero-card {{ background: linear-gradient(135deg, #0a84ff, #5e5ce6); border-radius: 20px; padding: 25px; margin-bottom: 30px; }}
-        .asset-card {{ background: #1c1c1e; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }}
-        .score-circle {{ width: 50px; height: 50px; border-radius: 50%; border: 3px solid #0a84ff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }}
-        .badge-pro {{ background: #ffd700; color: #000; font-size: 0.7rem; font-weight: bold; border-radius: 5px; padding: 2px 6px; }}
-        .nav-bar {{ position: fixed; bottom: 0; left:0; right:0; height: 80px; background: rgba(28,28,30,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 1px solid #333; }}
-        .nav-item {{ color: #8e8e93; font-size: 0.7rem; text-align: center; }}
+        .heatmap-grid {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 30px; }}
+        .heat-tile {{ border-radius: 12px; padding: 15px; text-align: center; font-weight: bold; position: relative; }}
+        .asset-card {{ background: #1c1c1e; border-radius: 20px; padding: 18px; margin-bottom: 12px; border: 0.5px solid #333; }}
+        .pro-label {{ background: #ffd700; color: #000; font-size: 0.6rem; border-radius: 4px; padding: 1px 4px; vertical-align: middle; }}
+        .accuracy-box {{ font-size: 0.65rem; color: #8e8e93; border-top: 0.5px solid #2c2c2e; margin-top: 10px; padding-top: 8px; }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 class="fw-bold">Haowu <span class="text-primary">Quant</span></h1>
-        <p class="text-secondary small">更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+    <div style="padding-top: 40px; margin-bottom: 25px;">
+        <h1 style="font-weight: 900; margin:0;">资产 <span style="color:#0a84ff">热力图</span></h1>
+        <p style="color:#8e8e93; font-size: 0.8rem;">全球核心资产估值气象站 | {datetime.now().strftime('%m/%d %H:%M')}</p>
     </div>
 
-    <div class="hero-card shadow-lg">
-        <h4 class="fw-bold">今日雷达 TOP 1</h4>
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="fw-bold mb-0">{all_results[0]['name']}</h2>
-                <div class="small opacity-75">当前机会得分: {all_results[0]['score']}</div>
-            </div>
-            <div class="h1 fw-bold">{all_results[0]['ahr999']}</div>
-        </div>
-        <button class="btn btn-light btn-sm mt-3 fw-bold rounded-pill">一键分享该信号</button>
+    <div class="heatmap-grid">
+        {" ".join([f'<div class="heat-tile" style="background:{x["color"]}33; border: 1px solid {x["color"]}; color:{x["color"]}">{x["name"]}<br><small style="font-size:0.7rem">{x["ahr999"]}</small></div>' for x in all_results[:4]])}
     </div>
 
-    <h5 class="mb-3 text-secondary">资产估值热力榜</h5>
-    REPLACE_CARDS
+    <div id="list-container">REPLACE_CARDS</div>
 
-    <div class="nav-bar">
-        <div class="nav-item" style="color:#0a84ff;">📈<br>机会</div>
-        <div class="nav-item">💎<br>Pro会员</div>
-        <div class="nav-item">⚙️<br>设置</div>
+    <div style="text-align:center; padding: 30px; opacity: 0.2; font-size: 0.7rem;">
+        基于 V29 商业级量化架构 | 开发者: Haowu999
     </div>
 </body>
 </html>
@@ -123,35 +111,32 @@ html_template = f"""
 
 cards_html = ""
 for item in all_results:
-    pro = '<span class="badge-pro">PRO</span>' if item['is_pro'] else ''
+    is_pro = item['is_pro']
+    pro_tag = '<span class="pro-label">PRO</span>' if is_pro else ''
+    blur_style = "filter: blur(10px); opacity: 0.3;" if is_pro else ""
+    pro_msg = f'<div style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); z-index:100; font-weight:bold; color:#0a84ff">订阅解锁个股</div>' if is_pro else ""
+
     cards_html += f"""
-    <div class="asset-card">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <span class="fw-bold fs-5">{item['name']}</span> {pro}
-                <div class="text-secondary x-small">{item['ticker']} | {item['stability']}</div>
+    <div class="asset-card position-relative">
+        {pro_msg}
+        <div style="{blur_style}">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-weight:700; font-size:1.1rem;">{item['name']} {pro_tag}</span>
+                <span style="color:{item['color']}; font-weight:800;">{item['signal']}</span>
             </div>
-            <div class="score-circle">{int(item['score'])}</div>
-        </div>
-        <div class="row text-center small">
-            <div class="col-4 border-end border-secondary">
-                <div class="text-secondary">AHR999</div>
-                <div class="fw-bold">{item['ahr999']}</div>
+            <div style="display:flex; justify-content:space-between;">
+                <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
+                <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">安全边际</div><div style="font-size:1.4rem; font-weight:800; color:#32d74b;">{item['safety']}%</div></div>
             </div>
-            <div class="col-4 border-end border-secondary">
-                <div class="text-secondary">历史水位</div>
-                <div class="fw-bold">{item['rank']}%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary">建议Unit</div>
-                <div class="fw-bold text-primary">{'3.0x' if item['ahr999']<0.45 else '1.0x' if item['ahr999']<1.2 else '0x'}</div>
+            <div class="accuracy-box">
+                拟合准确度 R²: <b>{item['r2']}</b> | 历史分位: {item['rank']}%
             </div>
         </div>
     </div>
     """
 
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_template.replace("REPLACE_CARDS", cards_html))
+    f.write(html_heatmap.replace("REPLACE_CARDS", cards_html))
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4)
