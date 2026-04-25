@@ -3,251 +3,193 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Haowu999 Terminal</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; }
         .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .ad-slot { background:#1c1c1e; height:50px; margin:15px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#333; font-size:0.7rem; border:1px dashed #333; }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
-        .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; }
+        .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; text-decoration:none; border:none; background:none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 style="font-weight:900; margin:0;">回报 <span style="color:#0a84ff;">实证</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">多资产净值回测榜 | 2026-04-25 14:55</p>
+        <h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1>
+        <p style="color:#8e8e93; font-size:0.8rem;">V48 商业版 | 信号实时推送已激活 | 04-25 14:55</p>
     </div>
+    <div class="ad-slot">Google AdSense 商业广告预留位</div>
     <div style="padding:15px;">
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 75.1%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +75.1%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_0"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">1.757</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.757</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-46.6%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">82%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.8245 | 24个月策略累计回报: <b>+101.3%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 52.9% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">白银期货 </span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 59.9%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">白银期货 </span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +59.9%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_1"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">4.148</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">4.148</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-69.8%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">0%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.0041 | 24个月策略累计回报: <b>+162.3%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 67.1% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">苹果 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 39.1%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">苹果 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +39.1%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_2"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">2.409</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">2.409</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-55.6%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">72%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.7285 | 24个月策略累计回报: <b>+57.9%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 55.2% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">Ethereum </span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 21.2%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">Ethereum </span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +21.2%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_3"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">0.459</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.459</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">+80.9%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">60%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.6061 | 24个月策略累计回报: <b>+7.0%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 73.7% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 18.7%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +18.7%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_4"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">0.999</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.999</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-15.2%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">79%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.7973 | 24个月策略累计回报: <b>+25.3%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 27.6% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">阿里巴巴 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 17.7%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">阿里巴巴 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +17.7%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_5"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">0.962</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.962</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-4.4%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">2%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.0205 | 24个月策略累计回报: <b>+43.1%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 13.8% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">Bitcoin </span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 12.9%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">Bitcoin </span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +12.9%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_6"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">0.535</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.535</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">+70.0%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">92%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.9201 | 24个月策略累计回报: <b>+-3.6%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 66.7% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 8.9%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +8.9%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_7"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">1.339</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.339</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-23.5%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">65%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.6545 | 24个月策略累计回报: <b>+10.1%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 22.8% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">拼多多 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">策略比盲投多赚 3.3%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">拼多多 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +3.3%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_8"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">0.559</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.559</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">+52.4%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">56%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.5676 | 24个月策略累计回报: <b>+-11.7%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 32.5% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">黄金期货 </span>
-            <span style="color:#ff453a; font-size:0.7rem; font-weight:800;">策略比盲投多赚 0.0%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">黄金期货 </span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +0.0%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_9"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">2.779</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">2.779</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-59.8%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">23%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.2356 | 24个月策略累计回报: <b>+0.0%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 58.6% | 数据驱动决策</div>
     </div>
     
-    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:1.2rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#ff453a; font-size:0.7rem; font-weight:800;">策略比盲投多赚 0.0%</span>
+    <div class="card" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800; font-size:1.1rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#32d74b; font-size:0.7rem; font-weight:800;">Alpha +0.0%</span>
         </div>
-        <div style="height:100px; margin:15px 0;"><canvas id="c_10"></canvas></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:900;">11.952</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center; margin-top:15px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">11.952</div></div>
             <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">预期空间</div><div style="font-size:1.3rem; font-weight:900; color:#32d74b;">-90.5%</div>
+                <div style="color:#8e8e93; font-size:0.6rem;">拟合准确度</div><div style="font-size:1.2rem; font-weight:900;">59%</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.1rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">系统指令</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
         </div>
-        <div style="margin-top:15px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            模型 R²: 0.5944 | 24个月策略累计回报: <b>+0.0%</b>
-        </div>
+        <div style="margin-top:15px; font-size:0.6rem; color:#444; text-align:center;">模型平均误差 (MAPE): 89.5% | 数据驱动决策</div>
     </div>
     </div>
+    <div class="ad-slot">AdMob 全屏广告加载点</div>
     <div class="nav-bar">
-        <button class="nav-item active" style="color:#0a84ff;">📊<br>机会</button>
-        <button class="nav-item" onclick="alert('PRO 功能：全自动 Webhook 告警已激活')">🔔<br>预警</button>
-        <button class="nav-item" onclick="alert('持仓 Units 仅存本地缓存')">⚙️<br>设置</button>
+        <button class="nav-item" style="color:#0a84ff;">📊<br>机会</button>
+        <button class="nav-item" onclick="alert('PRO 功能：全自动持仓审计即将在下版本上线')">💰<br>资产</button>
+        <button class="nav-item" onclick="alert('隐私提示：所有数据仅存储于本地缓存')">⚙️<br>设置</button>
     </div>
-    <script>
-    function renderChart(id, labels, actual, fair) {
-        new Chart(document.getElementById(id), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false },
-                    { data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5,5], pointRadius: 0, fill: false }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-        });
-    }
-    window.onload = function() { renderChart('c_0', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [416.56, 430.41, 421.81, 421.96, 406.01, 397.21, 411.11, 417.32, 425.21, 428.27, 417.07, 417.44, 410.63, 411.32, 411.71, 411.82, 399.83, 409.38, 417.4, 408.58, 402.51, 403.32, 392.43, 405.94, 405.55, 396.73, 398.68, 399.24, 407.82, 395.01, 391.2, 395.56, 399.27, 392.78, 380.3, 367.96, 380.85, 383.03, 385.95, 372.11, 361.83, 355.28, 371.75, 381.26, 360.59, 352.82, 346.65, 343.25, 345.62, 348.95, 352.42, 364.2, 391.95, 388.9, 400.62, 392.5, 386.42, 387.51, 373.72, 376.3], [195.11, 195.18, 195.39, 195.46, 195.53, 195.6, 195.67, 195.88, 195.95, 196.01, 196.08, 196.15, 196.44, 196.51, 196.58, 196.65, 196.86, 196.93, 197.0, 197.07, 197.14, 197.35, 197.42, 197.49, 197.56, 197.63, 197.84, 197.91, 197.98, 198.05, 198.12, 198.33, 198.4, 198.47, 198.54, 198.61, 198.82, 198.9, 198.97, 199.04, 199.11, 199.32, 199.39, 199.46, 199.53, 199.81, 199.88, 199.95, 200.03, 200.1, 200.31, 200.38, 200.45, 200.52, 200.59, 200.8, 200.87, 200.95, 201.02, 201.09]);
-renderChart('c_1', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [114.04, 78.29, 76.78, 83.04, 84.17, 76.53, 76.74, 82.07, 80.22, 83.75, 75.55, 77.85, 73.45, 77.51, 77.57, 82.28, 86.52, 87.46, 90.94, 87.0, 92.68, 88.28, 82.92, 82.63, 81.69, 83.82, 84.03, 89.08, 85.07, 84.67, 80.91, 80.26, 79.53, 77.24, 70.9, 69.36, 69.05, 69.27, 72.36, 67.67, 69.54, 70.32, 74.69, 75.87, 72.74, 72.66, 71.83, 75.22, 76.28, 76.32, 75.52, 79.39, 79.49, 78.61, 81.74, 79.95, 76.41, 77.89, 75.46, 76.38], [23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.09, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1, 23.1]);
-renderChart('c_2', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [258.04, 259.24, 269.76, 269.23, 276.23, 275.65, 277.86, 274.62, 273.68, 275.5, 261.73, 255.78, 263.88, 264.35, 260.58, 264.58, 266.18, 272.14, 274.23, 272.95, 264.18, 264.72, 263.75, 262.52, 260.29, 257.46, 259.88, 260.83, 260.81, 255.76, 250.12, 252.82, 254.23, 249.94, 248.96, 247.99, 251.49, 251.64, 252.62, 252.89, 248.8, 246.63, 253.79, 255.63, 255.92, 258.86, 253.5, 258.9, 260.49, 260.48, 259.2, 258.83, 266.43, 263.4, 270.23, 273.05, 266.17, 273.17, 273.43, 271.06], [118.74, 118.76, 118.82, 118.84, 118.86, 118.88, 118.9, 118.95, 118.97, 118.99, 119.01, 119.03, 119.11, 119.13, 119.15, 119.16, 119.22, 119.24, 119.26, 119.28, 119.3, 119.36, 119.38, 119.4, 119.41, 119.43, 119.49, 119.51, 119.53, 119.55, 119.57, 119.63, 119.64, 119.66, 119.68, 119.7, 119.76, 119.78, 119.8, 119.82, 119.84, 119.89, 119.91, 119.93, 119.95, 120.03, 120.05, 120.07, 120.09, 120.11, 120.16, 120.18, 120.2, 120.22, 120.24, 120.3, 120.32, 120.34, 120.35, 120.37]);
-renderChart('c_3', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [2054.63, 2026.79, 1930.76, 1965.05, 1939.07, 2027.27, 1982.77, 2126.51, 2071.61, 1978.75, 1969.46, 1936.6, 1992.94, 2037.12, 2051.57, 2073.14, 2092.56, 2097.09, 2177.48, 2351.18, 2318.05, 2203.67, 2137.42, 2146.5, 2076.69, 2053.05, 2152.15, 2155.7, 2168.02, 2059.58, 1991.27, 1992.69, 1982.56, 2023.51, 2104.71, 2138.74, 2056.85, 2053.39, 2065.35, 2109.0, 2107.76, 2241.81, 2190.34, 2189.14, 2245.15, 2285.39, 2192.2, 2370.71, 2323.31, 2359.44, 2348.65, 2421.07, 2351.1, 2264.92, 2315.21, 2327.97, 2376.09, 2331.51, 2315.69, 2316.15], [4014.63, 4017.54, 4020.45, 4023.36, 4026.27, 4029.18, 4032.1, 4035.01, 4037.93, 4040.85, 4043.77, 4046.69, 4049.62, 4052.54, 4055.47, 4058.4, 4061.33, 4064.26, 4067.2, 4070.13, 4073.07, 4076.01, 4078.95, 4081.89, 4084.83, 4087.78, 4090.72, 4093.67, 4096.62, 4099.58, 4102.53, 4105.48, 4108.44, 4111.4, 4114.36, 4117.32, 4120.28, 4123.25, 4126.21, 4129.18, 4132.15, 4135.12, 4138.1, 4141.07, 4144.05, 4147.03, 4150.0, 4152.99, 4155.97, 4158.95, 4161.94, 4164.93, 4167.92, 4170.91, 4173.9, 4176.89, 4179.89, 4182.89, 4185.89, 4188.89]);
-renderChart('c_4', ["01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-16", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [595.0, 599.5, 607.0, 621.0, 622.0, 606.0, 598.5, 581.0, 558.0, 558.5, 547.5, 560.0, 551.0, 548.0, 535.5, 532.0, 534.5, 522.0, 538.0, 520.0, 522.5, 512.0, 518.0, 514.0, 510.5, 506.0, 502.0, 519.0, 516.0, 553.5, 552.0, 546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.4, 514.0, 505.5, 495.6, 493.4, 481.6, 484.0, 496.6, 489.2, 508.0, 508.5, 504.5, 490.0, 493.2, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.2, 493.4], [412.68, 412.87, 412.93, 412.99, 413.05, 413.12, 413.31, 413.37, 413.43, 413.49, 413.56, 413.74, 413.81, 413.87, 413.93, 413.99, 414.18, 414.43, 414.62, 414.68, 414.75, 414.81, 414.87, 415.06, 415.12, 415.18, 415.25, 415.31, 415.5, 415.56, 415.62, 415.69, 415.75, 415.94, 416.0, 416.06, 416.12, 416.19, 416.37, 416.44, 416.5, 416.56, 416.62, 416.81, 416.88, 416.94, 417.0, 417.38, 417.44, 417.5, 417.69, 417.75, 417.81, 417.88, 417.94, 418.13, 418.19, 418.25, 418.31, 418.38]);
-renderChart('c_5', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [174.25, 169.56, 168.39, 163.65, 159.14, 157.76, 162.51, 163.0, 166.51, 164.32, 158.73, 155.73, 155.43, 155.77, 154.27, 154.45, 152.78, 153.11, 152.28, 148.05, 144.11, 142.56, 135.59, 133.27, 130.35, 130.79, 132.64, 136.85, 136.29, 134.2, 135.21, 136.71, 136.57, 134.43, 124.9, 122.41, 126.06, 125.48, 129.87, 125.41, 122.69, 121.98, 125.46, 123.73, 122.05, 122.31, 119.72, 125.32, 127.68, 127.33, 128.01, 131.35, 133.28, 138.59, 141.01, 140.17, 135.38, 136.42, 131.7, 135.82], [129.5, 129.51, 129.52, 129.52, 129.52, 129.53, 129.53, 129.54, 129.55, 129.55, 129.55, 129.56, 129.57, 129.57, 129.58, 129.58, 129.59, 129.6, 129.6, 129.6, 129.61, 129.62, 129.62, 129.63, 129.63, 129.63, 129.64, 129.65, 129.65, 129.66, 129.66, 129.67, 129.67, 129.68, 129.68, 129.68, 129.7, 129.7, 129.7, 129.71, 129.71, 129.72, 129.72, 129.73, 129.73, 129.75, 129.75, 129.75, 129.76, 129.76, 129.77, 129.78, 129.78, 129.78, 129.79, 129.8, 129.8, 129.8, 129.81, 129.81]);
-renderChart('c_6', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [67960.12, 67453.77, 65881.8, 66995.86, 65738.1, 68775.85, 68293.65, 72710.58, 70841.12, 68136.49, 67272.59, 65969.78, 68402.38, 69926.92, 70204.88, 70493.46, 70968.27, 71214.62, 72789.91, 74861.09, 73922.48, 71245.58, 69912.79, 70522.59, 68711.52, 67845.21, 70914.86, 70517.86, 71309.88, 68791.62, 66338.38, 66319.7, 65954.92, 66691.45, 68233.31, 68078.55, 66888.57, 66931.1, 67290.52, 68981.9, 68859.83, 71940.7, 71123.36, 71767.83, 72979.05, 73054.27, 70753.41, 74484.64, 74181.61, 74805.08, 75152.13, 77126.88, 75726.21, 73856.35, 75872.52, 76352.77, 78203.1, 78268.95, 77455.31, 77528.16], [124900.24, 125015.13, 125130.11, 125245.17, 125360.33, 125475.56, 125590.89, 125706.3, 125821.8, 125937.38, 126053.05, 126168.81, 126284.65, 126400.58, 126516.6, 126632.71, 126748.9, 126865.18, 126981.54, 127097.99, 127214.53, 127331.16, 127447.87, 127564.67, 127681.56, 127798.54, 127915.6, 128032.75, 128149.99, 128267.31, 128384.73, 128502.23, 128619.82, 128737.49, 128855.26, 128973.11, 129091.05, 129209.08, 129327.19, 129445.39, 129563.69, 129682.07, 129800.53, 129919.09, 130037.74, 130156.47, 130275.29, 130394.2, 130513.2, 130632.29, 130751.46, 130870.73, 130990.08, 131109.52, 131229.05, 131348.67, 131468.38, 131588.18, 131708.06, 131828.04]);
-renderChart('c_7', ["01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [1340.06, 1337.0, 1342.0, 1343.01, 1323.69, 1437.72, 1401.0, 1427.0, 1474.92, 1525.0, 1555.0, 1515.01, 1524.96, 1504.8, 1504.33, 1486.6, 1485.3, 1466.8, 1491.66, 1466.21, 1455.02, 1440.11, 1426.19, 1401.18, 1399.04, 1402.0, 1397.0, 1401.88, 1400.0, 1392.0, 1413.64, 1460.18, 1485.0, 1468.8, 1452.87, 1445.0, 1408.07, 1407.33, 1410.27, 1401.18, 1416.02, 1420.0, 1450.0, 1459.44, 1459.88, 1460.0, 1440.02, 1465.02, 1460.49, 1453.96, 1443.31, 1446.9, 1467.5, 1462.84, 1407.24, 1410.89, 1412.01, 1409.5, 1419.0, 1458.49], [1098.8, 1098.98, 1099.51, 1099.68, 1099.86, 1100.03, 1100.21, 1100.74, 1100.92, 1101.09, 1101.27, 1101.45, 1101.97, 1102.15, 1102.33, 1102.5, 1102.68, 1104.62, 1104.8, 1104.97, 1105.15, 1105.68, 1105.85, 1106.03, 1106.21, 1106.38, 1106.91, 1107.09, 1107.26, 1107.44, 1107.62, 1108.15, 1108.32, 1108.5, 1108.67, 1108.85, 1109.38, 1109.56, 1109.73, 1109.91, 1110.08, 1110.61, 1110.79, 1110.97, 1111.14, 1111.32, 1112.02, 1112.2, 1112.38, 1112.55, 1113.08, 1113.26, 1113.43, 1113.61, 1113.79, 1114.31, 1114.49, 1114.67, 1114.84, 1115.02]);
-renderChart('c_8', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [102.7, 101.05, 103.45, 103.32, 102.13, 101.52, 105.23, 105.57, 105.43, 104.57, 100.22, 100.28, 101.83, 102.92, 101.95, 104.94, 105.76, 106.88, 106.9, 105.39, 103.73, 102.82, 100.71, 101.19, 100.74, 101.97, 102.64, 104.86, 102.94, 101.62, 102.65, 103.84, 104.37, 100.72, 97.43, 96.19, 96.25, 98.09, 102.61, 100.62, 99.81, 98.42, 102.18, 101.78, 100.87, 100.91, 99.54, 103.75, 100.57, 100.17, 100.8, 102.1, 101.97, 103.71, 104.79, 104.2, 98.99, 100.05, 97.77, 98.03], [144.05, 144.12, 144.3, 144.37, 144.43, 144.49, 144.56, 144.74, 144.81, 144.87, 144.93, 144.99, 145.25, 145.31, 145.37, 145.43, 145.62, 145.69, 145.75, 145.81, 145.88, 146.06, 146.13, 146.19, 146.25, 146.32, 146.51, 146.57, 146.63, 146.7, 146.76, 146.95, 147.01, 147.08, 147.14, 147.2, 147.39, 147.46, 147.52, 147.58, 147.65, 147.84, 147.9, 147.97, 148.03, 148.28, 148.35, 148.41, 148.47, 148.54, 148.73, 148.79, 148.86, 148.92, 148.98, 149.18, 149.24, 149.3, 149.37, 149.43]);
-renderChart('c_9', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [5318.4, 4713.9, 4622.5, 4903.7, 4920.4, 4861.4, 4951.2, 5050.9, 5003.8, 5071.6, 4923.7, 5022.0, 4882.9, 4986.5, 4975.9, 5059.3, 5204.7, 5155.8, 5206.4, 5176.5, 5230.5, 5294.4, 5107.4, 5120.2, 5065.3, 5146.1, 5091.5, 5229.7, 5167.4, 5115.8, 5052.5, 4994.0, 5001.0, 4889.9, 4600.7, 4570.4, 4404.1, 4399.3, 4549.8, 4375.5, 4492.0, 4526.0, 4647.6, 4783.2, 4651.5, 4656.8, 4657.1, 4749.5, 4792.2, 4761.9, 4742.4, 4825.0, 4800.0, 4785.4, 4857.6, 4806.6, 4698.4, 4732.5, 4705.1, 4722.3], [1895.78, 1895.83, 1895.98, 1896.04, 1896.09, 1896.14, 1896.19, 1896.34, 1896.39, 1896.44, 1896.5, 1896.55, 1896.75, 1896.8, 1896.85, 1896.9, 1897.06, 1897.11, 1897.16, 1897.21, 1897.26, 1897.41, 1897.46, 1897.52, 1897.57, 1897.62, 1897.77, 1897.82, 1897.87, 1897.92, 1897.97, 1898.13, 1898.18, 1898.23, 1898.28, 1898.33, 1898.48, 1898.53, 1898.58, 1898.63, 1898.69, 1898.84, 1898.89, 1898.94, 1898.99, 1899.19, 1899.24, 1899.29, 1899.34, 1899.4, 1899.55, 1899.6, 1899.65, 1899.7, 1899.75, 1899.9, 1899.95, 1900.0, 1900.05, 1900.1]);
-renderChart('c_10', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [192.5, 191.12, 185.6, 180.33, 174.18, 171.87, 185.4, 190.03, 188.53, 190.04, 186.93, 182.8, 184.96, 187.97, 187.89, 189.81, 191.54, 192.84, 195.55, 184.88, 177.18, 182.47, 180.04, 183.03, 183.33, 177.81, 182.64, 184.76, 186.03, 183.14, 180.25, 183.22, 181.93, 180.4, 178.56, 172.7, 175.64, 175.2, 178.68, 171.24, 167.52, 165.17, 174.4, 175.75, 177.39, 177.64, 178.1, 182.08, 183.91, 188.63, 189.31, 196.51, 198.87, 198.35, 201.68, 202.06, 199.88, 202.5, 199.64, 208.27], [19.38, 19.39, 19.4, 19.41, 19.42, 19.42, 19.43, 19.44, 19.45, 19.45, 19.46, 19.46, 19.49, 19.49, 19.5, 19.5, 19.52, 19.53, 19.53, 19.54, 19.54, 19.56, 19.56, 19.57, 19.57, 19.58, 19.6, 19.6, 19.61, 19.61, 19.62, 19.64, 19.64, 19.65, 19.65, 19.66, 19.67, 19.68, 19.68, 19.69, 19.7, 19.71, 19.72, 19.72, 19.73, 19.75, 19.76, 19.76, 19.77, 19.77, 19.79, 19.8, 19.8, 19.81, 19.81, 19.83, 19.83, 19.84, 19.85, 19.85]);
- }
-    </script>
 </body>
 </html>
