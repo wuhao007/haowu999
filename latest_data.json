@@ -2,71 +2,81 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "price": 2315.53,
+        "price": 2315.81,
         "ahr999": 0.459,
-        "rank": 21.3,
+        "rank": 22.8,
         "r2": 0.6061,
         "is_pro": false,
-        "signal": "\u5b9a\u6295"
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "price": 77521.18,
-        "ahr999": 0.553,
-        "rank": 14.4,
+        "price": 77529.92,
+        "ahr999": 0.554,
+        "rank": 15.1,
         "r2": 0.923,
         "is_pro": false,
-        "signal": "\u5b9a\u6295"
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "price": 135.82,
         "ahr999": 0.962,
-        "rank": 42.4,
+        "rank": 45.5,
         "r2": 0.0205,
         "is_pro": false,
-        "signal": "\u5b9a\u6295"
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
-        "name": "\u817e\u8baf\u63a7\u80a1",
+        "name": "Tencent",
         "ticker": "0700.HK",
         "price": 493.4,
         "ahr999": 0.999,
-        "rank": 44.2,
+        "rank": 46.5,
         "r2": 0.7973,
         "is_pro": true,
-        "signal": "\u5b9a\u6295"
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
         "price": 376.3,
         "ahr999": 1.757,
-        "rank": 66.0,
+        "rank": 69.5,
         "r2": 0.8245,
         "is_pro": true,
-        "signal": "\u89c2\u671b"
+        "signal": "\u2615\ufe0f\u89c2\u671b"
     },
     {
-        "name": "\u9ec4\u91d1\u671f\u8d27",
+        "name": "Gold",
         "ticker": "GC=F",
         "price": 4722.3,
         "ahr999": 2.779,
-        "rank": 93.3,
+        "rank": 98.1,
         "r2": 0.2356,
         "is_pro": false,
-        "signal": "\u89c2\u671b"
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Silver",
+        "ticker": "SI=F",
+        "price": 76.38,
+        "ahr999": 4.148,
+        "rank": 98.0,
+        "r2": 0.0041,
+        "is_pro": false,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
         "price": 208.27,
         "ahr999": 11.952,
-        "rank": 92.4,
+        "rank": 97.2,
         "r2": 0.5944,
         "is_pro": true,
-        "signal": "\u89c2\u671b"
+        "signal": "\u2615\ufe0f\u89c2\u671b"
     }
 ]
