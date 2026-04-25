@@ -1,14 +1,14 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Haowu999 Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Haowu999 Quant Pro</title>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; }
         .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .mood-meter { background:#1c1c1e; border-radius:20px; padding:20px; margin:15px; border:1px solid #333; text-align:center; }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
         .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; }
     </style>
@@ -16,166 +16,219 @@
 <body>
     <div class="header">
         <h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">跨资产对数回归实时终端 | 04-25 14:57</p>
+        <p style="color:#8e8e93; font-size:0.8rem;">跨资产对数回归实证终端 | 04-25 14:58</p>
     </div>
-    <div style="padding:15px;">
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">Ethereum </span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 91.2</span>
-        </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_0"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">0.459</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
-        </div>
+
+    <div class="mood-meter">
+        <div style="color:#8e8e93; font-size:0.7rem;">Haowu999 全球贪婪指数</div>
+        <div style="font-size:3rem; font-weight:900; color:#ffd60a;">58</div>
+        <div style="font-size:0.8rem; font-weight:bold; color:#8e8e93;">中性偏好</div>
     </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">Bitcoin </span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 89.3</span>
+
+    <div style="padding:0 15px;">
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">Ethereum </span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +21.2%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_1"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">0.535</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.459</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">52</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+7.0%</div></div>
         </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">拼多多 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 79.8</span>
-        </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_2"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">0.559</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -63.2% | 拟合 R²: 0.6061</span>
+            <span style="color:#0a84ff; font-weight:bold;">✅定投</span>
         </div>
     </div>
     
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 37.4</span>
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">Bitcoin </span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +12.9%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_3"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">0.999</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.535</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">62</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+-3.6%</div></div>
         </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">阿里巴巴 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 25.8</span>
-        </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_4"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">0.962</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">✅定投</div></div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -49.7% | 拟合 R²: 0.9201</span>
+            <span style="color:#0a84ff; font-weight:bold;">✅定投</span>
         </div>
     </div>
     
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 16.5</span>
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">拼多多 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +3.3%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_5"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">1.757</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.559</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">43</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+-11.7%</div></div>
         </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">苹果 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 14.6</span>
-        </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_6"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">2.409</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -43.9% | 拟合 R²: 0.5676</span>
+            <span style="color:#0a84ff; font-weight:bold;">✅定投</span>
         </div>
     </div>
     
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 13.1</span>
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">阿里巴巴 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +17.7%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_7"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">1.339</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.962</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">66</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+43.1%</div></div>
         </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 11.9</span>
-        </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_8"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">11.952</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -36.8% | 拟合 R²: 0.0205</span>
+            <span style="color:#0a84ff; font-weight:bold;">✅定投</span>
         </div>
     </div>
     
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">黄金期货 </span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 4.7</span>
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +18.7%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_9"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">2.779</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.999</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">48</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+25.3%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -28.9% | 拟合 R²: 0.7973</span>
+            <span style="color:#0a84ff; font-weight:bold;">✅定投</span>
         </div>
     </div>
     
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:1.2rem;">白银期货 </span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 0.1</span>
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +8.9%</span>
         </div>
-        <div style="height:60px; margin:15px 0;"><canvas id="c_10"></canvas></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">4.148</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">☕️观望</div></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.339</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">49</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+10.1%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -27.3% | 拟合 R²: 0.6545</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
+        </div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +75.1%</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.757</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">61</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+101.3%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -53.8% | 拟合 R²: 0.8245</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
+        </div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">苹果 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +39.1%</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">2.409</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">62</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+57.9%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -33.4% | 拟合 R²: 0.7285</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
+        </div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">黄金期货 </span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +-50.2%</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">2.779</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">55</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+0.0%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -17.7% | 拟合 R²: 0.2356</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
+        </div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">白银期货 </span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +59.9%</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">4.148</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">57</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+162.3%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -41.2% | 拟合 R²: 0.0041</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
+        </div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.6rem; padding:2px 8px; border-radius:8px;">超额收益 +-48.5%</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">11.952</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">RSI 情绪</div><div style="font-size:1.4rem; font-weight:900; color:#ffd60a;">86</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">2Y战绩</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+0.0%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:0.65rem; color:#444; border-top:1px solid #222; padding-top:10px; display:flex; justify-content:space-between;">
+            <span>最大回撤: -36.9% | 拟合 R²: 0.5944</span>
+            <span style="color:#0a84ff; font-weight:bold;">☕️观望</span>
         </div>
     </div>
     </div>
+
     <div class="nav-bar">
         <button class="nav-item" style="color:#0a84ff;">📊<br>机会</button>
-        <button class="nav-item" onclick="alert('PRO 功能：全自动风险对冲中心即将在下版本上线')">🛡<br>风控</button>
-        <button class="nav-item" onclick="alert('隐私提示：所有持仓数据仅存本地缓存')">⚙️<br>设置</button>
+        <button class="nav-item" onclick="alert('即将上线：全自动收益核算系统')">💰<br>资产</button>
+        <button class="nav-item" onclick="alert('隐私提示：所有 Unit 计算仅存本地')">⚙️<br>设置</button>
     </div>
-    <script>
-    function renderChart(id, labels, data) {
-        new Chart(document.getElementById(id), {
-            type: 'line',
-            data: { labels: labels, datasets: [{ data: data, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-        });
-    }
-    window.onload = function() { if(document.getElementById('c_0')) renderChart('c_0', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [2054.6279296875, 2026.7926025390625, 1930.7618408203125, 1965.050537109375, 1939.066650390625, 2027.2689208984375, 1982.7689208984375, 2126.50537109375, 2071.60546875, 1978.751220703125, 1969.4554443359375, 1936.604736328125, 1992.938232421875, 2037.1204833984375, 2051.5732421875, 2073.13623046875, 2092.5634765625, 2097.086669921875, 2177.476318359375, 2351.176025390625, 2318.053466796875, 2203.671630859375, 2137.423828125, 2146.4970703125, 2076.68994140625, 2053.04833984375, 2152.14599609375, 2155.704345703125, 2168.021484375, 2059.578369140625, 1991.27197265625, 1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2315.43994140625]);
-if(document.getElementById('c_1')) renderChart('c_1', ["02-25", "02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25"], [67960.125, 67453.7734375, 65881.796875, 66995.859375, 65738.1015625, 68775.8515625, 68293.6484375, 72710.578125, 70841.125, 68136.4921875, 67272.59375, 65969.78125, 68402.3828125, 69926.921875, 70204.8828125, 70493.4609375, 70968.265625, 71214.625, 72789.9140625, 74861.0859375, 73922.4765625, 71245.578125, 69912.7890625, 70522.5859375, 68711.5234375, 67845.2109375, 70914.859375, 70517.859375, 71309.8828125, 68791.625, 66338.375, 66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77526.4921875]);
-if(document.getElementById('c_2')) renderChart('c_2', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [102.69999694824219, 101.05000305175781, 103.44999694824219, 103.31999969482422, 102.12999725341797, 101.5199966430664, 105.2300033569336, 105.56999969482422, 105.43000030517578, 104.56999969482422, 100.22000122070312, 100.27999877929688, 101.83000183105469, 102.91999816894531, 101.94999694824219, 104.94000244140625, 105.76000213623047, 106.87999725341797, 106.9000015258789, 105.38999938964844, 103.7300033569336, 102.81999969482422, 100.70999908447266, 101.19000244140625, 100.73999786376953, 101.97000122070312, 102.63999938964844, 104.86000061035156, 102.94000244140625, 101.62000274658203, 102.6500015258789, 103.83999633789062, 104.37000274658203, 100.72000122070312, 97.43000030517578, 96.19000244140625, 96.25, 98.08999633789062, 102.61000061035156, 100.62000274658203, 99.80999755859375, 98.41999816894531, 102.18000030517578, 101.77999877929688, 100.87000274658203, 100.91000366210938, 99.54000091552734, 103.75, 100.56999969482422, 100.16999816894531, 100.80000305175781, 102.0999984741211, 101.97000122070312, 103.70999908447266, 104.79000091552734, 104.19999694824219, 98.98999786376953, 100.05000305175781, 97.7699966430664, 98.02999877929688]);
-if(document.getElementById('c_3')) renderChart('c_3', ["01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-16", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [595.0, 599.5, 607.0, 621.0, 622.0, 606.0, 598.5, 581.0, 558.0, 558.5, 547.5, 560.0, 551.0, 548.0, 535.5, 532.0, 534.5, 522.0, 538.0, 520.0, 522.5, 512.0, 518.0, 514.0, 510.5, 506.0, 502.0, 519.0, 516.0, 553.5, 552.0, 546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844]);
-if(document.getElementById('c_4')) renderChart('c_4', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [174.25, 169.55999755859375, 168.38999938964844, 163.64999389648438, 159.13999938964844, 157.75999450683594, 162.50999450683594, 163.0, 166.50999450683594, 164.32000732421875, 158.72999572753906, 155.72999572753906, 155.42999267578125, 155.77000427246094, 154.27000427246094, 154.4499969482422, 152.77999877929688, 153.11000061035156, 152.27999877929688, 148.0500030517578, 144.11000061035156, 142.55999755859375, 135.58999633789062, 133.27000427246094, 130.35000610351562, 130.7899932861328, 132.63999938964844, 136.85000610351562, 136.2899932861328, 134.1999969482422, 135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
-if(document.getElementById('c_5')) renderChart('c_5', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [416.55999755859375, 430.4100036621094, 421.80999755859375, 421.9599914550781, 406.010009765625, 397.2099914550781, 411.1099853515625, 417.32000732421875, 425.2099914550781, 428.2699890136719, 417.07000732421875, 417.44000244140625, 410.6300048828125, 411.32000732421875, 411.7099914550781, 411.82000732421875, 399.8299865722656, 409.3800048828125, 417.3999938964844, 408.5799865722656, 402.510009765625, 403.32000732421875, 392.42999267578125, 405.94000244140625, 405.54998779296875, 396.7300109863281, 398.67999267578125, 399.239990234375, 407.82000732421875, 395.010009765625, 391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
-if(document.getElementById('c_6')) renderChart('c_6', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [258.0385437011719, 259.2374267578125, 269.7575988769531, 269.22808837890625, 276.23150634765625, 275.6520690917969, 277.8599853515625, 274.6199951171875, 273.67999267578125, 275.5, 261.7300109863281, 255.77999877929688, 263.8800048828125, 264.3500061035156, 260.5799865722656, 264.5799865722656, 266.17999267578125, 272.1400146484375, 274.2300109863281, 272.95001220703125, 264.17999267578125, 264.7200012207031, 263.75, 262.5199890136719, 260.2900085449219, 257.4599914550781, 259.8800048828125, 260.8299865722656, 260.80999755859375, 255.75999450683594, 250.1199951171875, 252.82000732421875, 254.22999572753906, 249.94000244140625, 248.9600067138672, 247.99000549316406, 251.49000549316406, 251.63999938964844, 252.6199951171875, 252.88999938964844, 248.8000030517578, 246.6300048828125, 253.7899932861328, 255.6300048828125, 255.9199981689453, 258.8599853515625, 253.5, 258.8999938964844, 260.489990234375, 260.4800109863281, 259.20001220703125, 258.8299865722656, 266.42999267578125, 263.3999938964844, 270.2300109863281, 273.04998779296875, 266.1700134277344, 273.1700134277344, 273.42999267578125, 271.05999755859375]);
-if(document.getElementById('c_7')) renderChart('c_7', ["01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [1340.06005859375, 1337.0, 1342.0, 1343.010009765625, 1323.68994140625, 1437.719970703125, 1401.0, 1427.0, 1474.9200439453125, 1525.0, 1555.0, 1515.010009765625, 1524.9599609375, 1504.800048828125, 1504.3299560546875, 1486.5999755859375, 1485.300048828125, 1466.800048828125, 1491.6600341796875, 1466.2099609375, 1455.02001953125, 1440.1099853515625, 1426.18994140625, 1401.1800537109375, 1399.0400390625, 1402.0, 1397.0, 1401.8800048828125, 1400.0, 1392.0, 1413.6400146484375, 1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375]);
-if(document.getElementById('c_8')) renderChart('c_8', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [192.49957275390625, 191.11965942382812, 185.59996032714844, 180.33023071289062, 174.18057250976562, 171.87069702148438, 185.39996337890625, 190.0297088623047, 188.52978515625, 190.0397186279297, 186.9298858642578, 182.80010986328125, 184.95999145507812, 187.96981811523438, 187.88983154296875, 189.8097381591797, 191.53964233398438, 192.83956909179688, 195.54940795898438, 184.87998962402344, 177.180419921875, 182.47012329101562, 180.04025268554688, 183.03009033203125, 183.330078125, 177.8103790283203, 182.64010620117188, 184.760009765625, 186.02999877929688, 183.13999938964844, 180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
-if(document.getElementById('c_9')) renderChart('c_9', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [5318.39990234375, 4713.89990234375, 4622.5, 4903.7001953125, 4920.39990234375, 4861.39990234375, 4951.2001953125, 5050.89990234375, 5003.7998046875, 5071.60009765625, 4923.7001953125, 5022.0, 4882.89990234375, 4986.5, 4975.89990234375, 5059.2998046875, 5204.7001953125, 5155.7998046875, 5206.39990234375, 5176.5, 5230.5, 5294.39990234375, 5107.39990234375, 5120.2001953125, 5065.2998046875, 5146.10009765625, 5091.5, 5229.7001953125, 5167.39990234375, 5115.7998046875, 5052.5, 4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875]);
-if(document.getElementById('c_10')) renderChart('c_10', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [114.03700256347656, 78.29000091552734, 76.77799987792969, 83.04199981689453, 84.16500091552734, 76.52899932861328, 76.73500061035156, 82.06500244140625, 80.21800231933594, 83.75399780273438, 75.5459976196289, 77.85099792480469, 73.4469985961914, 77.50900268554688, 77.56500244140625, 82.28299713134766, 86.52300262451172, 87.45700073242188, 90.93900299072266, 86.99800109863281, 92.68199920654297, 88.28399658203125, 82.9229965209961, 82.63300323486328, 81.68699645996094, 83.81600189208984, 84.03199768066406, 89.08300018310547, 85.06500244140625, 84.66999816894531, 80.91400146484375, 80.26300048828125, 79.52999877929688, 77.23799896240234, 70.9020004272461, 69.36000061035156, 69.04900360107422, 69.27400207519531, 72.36100006103516, 67.6709976196289, 69.54499816894531, 70.3239974975586, 74.69000244140625, 75.86699676513672, 72.73500061035156, 72.66100311279297, 71.82599639892578, 75.2239990234375, 76.2770004272461, 76.3239974975586, 75.52300262451172, 79.39099884033203, 79.49099731445312, 78.60600280761719, 81.73799896240234, 79.95099639892578, 76.41100311279297, 77.89299774169922, 75.46499633789062, 76.38300323486328]);
- }
-    </script>
 </body>
 </html>
