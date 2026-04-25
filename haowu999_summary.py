@@ -58,7 +58,6 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. Log-Fit
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         x = np.log10(df['Days'].values).reshape(-1, 1)
@@ -66,17 +65,14 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 2. Indicators
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 3. Alpha & Targets
         roi, alpha = run_backtest(df, model.coef_[0], model.intercept_, start_date)
         p_btm = solve_price(0.45, ma200_sum_199, fit_p)
         
-        # 4. Chart & MAPE
         hist = df.tail(60).copy()
         hist['Fit_H'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
         mape = np.mean(np.abs((hist['Close'] - hist['Fit_H']) / hist['Close'])) * 100
@@ -102,7 +98,6 @@ for asset in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# --- UI GENERATION V71 ---
 cards_html = ""
 scripts_html = ""
 for i, item in enumerate(all_results):
@@ -135,7 +130,7 @@ for i, item in enumerate(all_results):
     """
     scripts_html += f"new Chart(document.getElementById('c_{i}'), {{ type:'line', data:{{ labels:{json.dumps(item['labels'])}, datasets:[{{data:{json.dumps(item['actual'])}, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}}] }}, options:{{ responsive:true, maintainAspectRatio:false, plugins:{{legend:{{display:false}}}}, scales:{{x:{{display:false}},y:{{display:false}}}} }} }});\n"
 
-final_html = f"""
+final_html = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -145,25 +140,25 @@ final_html = f"""
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }}
-        .header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
-        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:1px solid #333; z-index:1000; }}
-        .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }}
-        .nav-item.active {{ color:#0a84ff; }}
-        .tab-view {{ display:none; padding-bottom:100px; animation: fadeIn 0.3s; }}
-        .active-tab {{ display:block; }}
-        .pro-blur {{ filter: blur(12px); opacity: 0.3; pointer-events: none; }}
-        .pro-overlay {{ position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }}
-        @keyframes fadeIn {{ from {{ opacity:0; }} to {{ opacity:1; }} }}
+        body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
+        .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:1px solid #333; z-index:1000; }
+        .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }
+        .nav-item.active { color:#0a84ff; }
+        .tab-view { display:none; padding-bottom:100px; animation: fadeIn 0.3s; }
+        .active-tab { display:block; }
+        .pro-blur { filter: blur(12px); opacity: 0.3; pointer-events: none; }
+        .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header">
             <h1 class="fw-bold mb-0">ALPHA <span class="text-primary">HUB</span></h1>
-            <p class="text-secondary small">V71.0 Commercial Trial | {datetime.now().strftime('%m-%d %H:%M')}</p>
+            <p class="text-secondary small">V71.0 Commercial Trial | REPLACE_TIME</p>
         </div>
-        <div class="px-3">{cards_html}</div>
+        <div class="px-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4">
@@ -182,13 +177,13 @@ final_html = f"""
         <h2 class="fw-bold mb-4">Pro & Settings</h2>
         <div class="card bg-dark border-secondary p-3 rounded-4 mb-4">
             <div class="fw-bold text-primary mb-2">Upgrade to Pro</div>
-            <p class="small text-secondary">Contact us to get a license key:<br>WeChat: <b>{config['contact_wechat']}</b><br>Telegram: <b>{config['contact_telegram']}</b></p>
+            <p class="small text-secondary">Contact us to get a license key:<br>WeChat: <b>REPLACE_WECHAT</b><br>Telegram: <b>REPLACE_TG</b></p>
             <input type="text" id="license-key" class="form-control bg-black border-secondary text-white" placeholder="Enter License Key">
             <button class="btn btn-primary btn-sm mt-2 w-100 rounded-pill fw-bold" onclick="unlockPro()">Activate Pro</button>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4">
             <label class="small text-secondary mb-2">My Unit Base ($)</label>
-            <input type="number" id="unit-input" class="form-control bg-black border-secondary text-white" value="{config['base_unit']}" onchange="localStorage.setItem('u', this.value)">
+            <input type="number" id="unit-input" class="form-control bg-black border-secondary text-white" value="REPLACE_BASE" onchange="localStorage.setItem('u', this.value)">
         </div>
     </div>
 
@@ -199,35 +194,41 @@ final_html = f"""
     </nav>
 
     <script>
-        const RATES = {json.dumps(rates)};
-        function switchTab(id, el) {{
+        const RATES = REPLACE_RATES;
+        function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-        }}
-        function unlockPro() {{
+        }
+        function unlockPro() {
             const key = document.getElementById('license-key').value;
-            if(key === '666888') {{
+            if(key === '666888') {
                 localStorage.setItem('is_pro', 'true');
                 alert('Pro Unlocked! Page will reload.');
                 location.reload();
-            }} else {{ alert('Invalid Key'); }}
-        }}
-        function renderChart(id, labels, data) {{
-            new Chart(document.getElementById(id), {{ type:'line', data:{{ labels:labels, datasets:[{{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}}] }}, options:{{ responsive:true, maintainAspectRatio:false, plugins:{{legend:{{display:false}}}}, scales:{{x:{{display:false}},y:{{display:false}}}} }} }});
-        }}
-        window.onload = function() {{
-            if(localStorage.getItem('is_pro') === 'true') {{
+            } else { alert('Invalid Key'); }
+        }
+        function renderChart(id, labels, data) {
+            new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
+        }
+        window.onload = function() {
+            if(localStorage.getItem('is_pro') === 'true') {
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
                 document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
-            }}
-            {scripts_html}
-        }}
+            }
+            REPLACE_SCRIPTS
+        }
     </script>
 </body>
 </html>
-"""
+""".replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+   .replace("REPLACE_CARDS", cards_html) \
+   .replace("REPLACE_WECHAT", config['contact_wechat']) \
+   .replace("REPLACE_TG", config['contact_telegram']) \
+   .replace("REPLACE_BASE", str(config['base_unit'])) \
+   .replace("REPLACE_RATES", json.dumps(rates)) \
+   .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
 with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
