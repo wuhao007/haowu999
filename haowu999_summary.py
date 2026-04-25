@@ -7,9 +7,8 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 隐私与商业化 ---
-BASE_DCA_UNIT = 1.0
-PRO_ASSETS = ['NVDA', 'TSLA', '600519.SS', '0700.HK', 'ASML']
+# --- 商业化配置 ---
+PRO_ASSETS = ['NVDA', 'TSLA', 'AAPL', '0700.HK']
 
 def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
     try:
@@ -23,7 +22,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Fit Model
+        # 1. 拟合模型
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -32,130 +31,125 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', sector=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # Current Metrics
+        # 2. 计算当前与公允
         latest = df.iloc[-1]
-        ma200 = df['Close'].tail(200).mean()
-        days = (latest['Date'] - pd.to_datetime(start_date)).days
-        fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
-        ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
+        days_now = (latest['Date'] - pd.to_datetime(start_date)).days
+        fair_now = 10 ** (model.coef_[0] * math.log10(max(1, days_now)) + model.intercept_)
+        ahr999 = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fair_now)
         
-        # Accuracy Level
-        accuracy_label = "🌟 极高" if r2 > 0.95 else "✅ 可靠" if r2 > 0.85 else "⚠️ 波动"
-        accuracy_color = "#32d74b" if r2 > 0.9 else "#ffd60a" if r2 > 0.8 else "#ff453a"
+        # 3. 历史双线数据 (最后 90 天)
+        hist = df.tail(90).copy()
+        hist['Days'] = (hist['Date'] - pd.to_datetime(start_date)).dt.days
+        hist['Predicted'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
         
-        # History for Chart
-        hist_prices = df.tail(60)['Close'].tolist()
+        # 历史分位
+        df['Fit_Full'] = 10 ** (model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / df['Fit_Full'])
+        df = df.dropna()
+        rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
         return {
             'name': name, 'ticker': ticker, 'sector': sector,
             'price': round(float(latest['Close']), 2),
+            'fair': round(float(fair_now), 2),
+            'bias': round(((latest['Close'] / fair_now) - 1) * 100, 1),
             'ahr999': round(float(ahr999), 3),
             'r2': round(float(r2), 4),
-            'accuracy_label': accuracy_label,
-            'accuracy_color': accuracy_color,
-            'chart_data': hist_prices,
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'actual_values': hist['Close'].round(2).tolist(),
+            'fair_values': hist['Predicted'].round(2).tolist(),
             'is_pro': ticker in PRO_ASSETS
         }
     except: return None
 
-assets_config = [
+assets_list = [
     ('BTC-USD', 'Bitcoin', 'Crypto'), ('ETH-USD', 'Ethereum', 'Crypto'),
     ('GC=F', 'Gold', 'Metals'), ('SI=F', 'Silver', 'Metals'),
     ('NVDA', 'NVIDIA', 'Tech'), ('TSLA', 'Tesla', 'Tech'),
     ('BABA', 'Alibaba', 'CN-Tech'), ('PDD', 'PDD', 'CN-Tech')
 ]
 
-all_results = []
-for ticker, name, sec in assets_config:
-    res = analyze_asset(ticker, name=name, sector=sec)
-    if res: all_results.append(res)
+results = []
+for t, n, s in assets_list:
+    res = analyze_asset(t, name=n, sector=s)
+    if res: results.append(res)
 
-all_results.sort(key=lambda x: x['ahr999'])
+results.sort(key=lambda x: x['ahr999'])
 
-# --- 生成 HTML PWA Dashboard ---
-html_app = f"""
+# --- 生成 HTML (双线图表版) ---
+html_template = """
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Haowu999 Quant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Haowu999 Terminal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background: #000; color: #fff; font-family: -apple-system, system-ui; padding-bottom: 50px; }}
-        .app-header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
-        .asset-card {{ background: #1c1c1e; border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #2c2c2e; }}
-        .pro-mask {{ filter: blur(4px); pointer-events: none; opacity: 0.5; }}
-        .pro-overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; }}
-        .btn-pro {{ background: #0a84ff; color: #fff; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }}
-        .accuracy-dot {{ width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }}
+        body { background: #000; color: #fff; font-family: -apple-system; }
+        .card { background: #151517; border: 1px solid #2c2c2e; border-radius: 15px; margin-bottom: 20px; }
+        .bias-badge { font-size: 0.8rem; padding: 2px 8px; border-radius: 10px; }
+        .api-box { background: #1c1c1e; color: #32d74b; font-family: monospace; padding: 15px; border-radius: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <div class="app-header">
-        <h1 class="fw-bold display-6">仪表盘 <span class="text-primary">Pro</span></h1>
-        <p class="text-secondary small">全自动对数回归模型 | {datetime.now().strftime('%m/%d %H:%M')}</p>
-    </div>
+<div class="container py-4">
+    <h1 class="fw-bold mb-0">Haowu999 <span class="text-primary">Quant</span></h1>
+    <p class="text-secondary small mb-4">商业级对数回归分析 | 更新: REPLACE_TIME</p>
 
-    <div class="container mt-3">
-"""
+    <div class="row">REPLACE_CARDS</div>
 
-for item in all_results:
-    is_pro = item['is_pro']
-    pro_html = '<div class="pro-overlay"><button class="btn btn-pro shadow">点击订阅解锁 PRO 信号</button></div>' if is_pro else ''
-    mask_class = 'pro-mask' if is_pro else ''
-    
-    html_app += f"""
-        <div class="asset-card position-relative">
-            {pro_html}
-            <div class="{mask_class}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4 class="mb-0 fw-bold">{item['name']}</h4>
-                    <span class="small" style="color: {item['accuracy_color']}"><span class="accuracy-dot" style="background: {item['accuracy_color']}"></span>{item['accuracy_label']}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div class="text-secondary small">AHR999</div>
-                        <div class="fs-3 fw-bold">{item['ahr999']}</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="text-secondary small">建议权重</div>
-                        <div class="fs-3 fw-bold text-info">{'3.0x' if item['ahr999'] < 0.45 else '1.0x' if item['ahr999'] < 1.2 else '0x'}</div>
-                    </div>
-                </div>
-                <div class="mt-2 text-secondary x-small">拟合准确度 R²: {item['r2']} | 实时价: ${item['price']}</div>
-            </div>
-        </div>
-    """
-
-html_app += """
+    <div class="mt-5">
+        <h4 class="fw-bold">🚀 开发者数据中心 (BaaS API)</h4>
+        <p class="text-secondary small">直接请求 latest_data.json 即可获取全量模型数据。</p>
+        <div class="api-box">GET /haowu999/latest_data.json<br>{ "status": "success", "data": [...] }</div>
     </div>
-    <div class="text-center mt-4 mb-5 p-4">
-        <div class="ad-box p-3 border border-secondary rounded text-secondary small">
-            广告占位符 (Google AdMob / Carbon Ads)
-        </div>
-    </div>
+</div>
+<script>
+function renderChart(id, labels, actual, fair) {
+    new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: '实际价格', data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false },
+                { label: '拟合公允', data: fair, borderColor: '#666', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+}
+REPLACE_SCRIPTS
+</script>
 </body>
 </html>
 """
 
+cards_html = ""
+scripts_html = ""
+for i, item in enumerate(results):
+    bias_color = "#32d74b" if item['bias'] < 0 else "#ff453a"
+    cards_html += f"""
+    <div class="col-md-6 col-lg-4">
+        <div class="card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{item['name']}</h5>
+                <span class="bias-badge" style="background: {bias_color}22; color: {bias_color}">{item['bias']}% 偏离</span>
+            </div>
+            <div class="text-secondary small mb-2">{item['ticker']} | R²: {item['r2']}</div>
+            <div style="height: 100px;"><canvas id="c_{i}"></canvas></div>
+            <div class="d-flex justify-content-between mt-3">
+                <span class="text-secondary small">AHR999 Index:</span>
+                <span class="fw-bold text-primary">{item['ahr999']}</span>
+            </div>
+        </div>
+    </div>
+    """
+    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['actual_values'])}, {json.dumps(item['fair_values'])});\n"
+
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_app)
-
-# 更新 README
-report = f"# 🚀 Haowu999 App 指挥部 (V18)\n\n"
-report += f"### 📱 [点击安装 App 模式 (PWA)](https://wuhao007.github.io/haowu999/)\n\n"
-report += "## 🏆 拟合质量审计 (Accuracy Audit)\n"
-report += "| 资产 | 准确度 (R²) | 信度评价 | 建议权重 |\n"
-report += "| :--- | :--- | :--- | :--- |\n"
-for item in sorted(all_results, key=lambda x: x['r2'], reverse=True):
-    report += f"| {item['name']} | `{item['r2']}` | {item['accuracy_label']} | `{'3.0' if item['ahr999'] < 0.45 else '1.0' if item['ahr999'] < 1.2 else '0.0'}` |\n"
-
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(report)
-    f.write("\n\n--- \n*注：Pro 信号包含个股深度分析。数据每日北京时间 8:00 自动更新。*")
+    f.write(html_template.replace("REPLACE_TIME", datetime.now().strftime('%Y-%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
-    json.dump(all_results, f, indent=4)
+    json.dump(results, f, indent=4)
