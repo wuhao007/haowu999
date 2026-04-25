@@ -6,11 +6,10 @@ import json
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置区 ---
-BASE_DCA_UNIT = 1.0
+# --- 配置 ---
 BOTTOM_MULTIPLIER = 3.0 
 
-def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD', rates={}):
+def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2014-09-17'
@@ -38,148 +37,139 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD', rate
         fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # History
+        # Drawdown
+        year_high = df['Close'].tail(252).max()
+        drawdown = (latest['Close'] / year_high - 1) * 100
+        
+        # History for Charts (Last 180 days)
+        hist_data = df.tail(180).copy()
+        hist_dates = hist_data['Date'].dt.strftime('%Y-%m-%d').tolist()
+        hist_prices = hist_data['Close'].round(2).tolist()
+        
+        # Calculate historical Rank
         df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
         df = df.dropna()
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
-        year_high = df['Close'].tail(252).max()
-        drawdown = (latest['Close'] / year_high - 1) * 100
-        score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
-        
         return {
             'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
             'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'drawdown': round(float(drawdown), 1), 'score': round(float(score), 1),
-            'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2)
+            'drawdown': round(float(drawdown), 1), 'score': round(100 - rank, 1),
+            'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2),
+            'chart_labels': hist_dates, 'chart_values': hist_prices
         }
     except: return None
 
-assets_config = {
-    'Crypto': [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')],
-    'Metals': [('GC=F', 'Gold'), ('SI=F', 'Silver')],
-    'Stocks': [
-        ('0700.HK', 'Tencent'), ('600519.SS', 'Moutai'), ('AAPL', 'Apple'),
-        ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'),
-        ('PDD', 'PDD'), ('TSM', 'TSMC'), ('BRK-B', 'Berkshire B')
-    ]
-}
+assets_config = [
+    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
+    ('GC=F', 'Gold'), ('SI=F', 'Silver'),
+    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('AAPL', 'Apple'),
+    ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('600519.SS', 'Moutai'), ('0700.HK', 'Tencent')
+]
 
 all_results = []
-for cat, items in assets_config.items():
-    for ticker, name in items:
-        res = analyze_asset(ticker, name=name)
-        if res:
-            res['category'] = cat
-            all_results.append(res)
+for ticker, name in assets_config:
+    res = analyze_asset(ticker, name=name)
+    if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['score'], reverse=True)
 
-# --- 生成 HTML 仪表盘 ---
-html_content = f"""
+# --- 生成 HTML ---
+html_template = """
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haowu999 Global Dashboard</title>
+    <title>Haowu999 专业投研仪表盘</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background-color: #f8f9fa; font-family: -apple-system, sans-serif; }}
-        .card {{ border: None; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }}
-        .opportunity-score {{ font-size: 2rem; font-weight: bold; color: #0d6efd; }}
-        .badge-bottom {{ background-color: #dc3545; }}
-        .badge-invest {{ background-color: #198754; }}
-        .badge-wait {{ background-color: #6c757d; }}
-        .progress {{ height: 10px; border-radius: 5px; }}
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui; }
+        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); border-color: #38bdf8; }
+        .score-badge { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
+        .buy-3 { color: #f43f5e; }
+        .buy-1 { color: #10b981; }
+        .header-gradient { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .monetize-btn { background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 20px; }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <header class="pb-3 mb-4 border-bottom">
-        <h1 class="display-5 fw-bold">🚀 Haowu999 投研中心</h1>
-        <p class="text-muted">实时全球资产估值系统 | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
-    </header>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card p-4 bg-primary text-white">
-                <h2>今日最佳机会</h2>
-                <div class="d-flex overflow-auto">
-                    {" ".join([f'<div class="me-4 text-center"><h5>{x["name"]}</h5><div class="h3">{x["score"]}分</div></div>' for x in all_results[:3]])}
-                </div>
-            </div>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-bold header-gradient">Haowu999 Quant</h1>
+            <p class="text-secondary">全球资产对数回归抄底系统 | 更新: {time}</p>
         </div>
+        <button class="btn monetize-btn px-4">解锁专业版 (Ads/Pro)</button>
     </div>
 
-    <h2 class="mt-4 mb-3">资产列表</h2>
-    <div class="row">
-"""
-
-for item in all_results:
-    status_class = "badge-bottom" if item['rank'] < 10 else "badge-invest" if item['rank'] < 50 else "badge-wait"
-    status_text = "💎 抄底" if item['rank'] < 10 else "✅ 定投" if item['rank'] < 50 else "☕️ 观望"
-    html_content += f"""
-        <div class="col-md-4">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">{item['name']}</h5>
-                    <span class="badge {status_class}">{status_text}</span>
-                </div>
-                <div class="text-muted small">{item['ticker']}</div>
-                <hr>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>AHR999:</span><strong>{item['ahr999']}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>历史水位:</span>
-                    <div class="w-50 mt-1">
-                        <div class="progress">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: {item['rank']}%"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>1Y回撤:</span><strong class="text-danger">{item['drawdown']}%</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>拟合信度:</span><span class="text-success">{'★'*int(item['r2']*5)}</span>
-                </div>
-            </div>
-        </div>
-    """
-
-html_content += """
+    <div class="row g-4">
+        {cards}
     </div>
-    <footer class="pt-3 mt-4 text-muted border-top">
-        &copy; 2026 Haowu999 Quantitative - Built for Commercial Potential
-    </footer>
 </div>
+<script>
+    function initChart(id, labels, data) {
+        new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Price',
+                    data: data,
+                    borderColor: '#38bdf8',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+    }
+    {chart_scripts}
+</script>
 </body>
 </html>
 """
 
+cards_html = ""
+chart_scripts = ""
+for i, item in enumerate(all_results):
+    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "观望"
+    color_class = "buy-3" if item['rank'] < 10 else "buy-1" if item['rank'] < 50 else "text-secondary"
+    
+    cards_html += f"""
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h4 class="fw-bold mb-0">{item['name']}</h4>
+                <div class="score-badge">{item['score']}分</div>
+            </div>
+            <div class="text-secondary small">{item['ticker']} | R²: {item['r2']}</div>
+            <div class="my-3">
+                <canvas id="chart_{i}" height="80"></canvas>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+                <span>建议操作:</span><span class="fw-bold {color_class}">{units}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small text-secondary">
+                <span>1Y回撤:</span><span>{item['drawdown']}%</span>
+            </div>
+            <div class="d-flex justify-content-between small text-secondary">
+                <span>公允价值:</span><span>${item['fair']}</span>
+            </div>
+        </div>
+    </div>
+    """
+    chart_scripts += f"initChart('chart_{i}', {json.dumps(item['chart_labels'])}, {json.dumps(item['chart_values'])});\n"
+
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
+    f.write(html_template.format(time=datetime.now().strftime('%Y-%m-%d %H:%M'), cards=cards_html, chart_scripts=chart_scripts))
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4)
-
-# 更新 README 引导用户
-readme_v9 = f"""# 🚀 Haowu999 全资产智能定投导航 (V9)
-
-### 📱 移动端 Web 仪表盘
-> **[点击进入 Web-App 实时预览](https://wuhao007.github.io/haowu999/)**  
-> *(需在 GitHub 仓库设置中开启 GitHub Pages 指向 main 分支)*
-
-## 🏆 综合机会排行榜
-| 排名 | 资产 | 机会分 | 建议权重 | 拟合准确度 (R²) |
-| :--- | :--- | :--- | :--- | :--- |
-"""
-for i, item in enumerate(all_results[:5]):
-    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "0.0 Units"
-    readme_v9 += f"| {i+1} | **{item['name']}** | {item['score']} | `{units}` | `{item['r2']}` |\n"
-
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(readme_v9)
-    f.write("\n\n--- \n*注：数据每日自动更新。具体金额已隐藏，Unit 由用户自行定义。*")
