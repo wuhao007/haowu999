@@ -4,11 +4,22 @@ import numpy as np
 import math
 import json
 import os
+import requests
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 隐私配置 (环境变量) ---
+# --- 隐私与商业化配置 ---
+# 1. 从环境变量获取定投金额 (默认1.0 Units)
 BASE_UNIT = float(os.getenv('DCA_AMOUNT', 1.0))
+# 2. 从环境变量获取 Webhook 链接 (如 Telegram/Discord/Slack)
+WEBHOOK_URL = os.getenv('SIGNAL_WEBHOOK')
+
+def send_notification(msg):
+    if WEBHOOK_URL:
+        try:
+            requests.post(WEBHOOK_URL, json={"text": msg})
+        except:
+            print("Webhook notification failed.")
 
 def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
@@ -22,161 +33,86 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与漂移审计
-        def get_r2(data_slice):
-            data_slice = data_slice.copy()
-            data_slice['Days'] = (data_slice['Date'] - pd.to_datetime(start_date)).dt.days
-            data_slice = data_slice[data_slice['Days'] > 0]
-            if len(data_slice) < 30: return 0
-            x = np.log10(data_slice['Days'].values).reshape(-1, 1)
-            y = np.log10(data_slice['Close'].values)
-            model = LinearRegression().fit(x, y)
-            return model.score(x, y), model
-
-        long_r2, long_model = get_r2(df)
-        recent_r2, _ = get_r2(df.tail(252*2)) # 过去两年
+        # Fit
+        fit_df = df.copy()
+        fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
+        fit_df = fit_df[fit_df['Days'] > 0].copy()
+        x = np.log10(fit_df['Days'].values).reshape(-1, 1)
+        y = np.log10(fit_df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
         
-        # 模型健康度：如果近期 R2 远低于长期，说明模型正在失效
-        health = "Good" if recent_r2 > long_r2 * 0.9 else "Warning"
-        
-        # 2. 核心指标
+        # Metrics
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
-        fit_price = 10 ** (long_model.coef_[0] * math.log10(max(1, days)) + long_model.intercept_)
+        fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         ahr999x = (ma200 * fit_price * 3) / (latest['Close'] ** 2)
         
-        # 3. 历史水位
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(long_model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + long_model.intercept_)))
+        # Drawdown & Score
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
         df = df.dropna()
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
         p10 = df['AHR_Hist'].quantile(0.10)
         p50 = df['AHR_Hist'].quantile(0.50)
         
-        year_high = df['Close'].tail(252).max()
-        drawdown = (latest['Close'] / year_high - 1) * 100
+        drawdown = (latest['Close'] / df['Close'].tail(252).max() - 1) * 100
         score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
-        
-        # 历史曲线图数据
-        hist_dates = df.tail(120)['Date'].dt.strftime('%Y-%m-%d').tolist()
-        hist_prices = df.tail(120)['Close'].round(2).tolist()
         
         return {
             'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
             'ahr999': round(float(ahr999), 3), 'ahr999x': round(float(ahr999x), 3),
             'rank': round(float(rank), 1), 'drawdown': round(float(drawdown), 1),
-            'score': round(float(score), 1), 'r2': round(float(long_r2), 4),
-            'health': health, 'labels': hist_dates, 'values': hist_prices,
+            'score': round(float(score), 1), 'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2),
             'p10': p10, 'p50': p50
         }
     except: return None
 
 assets_config = [
-    ('BTC-USD', 'Bitcoin', 'Crypto'), ('ETH-USD', 'Ethereum', 'Crypto'),
-    ('GC=F', 'Gold', 'Metals'), ('SI=F', 'Silver', 'Metals'),
-    ('NVDA', 'NVIDIA', 'Stocks'), ('TSLA', 'Tesla', 'Stocks'), ('AAPL', 'Apple', 'Stocks'),
-    ('BABA', 'Alibaba', 'Stocks'), ('PDD', 'PDD', 'Stocks'), ('600519.SS', 'Moutai', 'Stocks'), ('0700.HK', 'Tencent', 'Stocks')
+    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
+    ('GC=F', 'Gold'), ('SI=F', 'Silver'),
+    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'), ('PDD', 'PDD')
 ]
 
 all_results = []
-for ticker, name, cat in assets_config:
+signals = []
+for ticker, name in assets_config:
     res = analyze_asset(ticker, name=name)
     if res:
-        res['category'] = cat
         all_results.append(res)
+        if res['ahr999'] < res['p10']:
+            signals.append(f"🚨 抄底警报: {name} ({res['price']})")
+        elif res['ahr999x'] < 0.45:
+            signals.append(f"🔴 逃顶警报: {name} ({res['price']})")
 
-all_results.sort(key=lambda x: x['score'], reverse=True)
+# 发送实时通知
+if signals:
+    send_notification("\\n".join(signals))
 
-# --- 生成 HTML PWA Dashboard ---
-html_pwa = """
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Haowu999 Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root { --bg: #000000; --card: #1c1c1e; --text: #ffffff; --accent: #0a84ff; }
-        body { background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
-        .card { background: var(--card); border: none; border-radius: 20px; margin-bottom: 16px; overflow: hidden; }
-        .score-circle { width: 45px; height: 45px; border-radius: 50%; border: 3px solid var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
-        .health-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .dot-Good { background: #32d74b; } .dot-Warning { background: #ffd60a; }
-        .monetize-banner { background: linear-gradient(45deg, #0a84ff, #5e5ce6); border-radius: 15px; cursor: pointer; }
-    </style>
-</head>
-<body>
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Haowu999 <span class="text-primary">Quant</span></h2>
-        <div class="text-secondary small text-end">V12.0<br>REPLACE_TIME</div>
-    </div>
+# --- 生成 README ---
+report = f"# 🚀 Haowu999 Quant 定投中心 (V13)\n\n"
+report += f"### 📱 [点此在手机打开 PWA 应用模式](https://wuhao007.github.io/haowu999/)\n\n"
 
-    <div class="monetize-banner p-3 mb-4 text-center">
-        <div class="fw-bold">🚀 开启实时抄底推送</div>
-        <div class="small opacity-75">点击加入顶级量化策略群</div>
-    </div>
+# 1. 自动执行信号
+report += "## 💰 实时交易指令 (Trading Signals)\n"
+report += "| 资产 | 操作建议 | 建议权重 | 拟合准确度 |\n"
+report += "| :--- | :--- | :--- | :--- |\n"
+for item in sorted(all_results, key=lambda x: x['score'], reverse=True):
+    action = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "🔴 止盈" if item['ahr999x'] < 0.45 else "☕️ 观望"
+    units = "3.0 Units" if "抄底" in action else "1.0 Unit" if "定投" in action else "减仓" if "止盈" in action else "0.0 Units"
+    report += f"| {item['name']} | {action} | `{units}` | `{item['r2']}` |\n"
 
-    <div class="row g-3">REPLACE_CARDS</div>
-</div>
-<script>
-function createChart(id, labels, data) {
-    new Chart(document.getElementById(id), {
-        type: 'line',
-        data: { labels: labels, datasets: [{ data: data, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-    });
-}
-REPLACE_SCRIPTS
-</script>
-</body>
-</html>
-"""
+report += "\n---\n"
 
-cards_html = ""
-scripts_html = ""
-for i, item in enumerate(all_results):
-    signal = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-    if item['ahr999x'] < 0.45: signal = "🔴 止盈"
-    
-    cards_html += f"""
-    <div class="col-12 col-md-4">
-        <div class="card p-3">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="fw-bold fs-5">{item['name']}</div>
-                    <div class="text-secondary small"><span class="health-dot dot-{item['health']}"></span>准确度 {item['r2']}</div>
-                </div>
-                <div class="score-circle">{int(item['score'])}%</div>
-            </div>
-            <div style="height: 60px;" class="my-2"><canvas id="c_{i}"></canvas></div>
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="text-secondary small">信号: <b class="text-white">{signal}</b></span>
-                <span class="small text-secondary">1Y回撤: {item['drawdown']}%</span>
-            </div>
-        </div>
-    </div>
-    """
-    scripts_html += f"createChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
+# 2. 模型质量审计
+avg_r2 = np.mean([x['r2'] for x in all_results])
+report += f"### 🔍 组合健康审计: **{avg_r2:.4f}** (平均拟合准确度)\n"
+report += "*注：R² 越接近 1.0，说明该资产的历史规律性越强，信号越可靠。*\n\n"
 
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_pwa.replace("REPLACE_TIME", datetime.now().strftime('%H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
-
-# --- 更新 README ---
 with open("README.md", "w", encoding="utf-8") as f:
-    f.write(f"# 🚀 Haowu999 智能定投中心 (V12)\n\n")
-    f.write(f"### 📱 [点此在手机浏览器打开 App 模式](https://wuhao007.github.io/haowu999/)\n\n")
-    f.write(f"## 📊 市场机会扫描 (DCA Units)\n")
-    f.write("| 资产 | 信号 | 机会分 | 拟合健康度 | 建议权重 |\n")
-    f.write("| :--- | :--- | :--- | :--- | :--- |\n")
-    for item in all_results[:8]:
-        units = "3.0 Units" if item['ahr999'] < item['p10'] else "1.0 Unit" if item['ahr999'] < item['p50'] else "0.0 Units"
-        f.write(f"| {item['name']} | {'🟢' if '买' in units else '⚪️'} | {item['score']} | {item['health']} | `{units}` |\n")
+    f.write(report)
+    f.write("\n\n--- \n*本报告由 GitHub Actions 每日自动生成。商业版已预备 App 数据接口。*")
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4)

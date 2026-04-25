@@ -1,15 +1,24 @@
-# 🚀 Haowu999 智能定投中心 (V12)
+# 🚀 Haowu999 Quant 定投中心 (V13)
 
-### 📱 [点此在手机浏览器打开 App 模式](https://wuhao007.github.io/haowu999/)
+### 📱 [点此在手机打开 PWA 应用模式](https://wuhao007.github.io/haowu999/)
 
-## 📊 市场机会扫描 (DCA Units)
-| 资产 | 信号 | 机会分 | 拟合健康度 | 建议权重 |
-| :--- | :--- | :--- | :--- | :--- |
-| Bitcoin | ⚪️ | 70.9 | Warning | `1.0 Unit` |
-| PDD | ⚪️ | 70.9 | Warning | `1.0 Unit` |
-| Ethereum | ⚪️ | 69.8 | Warning | `1.0 Unit` |
-| Alibaba | ⚪️ | 46.6 | Good | `1.0 Unit` |
-| Tencent | ⚪️ | 45.6 | Good | `1.0 Unit` |
-| Moutai | ⚪️ | 30.7 | Warning | `0.0 Units` |
-| Tesla | ⚪️ | 28.3 | Warning | `0.0 Units` |
-| Silver | ⚪️ | 11.5 | Good | `0.0 Units` |
+## 💰 实时交易指令 (Trading Signals)
+| 资产 | 操作建议 | 建议权重 | 拟合准确度 |
+| :--- | :--- | :--- | :--- |
+| Bitcoin | ✅ 定投 | `1.0 Unit` | `0.923` |
+| PDD | ✅ 定投 | `1.0 Unit` | `0.5676` |
+| Ethereum | ✅ 定投 | `1.0 Unit` | `0.6061` |
+| Alibaba | ✅ 定投 | `1.0 Unit` | `0.0205` |
+| Tesla | ☕️ 观望 | `0.0 Units` | `0.8245` |
+| Silver | ☕️ 观望 | `0.0 Units` | `0.0041` |
+| Gold | ☕️ 观望 | `0.0 Units` | `0.2356` |
+| NVIDIA | 🔴 止盈 | `减仓` | `0.5944` |
+
+---
+### 🔍 组合健康审计: **0.4720** (平均拟合准确度)
+*注：R² 越接近 1.0，说明该资产的历史规律性越强，信号越可靠。*
+
+
+
+--- 
+*本报告由 GitHub Actions 每日自动生成。商业版已预备 App 数据接口。*
