@@ -19,15 +19,14 @@ def run_backtest(df_hist, w, b, start_date):
         df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
         df['MA200'] = df['Close'].rolling(200).mean()
         df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df = df.dropna().tail(252 * 2) # 过去两年
+        df = df.dropna().tail(252 * 2) 
         
-        # AHR 策略
         df['Invest'] = 1.0
         df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
         df.loc[df['AHR'] > 1.2, 'Invest'] = 0.0
         
+        if df['Invest'].sum() == 0: return 0.0, 0.0
         ahr_roi = (((df['Invest']/df['Close']).sum() * df['Close'].iloc[-1]) / df['Invest'].sum() - 1) * 100
-        # 普通定投
         dca_roi = (((1.0/df['Close']).sum() * df['Close'].iloc[-1]) / len(df) - 1) * 100
         return round(float(ahr_roi), 1), round(float(ahr_roi - dca_roi), 1)
     except: return 0.0, 0.0
@@ -41,7 +40,6 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合
         df['Days'] = (df['Date'] - pd.to_datetime(base_start)).dt.days
         df = df[df['Days'] > 0]
         x = np.log10(df['Days'].values).reshape(-1, 1)
@@ -49,16 +47,13 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 2. 实时指标
         latest = df.iloc[-1]
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
         
-        # 3. 预期空间与回报审计
         upside = round((fit_p / latest['Close'] - 1) * 100, 1)
         roi, alpha = run_backtest(df, model.coef_[0], model.intercept_, base_start)
         
-        # 4. 图表数据 (60天)
         hist = df.tail(60).copy()
         hist['Fit'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
         
@@ -73,21 +68,21 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         }
     except: return None
 
-all_results = []
+final_results = []
 for asset in config['assets']:
     res = analyze_asset(asset)
-    if res: all_results.append(res)
+    if res: final_results.append(res)
 
-all_results.sort(key=lambda x: x['alpha'], reverse=True)
+final_results.sort(key=lambda x: x['alpha'], reverse=True)
 
-# --- 生成极致 App HTML V47 ---
+# --- HTML 生成逻辑 ---
 cards_html = ""
 scripts_html = ""
-for i, item in enumerate(all_results):
+for i, item in enumerate(final_results):
     pro = '<span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span>' if item['is_pro'] else ''
     alpha_color = "#32d74b" if item['alpha'] > 0 else "#ff453a"
     cards_html += f"""
-    <div class="card shadow" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+    <div class="card" style="background:#1c1c1e; border-radius:28px; padding:22px; margin-bottom:15px; border:1px solid #333;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <span style="font-weight:800; font-size:1.2rem;">{item['name']} {pro}</span>
             <span style="color:{alpha_color}; font-size:0.7rem; font-weight:800;">策略比盲投多赚 {item['alpha']}%</span>
@@ -107,7 +102,8 @@ for i, item in enumerate(all_results):
     """
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['prices'])}, {json.dumps(item['fairs'])});\n"
 
-final_html = """
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write("""
 <!DOCTYPE html>
 <html>
 <head>
@@ -125,11 +121,11 @@ final_html = """
 <body>
     <div class="header">
         <h1 style="font-weight:900; margin:0;">回报 <span style="color:#0a84ff;">实证</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">对数回归策略回测榜 | REPLACE_TIME</p>
+        <p style="color:#8e8e93; font-size:0.8rem;">多资产净值回测榜 | REPLACE_TIME</p>
     </div>
     <div style="padding:15px;">REPLACE_CARDS</div>
     <div class="nav-bar">
-        <button class="nav-item" style="color:#0a84ff;">📊<br>机会</button>
+        <button class="nav-item active" style="color:#0a84ff;">📊<br>机会</button>
         <button class="nav-item" onclick="alert('PRO 功能：全自动 Webhook 告警已激活')">🔔<br>预警</button>
         <button class="nav-item" onclick="alert('持仓 Units 仅存本地缓存')">⚙️<br>设置</button>
     </div>
@@ -151,9 +147,8 @@ final_html = """
     </script>
 </body>
 </html>
-""".replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html)
+""".replace("REPLACE_TIME", datetime.now().strftime('%Y-%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
 
-with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(results, f, indent=4)
+with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(final_results, f, indent=4)
 with open("README.md", "w", encoding="utf-8") as f:
-    f.write("# 🚀 Haowu999 全资产智能投研中心 (V47)\n\n## 🏆 策略战绩榜 (ROI PK Table)\n| 资产 | 策略收益 (2Y) | **超额收益 (Alpha)** | 预期涨幅空间 | 拟合信度 |\n| :--- | :--- | :--- | :--- | :--- |\n" + "\n".join([f"| {x['name']} | `+{x['roi']}%` | **`+{x['alpha']}%`** | `+{x['upside']}%` | `{x['r2']}` |" for x in results]) + "\n\n---\n*数据每日自动更新。具体隐私金额已隐藏，Units 请在 App 设置。*")
+    f.write("# 🚀 Haowu999 全资产智能投研中心 (V47)\n\n## 🏆 策略战绩榜 (ROI PK Table)\n| 资产 | 策略收益 (2Y) | **超额收益 (Alpha)** | 预期涨幅空间 | 拟合信度 |\n| :--- | :--- | :--- | :--- | :--- |\n" + "\n".join([f"| {x['name']} | `+{x['roi']}%` | **`+{x['alpha']}%`** | `+{x['upside']}%` | `{x['r2']}` |" for x in final_results]) + "\n\n---\n*数据每日自动更新。具体隐私金额已隐藏，Units 请在 App 设置。*")
