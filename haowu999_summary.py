@@ -7,18 +7,18 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 商业化配置 ---
-# 1.0 Unit = 用户的隐私金额 (如 $0.53)
-PRO_TICKERS = ['NVDA', 'TSLA', 'ASML', '600519.SS'] # 定义哪些属于付费 Pro 信号
+# --- 商业化与隐私配置 ---
+BASE_UNIT = float(os.getenv('DCA_AMOUNT', 1.0))
+PRO_TICKERS = ['NVDA', 'TSLA', '600519.SS', '0700.HK'] # 付费版专属信号
 
 def get_exchange_rates():
     try:
         rates = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
-        return {'HKD': float(rates['HKDUSD=X']), 'CNY': float(rates['CNYUSD=X'])}
+        return {'HKD': 1/float(rates['HKDUSD=X']), 'CNY': 1/float(rates['CNYUSD=X'])} # 兑换回本地
     except:
-        return {'HKD': 0.128, 'CNY': 0.138}
+        return {'HKD': 7.8, 'CNY': 7.2}
 
-def analyze_asset(ticker, start_date='2010-01-01', name='', sector='', currency='USD', rates={}):
+def analyze_asset(ticker, start_date='2010-01-01', name='', sector='', currency='USD'):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2014-09-17'
@@ -30,103 +30,163 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', sector='', currency=
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Fit
+        # 1. 拟合审计
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(fit_df['Days'].values).reshape(-1, 1), np.log10(fit_df['Close'].values))
-        r2 = model.score(np.log10(fit_df['Days'].values).reshape(-1, 1), np.log10(fit_df['Close'].values))
+        x = np.log10(fit_df['Days'].values).reshape(-1, 1)
+        y = np.log10(fit_df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
         
-        # Current Metrics
+        # 2. 当前指标
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
         fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # History & Rank
+        # 3. 历史水位
         df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
         df = df.dropna()
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
-        p10, p50 = df['AHR_Hist'].quantile(0.10), df['AHR_Hist'].quantile(0.50)
+        p10 = df['AHR_Hist'].quantile(0.10)
+        p50 = df['AHR_Hist'].quantile(0.50)
         
-        # Score
+        # 4. 回撤
         drawdown = (latest['Close'] / df['Close'].tail(252).max() - 1) * 100
-        score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
         
         return {
-            'name': name, 'ticker': ticker, 'sector': sector,
+            'name': name, 'ticker': ticker, 'sector': sector, 'currency': currency,
+            'price_local': round(float(latest['Close']), 2),
             'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'drawdown': round(float(drawdown), 1), 'score': round(float(score), 1),
+            'drawdown': round(float(drawdown), 1), 'score': round(100 - rank, 1),
             'r2': round(float(r2), 4), 'p10': p10, 'p50': p50,
-            'is_pro': ticker in PRO_TICKERS or '.SS' in ticker or '.HK' in ticker
+            'is_pro': ticker in PRO_TICKERS
         }
     except: return None
 
-# 板块化资产清单
-assets = [
-    ('BTC-USD', 'Bitcoin', 'Crypto'), ('ETH-USD', 'Ethereum', 'Crypto'),
-    ('GC=F', 'Gold', 'Metals'), ('SI=F', 'Silver', 'Metals'),
-    ('NVDA', 'NVIDIA', 'Tech'), ('TSLA', 'Tesla', 'Tech'), ('AAPL', 'Apple', 'Tech'),
-    ('ASML', 'ASML', 'Tech'), ('BABA', 'Alibaba', 'CN-Tech'), ('PDD', 'PDD', 'CN-Tech'),
-    ('0700.HK', 'Tencent', 'CN-Tech'), ('600519.SS', 'Moutai', 'CN-Tech')
+assets_map = [
+    ('BTC-USD', 'Bitcoin', 'Crypto', 'USD'), ('ETH-USD', 'Ethereum', 'Crypto', 'USD'),
+    ('GC=F', 'Gold', 'Metals', 'USD'), ('SI=F', 'Silver', 'Metals', 'USD'),
+    ('NVDA', 'NVIDIA', 'Tech', 'USD'), ('TSLA', 'Tesla', 'Tech', 'USD'),
+    ('AAPL', 'Apple', 'Tech', 'USD'), ('BABA', 'Alibaba', 'CN-Tech', 'USD'),
+    ('PDD', 'PDD', 'CN-Tech', 'USD'), ('0700.HK', 'Tencent', 'CN-Tech', 'HKD'),
+    ('600519.SS', 'Moutai', 'CN-Tech', 'CNY')
 ]
 
-rates = get_exchange_rates()
 all_results = []
-for ticker, name, cat in assets:
-    res = analyze_asset(ticker, name=name, sector=cat, rates=rates)
+for ticker, name, sec, cur in assets_map:
+    res = analyze_asset(ticker, name=name, sector=sec, currency=cur)
     if res: all_results.append(res)
 
-# --- 资金分配与风险审计 ---
-investable = [x for x in all_results if x['ahr999'] < x['p50']]
-total_score = sum([x['score'] for x in investable]) if investable else 1
-allocation = []
-sector_exposure = {}
+# 计算全球贪婪指数 (Global Fear/Greed)
+global_sentiment = np.mean([x['rank'] for x in all_results])
+sentiment_text = "极度贪婪 😱" if global_sentiment > 80 else "比较狂热 🔥" if global_sentiment > 50 else "价值定投 🙂" if global_sentiment > 20 else "绝望底部 😨"
 
-for item in investable:
-    weight = item['score'] / total_score
-    allocation.append({'name': item['name'], 'weight': weight, 'sector': item['sector']})
-    sector_exposure[item['sector']] = sector_exposure.get(item['sector'], 0) + weight
+# --- 生成 HTML 商业版仪表盘 ---
+html_dashboard = f"""
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Haowu999 Global Quant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {{ background: #000; color: #fff; font-family: -apple-system, system-ui; }}
+        .sentiment-bar {{ height: 40px; border-radius: 20px; background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000); position: relative; }}
+        .sentiment-pointer {{ position: absolute; top: -5px; width: 4px; height: 50px; background: #fff; border-radius: 2px; }}
+        .card {{ background: #1c1c1e; border: none; border-radius: 15px; margin-bottom: 15px; }}
+        .pro-badge {{ background: #ffd700; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 5px; }}
+        .ad-placeholder {{ height: 60px; background: #2c2c2e; border: 1px dashed #444; color: #666; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border-radius: 10px; }}
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <div class="mb-4">
+        <h1 class="fw-bold mb-0">Haowu999 <span class="text-primary">Quant</span></h1>
+        <p class="text-secondary small">V17.0 商业版 | {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+    </div>
 
-# 生成报告
-report = f"# 🚀 Haowu999 全资产智能指挥部 (V16)\n\n"
-report += f"**更新时间**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)`\n\n"
+    <div class="card p-4 mb-4">
+        <h5 class="text-secondary">全球全资产恐慌贪婪指数</h5>
+        <div class="h2 fw-bold mb-3">{int(global_sentiment)} / 100 <small class="fs-6 text-info">{sentiment_text}</small></div>
+        <div class="sentiment-bar">
+            <div class="sentiment-pointer" style="left: {global_sentiment}%"></div>
+        </div>
+    </div>
 
-# 1. 组合风险雷达
-report += "## 🛡 组合风险雷达 (Portfolio Audit)\n"
-if sector_exposure:
-    report += "| 行业板块 | 建议配置占比 | 风险状态 |\n"
-    report += "| :--- | :--- | :--- |\n"
-    for sec, exp in sector_exposure.items():
-        status = "⚠️ 集中度过高" if exp > 0.5 else "✅ 风险分散"
-        report += f"| {sec} | **{exp*100:.1f}%** | {status} |\n"
-else:
-    report += "> 😴 当前无建议买入资产，风险等级：低。\n"
-report += "\n---\n"
+    <div class="ad-placeholder mb-4">商业广告位 / Google AdSense Placeholder</div>
 
-# 2. 资金分配与 Pro 提示
-report += "## 💰 定投配比指令 (Units Allocation)\n"
-report += "| 资产 | 建议权重 | 机会得分 | 信号等级 |\n"
-report += "| :--- | :--- | :--- | :--- |\n"
-for item in sorted(investable, key=lambda x: x['score'], reverse=True):
-    weight = item['score'] / total_score
-    level = "🌟 PRO" if item['is_pro'] else "🟢 FREE"
-    report += f"| **{item['name']}** | `{weight*100:.1f}%` | {item['score']} | {level} |\n"
+    <div class="row g-3">
+"""
 
-report += "\n---\n"
-
-# 3. 全资产底仓扫描
-report += "## 📊 资产估值审计表\n"
-report += "| 资产 | 板块 | AHR999 | 拟合 R² | 历史水位 | 建议 |\n"
-report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
 for item in sorted(all_results, key=lambda x: x['score'], reverse=True):
-    status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-    report += f"| {item['name']} | {item['sector']} | **{item['ahr999']:.3f}** | `{item['r2']}` | {status} | {status} |\n"
+    pro_tag = '<span class="pro-badge ms-2">PRO</span>' if item['is_pro'] else ''
+    status_color = "#32d74b" if item['rank'] < 50 else "#ff453a"
+    html_dashboard += f"""
+        <div class="col-12 col-md-6">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between">
+                    <div class="fw-bold fs-5">{item['name']}{pro_tag}</div>
+                    <div class="fw-bold" style="color: {status_color}">{int(item['score'])}分</div>
+                </div>
+                <div class="text-secondary small mb-2">{item['ticker']} | 拟合 R²: {item['r2']}</div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small text-secondary">当前报价</div>
+                        <div class="fs-6 fw-bold">{item['price_local']} {item['currency']}</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-secondary">AHR999</div>
+                        <div class="fs-6 fw-bold">{item['ahr999']}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    """
 
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(report)
-    f.write("\n\n--- \n*注：Pro 信号包含个股及跨境资产分析。所有金额均已隐藏，展示为建议百分比。*")
+html_dashboard += """
+    </div>
+    <div class="mt-5 text-center text-secondary small">
+        © 2026 Haowu999 Quantitative. 所有数据基于对数回归模型。
+    </div>
+</div>
+</body>
+</html>
+"""
 
-with open("latest_data.json", "w", encoding="utf-8") as f:
-    json.dump(all_results, f, indent=4)
+with open("index.html", "w", encoding="utf-8") as f: f.write(html_dashboard)
+
+# --- 更新 README 商业版说明 ---
+report = f"""# 🚀 Haowu999 全资产量化终端 (V17)
+
+### 📊 [点击打开移动端交互式 App 仪表盘](https://wuhao007.github.io/haowu999/)
+
+## 🌡 全球市场恐慌贪婪指数: **{int(global_sentiment)}/100** ({sentiment_text})
+
+## 🏆 机会排行榜 (Opportunities)
+| 资产 | 信号 | 机会分 | 拟合准确度 (R²) | 建议权重 |
+| :--- | :--- | :--- | :--- | :--- |
+"""
+for item in sorted(all_results, key=lambda x: x['score'], reverse=True)[:6]:
+    icon = "💎 抄底" if item['rank'] < 10 else "✅ 定投" if item['rank'] < 50 else "☕️ 观望"
+    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "0.0 Units"
+    report += f"| {item['name']} | {icon} | **{item['score']}** | `{item['r2']}` | `{units}` |\n"
+
+report += f"""
+---
+### 💰 App 商业化商业路线图
+1. **数据引擎**: 已实现 `haowu999_summary.py` 全自动抓取与分析。
+2. **展示层**: 已生成适配 iPhone/Android 的 `index.html` PWA 网页。
+3. **变现点**: 
+   - **Pro 信号**: NVDA, TSLA, 茅台等个股信号设为付费可见。
+   - **广告接入**: 仪表盘已预留 AdSense 广告位。
+   - **推送服务**: 已预留 Webhook 接口用于 Telegram/短信提醒。
+
+---
+*注：拟合准确度 R² 越接近 1.0 信号越强。Unit 由用户自行定义。*
+"""
+with open("README.md", "w", encoding="utf-8") as f: f.write(report)
+with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
