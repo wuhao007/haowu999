@@ -2,91 +2,78 @@
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 0.554,
+        "currency": "USD",
+        "price": 77511.01,
+        "ahr999": 0.553,
+        "rank": 80.9,
         "r2": 0.923,
-        "mape": 43.3,
-        "rank": 15.1,
         "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "Tesla",
-        "ticker": "TSLA",
-        "ahr999": 1.757,
-        "r2": 0.8245,
-        "mape": 74.3,
-        "rank": 69.5,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
-    },
-    {
-        "name": "Apple",
-        "ticker": "AAPL",
-        "ahr999": 2.409,
-        "r2": 0.7285,
-        "mape": 51.1,
-        "rank": 95.4,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
+        "signal_units": 1.0
     },
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
+        "currency": "USD",
+        "price": 2316.46,
         "ahr999": 0.459,
+        "rank": 54.1,
         "r2": 0.6061,
-        "mape": 63.9,
-        "rank": 22.8,
         "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
+        "signal_units": 1.0
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
+        "currency": "USD",
+        "price": 208.27,
         "ahr999": 11.952,
+        "rank": 98.9,
         "r2": 0.5944,
-        "mape": 145.4,
-        "rank": 97.2,
         "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
+        "signal_units": 0.0
     },
     {
-        "name": "PDD",
-        "ticker": "PDD",
-        "ahr999": 0.559,
-        "r2": 0.5676,
-        "mape": 31.4,
-        "rank": 11.1,
-        "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "Gold",
-        "ticker": "GC=F",
-        "ahr999": 2.779,
-        "r2": 0.2356,
-        "mape": 21.4,
-        "rank": 98.1,
-        "is_pro": false,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
+        "name": "Tesla",
+        "ticker": "TSLA",
+        "currency": "USD",
+        "price": 376.3,
+        "ahr999": 1.757,
+        "rank": 88.5,
+        "r2": 0.8245,
+        "is_pro": true,
+        "signal_units": 0.0
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
+        "currency": "USD",
+        "price": 135.82,
         "ahr999": 0.962,
+        "rank": 50.1,
         "r2": 0.0205,
-        "mape": 35.8,
-        "rank": 45.5,
         "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
+        "signal_units": 1.0
     },
     {
-        "name": "Silver",
-        "ticker": "SI=F",
-        "ahr999": 4.148,
-        "r2": 0.0041,
-        "mape": 27.0,
-        "rank": 98.0,
+        "name": "\u817e\u8baf\u63a7\u80a1",
+        "ticker": "0700.HK",
+        "currency": "HKD",
+        "price": 493.4,
+        "ahr999": 0.999,
+        "rank": 76.2,
+        "r2": 0.7973,
+        "is_pro": true,
+        "signal_units": 1.0
+    },
+    {
+        "name": "\u9ec4\u91d1\u671f\u8d27",
+        "ticker": "GC=F",
+        "currency": "USD",
+        "price": 4722.3,
+        "ahr999": 2.779,
+        "rank": 98.1,
+        "r2": 0.2356,
         "is_pro": false,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
+        "signal_units": 0.0
     }
 ]
