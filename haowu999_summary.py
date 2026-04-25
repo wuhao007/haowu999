@@ -6,25 +6,9 @@ import json
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置区 (无金额，纯份数) ---
+# --- 配置区 ---
+BASE_DCA_UNIT = 1.0
 BOTTOM_MULTIPLIER = 3.0 
-
-def get_exchange_rates():
-    try:
-        rates = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
-        return {'HKD': float(rates['HKDUSD=X']), 'CNY': float(rates['CNYUSD=X'])}
-    except:
-        return {'HKD': 0.128, 'CNY': 0.138}
-
-def get_reliability(r2):
-    if r2 > 0.95: return "🌟 极高"
-    if r2 > 0.85: return "✅ 稳健"
-    return "⚠️ 一般"
-
-def get_visual_bar(percentile):
-    full_blocks = int(percentile / 10)
-    bar = "█" * full_blocks + "░" * (10 - full_blocks)
-    return f"`{bar}` {percentile:.1f}%"
 
 def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD', rates={}):
     try:
@@ -38,7 +22,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD', rate
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合
+        # Fit
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0].copy()
@@ -47,94 +31,155 @@ def analyze_asset(ticker, start_date='2010-01-01', name='', currency='USD', rate
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 2. 当前指标
+        # Metrics
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
-        fit_price = 10 ** (model.coef_[0] * math.log10(days) + model.intercept_)
+        fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # 3. 历史分位
-        df_p = df.copy()
-        df_p['MA200'] = df_p['Close'].rolling(200).mean()
-        df_p['Days'] = (df_p['Date'] - pd.to_datetime(start_date)).dt.days
-        df_p['Fit'] = 10 ** (model.coef_[0] * np.log10(df_p['Days'].clip(lower=1)) + model.intercept_)
-        df_p['AHR_Hist'] = (df_p['Close'] / df_p['MA200']) * (df_p['Close'] / df_p['Fit'])
-        df_p = df_p.dropna()
-        rank = (df_p['AHR_Hist'] < ahr999).mean() * 100
-        p10, p50 = df_p['AHR_Hist'].quantile(0.10), df_p['AHR_Hist'].quantile(0.50)
+        # History
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
+        df = df.dropna()
+        rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
-        # 回撤
         year_high = df['Close'].tail(252).max()
         drawdown = (latest['Close'] / year_high - 1) * 100
-        
         score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
         
-        price_usd = latest['Close']
-        if currency == 'HKD': price_usd *= rates['HKD']
-        if currency == 'CNY': price_usd *= rates['CNY']
-            
         return {
-            'name': name, 'ticker': ticker, 'price_usd': round(float(price_usd), 2),
+            'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
             'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
             'drawdown': round(float(drawdown), 1), 'score': round(float(score), 1),
-            'accuracy_r2': round(float(r2), 4), 'fair_value': round(float(fit_price), 2),
-            'p10': p10, 'p50': p50
+            'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2)
         }
-    except:
-        return None
+    except: return None
 
-# 资产地图
-assets = {
-    'Crypto': [('BTC-USD', 'Bitcoin', 'USD'), ('ETH-USD', 'Ethereum', 'USD')],
-    'Metals': [('GC=F', 'Gold', 'USD'), ('SI=F', 'Silver', 'USD')],
+assets_config = {
+    'Crypto': [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')],
+    'Metals': [('GC=F', 'Gold'), ('SI=F', 'Silver')],
     'Stocks': [
-        ('0700.HK', 'Tencent', 'HKD'), ('600519.SS', 'Moutai', 'CNY'), ('AAPL', 'Apple', 'USD'),
-        ('NVDA', 'NVIDIA', 'USD'), ('TSLA', 'Tesla', 'USD'), ('BABA', 'Alibaba', 'USD'),
-        ('PDD', 'PDD Holdings', 'USD'), ('TSM', 'TSMC', 'USD'), ('BRK-B', 'Berkshire B', 'USD')
+        ('0700.HK', 'Tencent'), ('600519.SS', 'Moutai'), ('AAPL', 'Apple'),
+        ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'),
+        ('PDD', 'PDD'), ('TSM', 'TSMC'), ('BRK-B', 'Berkshire B')
     ]
 }
 
-rates = get_exchange_rates()
 all_results = []
-for cat, items in assets.items():
-    for ticker, name, curr in items:
-        res = analyze_asset(ticker, name=name, currency=curr, rates=rates)
+for cat, items in assets_config.items():
+    for ticker, name in items:
+        res = analyze_asset(ticker, name=name)
         if res:
             res['category'] = cat
             all_results.append(res)
 
-# 按得分排序
 all_results.sort(key=lambda x: x['score'], reverse=True)
 
-# 生成 README
-report = f"# 🚀 Haowu999 全资产智能定投导航 (V8)\n\n"
-report += f"> **今日行情汇总**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)`\n\n"
+# --- 生成 HTML 仪表盘 ---
+html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haowu999 Global Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {{ background-color: #f8f9fa; font-family: -apple-system, sans-serif; }}
+        .card {{ border: None; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }}
+        .opportunity-score {{ font-size: 2rem; font-weight: bold; color: #0d6efd; }}
+        .badge-bottom {{ background-color: #dc3545; }}
+        .badge-invest {{ background-color: #198754; }}
+        .badge-wait {{ background-color: #6c757d; }}
+        .progress {{ height: 10px; border-radius: 5px; }}
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <header class="pb-3 mb-4 border-bottom">
+        <h1 class="display-5 fw-bold">🚀 Haowu999 投研中心</h1>
+        <p class="text-muted">实时全球资产估值系统 | 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+    </header>
 
-report += "## 🎯 机会雷达 (Market Opportunities)\n"
-report += "| 排名 | 资产 | 机会分 | 建议权重 | 拟合信度 | 回归空间 |\n"
-report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-for i, item in enumerate(all_results[:5]):
-    units = "3.0 Units" if item['ahr999'] < item['p10'] else "1.0 Unit" if item['ahr999'] < item['p50'] else "0.0 Units"
-    upside = (item['fair_value'] / item['price_usd'] - 1) * 100
-    report += f"| {i+1} | **{item['name']}** | {item['score']} | `{units}` | {get_reliability(item['accuracy_r2'])} | {upside:+.1f}% |\n"
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card p-4 bg-primary text-white">
+                <h2>今日最佳机会</h2>
+                <div class="d-flex overflow-auto">
+                    {" ".join([f'<div class="me-4 text-center"><h5>{x["name"]}</h5><div class="h3">{x["score"]}分</div></div>' for x in all_results[:3]])}
+                </div>
+            </div>
+        </div>
+    </div>
 
-report += "\n---\n"
+    <h2 class="mt-4 mb-3">资产列表</h2>
+    <div class="row">
+"""
 
-report += "## 📊 资产扫描仪 (Full Audit)\n"
-report += "| 资产 | AHR999 | 1Y回撤 | 历史水位 | 准确度(R²) | 状态 |\n"
-report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
 for item in all_results:
-    status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-    report += f"| {item['name']} | **{item['ahr999']:.3f}** | {item['drawdown']}% | {get_visual_bar(item['rank'])} | `{item['accuracy_r2']}` | {status} |\n"
+    status_class = "badge-bottom" if item['rank'] < 10 else "badge-invest" if item['rank'] < 50 else "badge-wait"
+    status_text = "💎 抄底" if item['rank'] < 10 else "✅ 定投" if item['rank'] < 50 else "☕️ 观望"
+    html_content += f"""
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{item['name']}</h5>
+                    <span class="badge {status_class}">{status_text}</span>
+                </div>
+                <div class="text-muted small">{item['ticker']}</div>
+                <hr>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>AHR999:</span><strong>{item['ahr999']}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>历史水位:</span>
+                    <div class="w-50 mt-1">
+                        <div class="progress">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: {item['rank']}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>1Y回撤:</span><strong class="text-danger">{item['drawdown']}%</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>拟合信度:</span><span class="text-success">{'★'*int(item['r2']*5)}</span>
+                </div>
+            </div>
+        </div>
+    """
+
+html_content += """
+    </div>
+    <footer class="pt-3 mt-4 text-muted border-top">
+        &copy; 2026 Haowu999 Quantitative - Built for Commercial Potential
+    </footer>
+</div>
+</body>
+</html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(all_results, f, indent=4)
+
+# 更新 README 引导用户
+readme_v9 = f"""# 🚀 Haowu999 全资产智能定投导航 (V9)
+
+### 📱 移动端 Web 仪表盘
+> **[点击进入 Web-App 实时预览](https://wuhao007.github.io/haowu999/)**  
+> *(需在 GitHub 仓库设置中开启 GitHub Pages 指向 main 分支)*
+
+## 🏆 综合机会排行榜
+| 排名 | 资产 | 机会分 | 建议权重 | 拟合准确度 (R²) |
+| :--- | :--- | :--- | :--- | :--- |
+"""
+for i, item in enumerate(all_results[:5]):
+    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "0.0 Units"
+    readme_v9 += f"| {i+1} | **{item['name']}** | {item['score']} | `{units}` | `{item['r2']}` |\n"
 
 with open("README.md", "w", encoding="utf-8") as f:
-    f.write(report)
-    f.write("\n\n---\n*注：拟合信度基于 R²。1.0 Unit 为用户自定义基础金额。数据基于 yfinance 对数回归。*")
-
-# 导出 App 专用 JSON
-with open("latest_data.json", "w", encoding="utf-8") as f:
-    json.dump({
-        "last_updated": datetime.now().isoformat(),
-        "assets": all_results
-    }, f, indent=4)
+    f.write(readme_v9)
+    f.write("\n\n--- \n*注：数据每日自动更新。具体金额已隐藏，Unit 由用户自行定义。*")
