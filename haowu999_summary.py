@@ -10,27 +10,6 @@ from datetime import datetime
 # --- 配置 ---
 PRO_LIST = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
 
-def run_backtest(df_hist, w, b, start_date):
-    """回测 2 年：系统指令 vs 无脑定投"""
-    try:
-        df = df_hist.copy()
-        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
-        df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
-        df['MA200'] = df['Close'].rolling(200).mean()
-        df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df = df.dropna().tail(252 * 2)
-        
-        # 指令定投 (1x 或 3x)
-        df['Invest'] = 1.0
-        df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
-        df.loc[df['AHR'] > 1.2, 'Invest'] = 0.0
-        ahr_roi = (((df['Invest']/df['Close']).sum() * df['Close'].iloc[-1]) / df['Invest'].sum() - 1) * 100
-        
-        # 盲目定投 (DCA)
-        dca_roi = (((1.0/df['Close']).sum() * df['Close'].iloc[-1]) / len(df) - 1) * 100
-        return round(ahr_roi, 1), round(ahr_roi - dca_roi, 1)
-    except: return 0.0, 0.0
-
 def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
         actual_start = '2015-01-01' if 'BTC' in ticker else start_date
@@ -40,105 +19,111 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Fit
-        x = np.log10((df['Date'] - pd.to_datetime(start_date)).dt.days.values).reshape(-1, 1)
-        y = np.log10(df['Close'].values)
+        # 1. 拟合模型
+        fit_df = df.copy()
+        fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
+        fit_df = fit_df[fit_df['Days'] > 0]
+        x = np.log10(fit_df['Days'].values).reshape(-1, 1)
+        y = np.log10(fit_df['Close'].values)
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # Metrics
-        latest = df.iloc[-1]
-        fit_p = 10 ** (model.coef_[0] * math.log10(max(1, (latest['Date'] - pd.to_datetime(start_date)).days)) + model.intercept_)
-        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
+        # 2. 回测最近 120 天双线
+        hist = df.tail(120).copy()
+        hist['Days'] = (hist['Date'] - pd.to_datetime(start_date)).dt.days
+        hist['Fit'] = 10 ** (model.coef_[0] * np.log10(hist['Days'].clip(lower=1)) + model.intercept_)
         
-        # ROI
-        roi, alpha = run_backtest(df, model.coef_[0], model.intercept_, start_date)
+        latest = df.iloc[-1]
+        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / hist['Fit'].iloc[-1])
+        
+        # 历史水位
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
+        rank = (df['AHR_Hist'].dropna() < ahr).mean() * 100
         
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'roi': roi, 'alpha': alpha,
-            'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'rank': round(float(rank), 1),
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'actual': hist['Close'].round(2).tolist(),
+            'fair': hist['Fit'].round(2).tolist(),
             'is_pro': ticker in PRO_LIST,
             'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
         }
     except: return None
 
-assets_config = [
-    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
-    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'),
-    ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold')
-]
-
-all_results = []
-for t, n in assets_config:
+assets = [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'), ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold')]
+results = []
+for t, n in assets:
     res = analyze_asset(t, name=n)
-    if res: all_results.append(res)
+    if res: results.append(res)
 
-all_results.sort(key=lambda x: x['alpha'], reverse=True)
-
-# --- 生成极致手机 App 网页 V36 ---
-html_template = f"""
+# --- 生成最终交互版 HTML ---
+html_v37 = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Haowu999 Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Haowu999 Terminal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background: #000; color: #fff; font-family: -apple-system, system-ui; margin: 0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }}
-        .header {{ padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom: 0.5px solid #222; }}
-        .app-card {{ background: #1c1c1e; border-radius: 28px; padding: 22px; margin: 15px; border: 0.5px solid #333; position: relative; }}
-        .badge-alpha {{ background: rgba(50,215,75,0.1); color: #32d74b; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; }}
-        .pro-mask {{ filter: blur(15px); opacity: 0.3; pointer-events: none; }}
-        .btn-pro {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; font-size: 0.85rem; }}
-        .nav-bar {{ position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: rgba(28,28,30,0.9); backdrop-filter: blur(25px); display: flex; justify-content: space-around; padding-top: 12px; border-top: 0.5px solid #333; }}
-        .nav-item {{ color: #8e8e93; font-size: 0.7rem; text-align: center; text-decoration: none; }}
+        body {{ background: #000; color: #fff; font-family: -apple-system; padding: 20px; }}
+        .card {{ background: #1c1c1e; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }}
+        .chart-box {{ height: 100px; margin: 10px 0; }}
+        .pro-mask {{ filter: blur(12px); opacity: 0.3; pointer-events: none; }}
+        .paywall-btn {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: #0a84ff; border: none; padding: 10px; border-radius: 15px; font-weight: bold; font-size: 0.7rem; }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 style="font-weight: 900; font-size: 2.3rem; margin:0;">投研 <span style="color:#0a84ff">PRO</span></h1>
-        <p style="color:#8e8e93; font-size: 0.85rem;">全球资产回测实证系统 | {datetime.now().strftime('%m-%d %H:%M')}</p>
-    </div>
-
-    <div class="container-fluid px-0">
-"""
-
-for item in all_results:
-    is_pro = item['is_pro']
-    overlay = f'<button class="btn-pro shadow" onclick="alert(\'升级 Pro 会员解锁个股信号\')">订阅解锁 PRO</button>' if is_pro else ''
-    
-    html_template += f"""
-    <div class="app-card shadow">
-        {overlay}
-        <div class="{"pro-mask" if is_pro else ""}">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span style="font-size:1.4rem; font-weight:800;">{item['name']}</span>
-                <span class="badge-alpha">Alpha +{item['alpha']}%</span>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; text-align:center; gap: 15px;">
-                <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
-                <div><div style="color:#8e8e93; font-size:0.6rem;">拟合信度</div><div style="font-size:1.4rem; font-weight:800; color:#32d74b;">{int(item['r2']*100)}%</div></div>
-                <div><div style="color:#8e8e93; font-size:0.6rem;">当前指令</div><div style="font-size:1.2rem; font-weight:800; color:#0a84ff;">{item['signal']}</div></div>
-            </div>
-            <div style="margin-top:15px; font-size:0.65rem; color:#444;">过去 2 年策略累计收益率: <b>+{item['roi']}%</b> (超越定投)</div>
-        </div>
-    </div>
-    """
-
-html_template += """
-    </div>
-    <div class="nav-bar">
-        <div class="nav-item" style="color:#0a84ff;">📊<br>机会</div>
-        <div class="nav-item">🏆<br>盈利榜</div>
-        <div class="nav-item">⚙️<br>设置</div>
-    </div>
+    <h2 style="font-weight: 800;">Haowu <span style="color:#0a84ff">Quant</span></h2>
+    <p style="color:#8e8e93; font-size: 0.7rem;">实时公允价值回归系统 | REPLACE_TIME</p>
+    <div id="app">REPLACE_CARDS</div>
+<script>
+function render(id, labels, actual, fair) {{
+    new Chart(document.getElementById(id), {{
+        type: 'line',
+        data: {{
+            labels: labels,
+            datasets: [
+                {{ data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }},
+                {{ data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false }}
+            ]
+        }},
+        options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ display: false }}, y: {{ display: false }} }} }}
+    }});
+}}
+REPLACE_SCRIPTS
+</script>
 </body>
 </html>
 """
 
-with open("index.html", "w", encoding="utf-8") as f: f.write(html_template)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
+cards_html = ""
+scripts_html = ""
+for i, item in enumerate(results):
+    is_pro = item['is_pro']
+    paywall = f'<button class="paywall-btn shadow">订阅解锁 Pro 信号</button>' if is_pro else ''
+    
+    cards_html += f"""
+    <div class="card position-relative">
+        {paywall}
+        <div class="{"pro-mask" if is_pro else ""}">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-weight:bold; font-size:1rem;">{item['name']}</span>
+                <span style="color:#32d74b; font-size:0.6rem;">信度 {item['r2']}</span>
+            </div>
+            <div class="chart-box"><canvas id="c_{i}"></canvas></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.2rem; font-weight:800;">{item['ahr999']}</div></div>
+                <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">动作</div><div style="font-size:1.1rem; font-weight:800; color:#0a84ff;">{item['signal']}</div></div>
+            </div>
+        </div>
+    </div>
+    """
+    scripts_html += f"render('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['actual'])}, {json.dumps(item['fair'])});\n"
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_v37.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
+
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, indent=4)
