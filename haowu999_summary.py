@@ -11,6 +11,17 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+def solve_target_price(target_ahr, ma200_sum_199, fit_p):
+    """逆推价格方程：基于 AHR999 目标值算出绝对价格"""
+    try:
+        a = 200
+        b = - (target_ahr * fit_p)
+        c = - (target_ahr * fit_p * ma200_sum_199)
+        delta = b**2 - 4*a*c
+        if delta < 0: return 0.0
+        return round((-b + math.sqrt(delta)) / (2 * a), 2)
+    except: return 0.0
+
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker = asset_cfg['ticker']
     name = asset_cfg['name']
@@ -20,27 +31,39 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 拟合
+        # 1. 长期拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        x = np.log10(df['Days'].values).reshape(-1, 1)
+        y = np.log10(df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
         
+        # 2. 指标计算
         latest = df.iloc[-1]
-        ma200 = df['Close'].tail(200).mean()
+        ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 预期收益空间
-        upside = round((fit_p / latest['Close'] - 1) * 100, 1)
+        # 3. 价格逆推 (1.2 定投点与 0.45 抄底点)
+        p_dca = solve_target_price(1.20, ma200_sum_199, fit_p)
+        p_btm = solve_target_price(0.45, ma200_sum_199, fit_p)
+        
+        # 4. 图表数据 (120天)
+        hist = df.tail(120).copy()
+        hist['Fit_H'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
+        mape = np.mean(np.abs((hist['Close'] - hist['Fit_H']) / hist['Close'])) * 100
         
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'upside': upside,
-            'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
+            'p_dca': p_dca, 'p_btm': p_btm, 'price': round(float(latest['Close']), 2),
             'currency': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
-            'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
+            'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望",
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'actual': hist['Close'].round(2).tolist(),
+            'fair': hist['Fit_H'].round(2).tolist()
         }
     except: return None
 
@@ -50,33 +73,35 @@ for asset in config['assets']:
     if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
-hero = all_results[0] # 机会最大的资产
 
-# --- 生成最终版 HTML V67 ---
+# --- 生成极致 App HTML V68 ---
 cards_html = ""
-for item in all_results:
-    is_pro = item['is_pro']
-    blur_style = "filter: blur(10px); opacity: 0.3;" if is_pro else ""
-    pro_btn = f'<div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10;"><button onclick="showPro()" style="background:#0a84ff; color:#fff; border:none; padding:8px 16px; border-radius:20px; font-weight:bold; font-size:0.7rem;">解锁 Pro 信号</button></div>' if is_pro else ""
-    
+scripts_html = ""
+for i, item in enumerate(all_results):
+    pro = '<span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span>' if item['is_pro'] else ''
     cards_html += f"""
-    <div class="card shadow-sm" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333; position:relative; overflow:hidden;">
-        {pro_btn}
-        <div style="{blur_style}">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span style="font-weight:800; font-size:1.1rem;">{item['name']} <small style="font-size:0.6rem; color:#666;">{item['ticker']}</small></span>
-                <span style="color:#ffd700; font-size:0.65rem;">拟合信度 {'★' * int(item['r2']*5+1)}</span>
+    <div class="card shadow-sm" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-weight:700; font-size:1.1rem;">{item['name']} {pro}</span>
+            <span style="color:#8e8e93; font-size:0.65rem;">误差: {item['mape']}% | R²: {item['r2']}</span>
+        </div>
+        <div style="height:100px; margin-bottom:15px;"><canvas id="c_{i}"></canvas></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+            <div style="background:rgba(50,215,75,0.05); border-radius:12px; padding:10px; text-align:center; border:0.5px solid #32d74b33;">
+                <div style="color:#32d74b; font-size:0.6rem;">抄底建议价</div><div style="font-size:1.1rem; font-weight:900; color:#32d74b;">${item['p_btm']}</div>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.5rem; font-weight:900;">{item['ahr999']}</div></div>
-                <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">回归预期收益</div><div style="font-size:1.5rem; font-weight:900; color:#32d74b;">{item['upside']:+}%</div></div>
-            </div>
-            <div style="margin-top:15px; font-size:0.8rem; font-weight:bold; color:#0a84ff; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-                指令建议：{item['signal']}
+            <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:10px; text-align:center;">
+                <div style="color:#8e8e93; font-size:0.6rem;">定投截止价</div><div style="font-size:1.1rem; font-weight:900; color:#fff;">${item['p_dca']}</div>
             </div>
         </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #222; padding-top:12px;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
+            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">本地报价 ({item['currency']})</div><div style="font-size:1.4rem; font-weight:800; color:#0a84ff;">{item['price']}</div></div>
+        </div>
+        <div style="margin-top:10px;"><input type="number" class="hold-input" data-ticker="{item['ticker']}" placeholder="点击输入持仓 Units" onchange="saveHoldings()" style="background:transparent; border:none; color:#444; font-size:0.6rem; width:100%; text-align:center;"></div>
     </div>
     """
+    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['actual'])}, {json.dumps(item['fair'])});\n"
 
 final_html = f"""
 <!DOCTYPE html>
@@ -84,69 +109,70 @@ final_html = f"""
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Alpha Hub Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {{ background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }}
-        .tab-content {{ display:none; padding:20px; }}
-        .active-tab {{ display:block; }}
-        .hero-banner {{ background: linear-gradient(135deg, #0a84ff, #5e5ce6); border-radius:24px; padding:25px; margin:20px 15px; position:relative; overflow:hidden; }}
-        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
-        .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; }}
+        .header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:0.5px solid #222; }}
+        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
+        .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; text-decoration:none; }}
         .nav-item.active {{ color:#0a84ff; }}
-        .install-guide {{ position:fixed; top:20px; left:20px; right:20px; background:#1c1c1e; border:1px solid #0a84ff; padding:15px; border-radius:15px; z-index:2000; font-size:0.75rem; display:none; }}
+        .tab-view {{ display:none; padding:20px; }}
+        .active-tab {{ display:block; }}
     </style>
 </head>
 <body>
-    <div id="install-ui" class="install-guide shadow-lg" onclick="this.style.display='none'">
-        💡 <b>点击浏览器“分享”按钮 -> “添加到主屏幕”</b>，即可像使用原生 App 一样体验本系统！[点击关闭]
+    <div id="tab-home" class="tab-view active-tab" style="padding:0;">
+        <div class="header"><h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">实时对数拟合审计与记账终端 | {datetime.now().strftime('%m-%d %H:%M')}</p></div>
+        <div style="padding:15px;">{cards_html}</div>
     </div>
 
-    <div id="tab-home" class="tab-content active-tab">
-        <div style="padding: 40px 15px 0;"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">实时对数回归审计终端 | {datetime.now().strftime('%m-%d %H:%M')}</p></div>
-        
-        <div class="hero-banner shadow">
-            <div style="font-size:0.7rem; opacity:0.8;">🔥 今日最佳财富机会</div>
-            <div style="font-size:1.8rem; font-weight:900; margin:5px 0;">{hero['name']}</div>
-            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                <div><div style="font-size:0.6rem; opacity:0.7;">预期空间</div><div style="font-size:1.4rem; font-weight:800;">{hero['upside']:+}%</div></div>
-                <div style="text-align:right;"><div style="font-size:0.6rem; opacity:0.7;">当前 AHR</div><div style="font-size:1.4rem; font-weight:800;">{hero['ahr999']}</div></div>
-            </div>
+    <div id="tab-portfolio" class="tab-view" style="padding-top:60px;">
+        <h2 style="font-weight:800;">本地金库</h2>
+        <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #0a84ff;">
+            <div style="color:#8e8e93; font-size:0.8rem;">当前持仓总 Units</div>
+            <div id="total-units" style="font-size:3rem; font-weight:900; margin:10px 0;">0.00</div>
+            <div style="color:#32d74b; font-weight:bold;">运行环境：手机本地安全加密</div>
         </div>
-
-        <div style="padding:0 15px;">{cards_html}</div>
+        <p style="color:#444; font-size:0.7rem; margin-top:20px;">* 注：您的持仓数据仅保存在手机浏览器中。1 Unit 可代表任何定投基数（如 $0.53）。</p>
     </div>
 
-    <div id="tab-settings" class="tab-content" style="padding-top:60px;">
-        <h2 style="font-weight:800;">会员与设置</h2>
-        <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #ffd700;">
-            <div style="color:#ffd700; font-weight:900; font-size:1.2rem;">💎 升级 Alpha Pro</div>
-            <p style="color:#8e8e93; font-size:0.75rem; margin-top:10px;">解锁泡泡玛特、腾讯、英伟达等个股精准买卖信号。</p>
-            <button onclick="showPro()" style="width:100%; background:#ffd700; color:#000; border:none; padding:12px; border-radius:12px; font-weight:900; margin-top:10px;">获取激活码</button>
-        </div>
-        <div style="margin-top:30px; text-align:center; color:#444; font-size:0.7rem;">版本 V67.0 | PWA 离线模式已激活</div>
-    </div>
-
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</button>
-        <button class="nav-item" onclick="switchTab('settings', this)">💎<br>Pro会员</button>
-        <button class="nav-item" onclick="alert('0.53 持仓账本即将在下版本上线')">💰<br>资产</button>
-    </div>
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('请联系管理员获取 Pro 激活码')">⚙️<br>设置</div>
+    </nav>
 
     <script>
-    if (!window.navigator.standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {{
-        document.getElementById('install-ui').style.display = 'block';
+    function renderChart(id, labels, actual, fair) {{
+        new Chart(document.getElementById(id), {{
+            type: 'line',
+            data: {{ labels: labels, datasets: [{{ data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }}, {{ data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5,5], pointRadius: 0, fill: false }}] }},
+            options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }}, scales: {{ x: {{ display: false }}, y: {{ display: false }} }} }}
+        }});
     }}
-    function switchTab(id, btn) {{
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+    function switchTab(id, el) {{
+        document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('tab-' + id).classList.add('active-tab');
-        btn.classList.add('active');
+        el.classList.add('active');
+        if(id === 'portfolio') calcTotal();
     }}
-    function showPro() {{
-        alert('请联系管理员获取激活码\\nWeChat: haowu999_quant\\n开启个股及贵金属精准审计信号');
+    function saveHoldings() {{
+        let h = {{}};
+        document.querySelectorAll('.hold-input').forEach(i => {{ h[i.dataset.ticker] = i.value; }});
+        localStorage.setItem('alpha_holdings', JSON.stringify(h));
+    }}
+    function calcTotal() {{
+        let h = JSON.parse(localStorage.getItem('alpha_holdings') || '{{}}');
+        let total = 0;
+        Object.values(h).forEach(v => {{ total += parseFloat(v || 0); }});
+        document.getElementById('total-units').innerText = total.toFixed(2);
+    }}
+    window.onload = function() {{
+        let h = JSON.parse(localStorage.getItem('alpha_holdings') || '{{}}');
+        document.querySelectorAll('.hold-input').forEach(i => {{ i.value = h[i.dataset.ticker] || ''; }});
+        {scripts_html}
     }}
     </script>
 </body>
