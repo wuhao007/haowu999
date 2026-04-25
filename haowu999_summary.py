@@ -6,9 +6,9 @@ import json
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 用户个性化配置 ---
-TOTAL_BUDGET_PER_TICK = 0.53  
-BOTTOM_MULTIPLIER = 3.0 
+# --- 隐私保护配置 ---
+# 移除了具体金额，改为建议买入的“单位/份数”
+# 你可以在心里默认 1 Unit = $0.53
 
 def get_exchange_rates():
     try:
@@ -16,29 +16,6 @@ def get_exchange_rates():
         return {'HKD': float(rates['HKDUSD=X']), 'CNY': float(rates['CNYUSD=X'])}
     except:
         return {'HKD': 0.128, 'CNY': 0.138}
-
-def get_macro_weather():
-    """获取宏观市场气候"""
-    try:
-        data = yf.download(['DX-Y.NYB', '^TNX', '^VIX'], period='5d', progress=False)['Close']
-        latest = data.iloc[-1]
-        prev = data.iloc[-2]
-        
-        vix = float(latest['^VIX'])
-        dxy = float(latest['DX-Y.NYB'])
-        us10y = float(latest['^TNX'])
-        
-        # 简单气候逻辑
-        weather = "🌤 晴朗"
-        if vix > 25: weather = "⛈ 暴风雨 (机会闪现)"
-        elif vix > 20: weather = "☁️ 多云 (风险上升)"
-        
-        if dxy > prev['DX-Y.NYB'] and us10y > prev['^TNX']:
-            weather += " | 💨 逆风 (流动性收紧)"
-            
-        return {'vix': vix, 'dxy': dxy, 'us10y': us10y, 'weather': weather}
-    except:
-        return {'vix': 0, 'dxy': 0, 'us10y': 0, 'weather': '未知'}
 
 def get_visual_bar(percentile):
     full_blocks = int(percentile / 10)
@@ -57,21 +34,23 @@ def get_ahr999_analysis(ticker, start_date='2010-01-01', name='', currency='USD'
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Fit
+        # 拟合模型并获取 R2 (准确度)
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0].copy()
-        model = LinearRegression().fit(np.log10(fit_df['Days'].values).reshape(-1, 1), np.log10(fit_df['Close'].values))
+        x = np.log10(fit_df['Days'].values).reshape(-1, 1)
+        y = np.log10(fit_df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        accuracy_r2 = model.score(x, y)
         
+        # 计算当前 AHR999
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
         fit_price = 10 ** (model.coef_[0] * math.log10(days) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # Expected Return to Fit Line
-        upside = (fit_price / latest['Close'] - 1) * 100
-        
+        # 历史百分位
         df_p = df.copy()
         df_p['MA200'] = df_p['Close'].rolling(200).mean()
         df_p['Days'] = (df_p['Date'] - pd.to_datetime(start_date)).dt.days
@@ -79,78 +58,74 @@ def get_ahr999_analysis(ticker, start_date='2010-01-01', name='', currency='USD'
         df_p['AHR_Hist'] = (df_p['Close'] / df_p['MA200']) * (df_p['Close'] / df_p['Fit'])
         df_p = df_p.dropna()
         rank = (df_p['AHR_Hist'] < ahr999).mean() * 100
+        p10 = df_p['AHR_Hist'].quantile(0.10)
+        p50 = df_p['AHR_Hist'].quantile(0.50)
         
         year_high = df['Close'].tail(252).max()
         drawdown = (latest['Close'] / year_high - 1) * 100
         score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
-        
-        price_usd = latest['Close']
-        if currency == 'HKD': price_usd *= rates['HKD']
-        if currency == 'CNY': price_usd *= rates['CNY']
             
         return {
-            'name': name, 'ticker': ticker, 'price_usd': price_usd,
+            'name': name, 'ticker': ticker,
             'ahr999': ahr999, 'rank': rank, 'drawdown': drawdown, 'score': score,
-            'upside': upside, 'p10': df_p['AHR_Hist'].quantile(0.10), 'p50': df_p['AHR_Hist'].quantile(0.50)
+            'p10': p10, 'p50': p50, 'accuracy': accuracy_r2
         }
     except:
         return None
 
-assets_config = {
-    'Crypto': [('BTC-USD', 'Bitcoin', 'USD'), ('ETH-USD', 'Ethereum', 'USD')],
-    'Metals': [('GC=F', 'Gold', 'USD'), ('SI=F', 'Silver', 'USD')],
-    'Tech-US': [('AAPL', 'Apple', 'USD'), ('NVDA', 'NVIDIA', 'USD'), ('TSLA', 'Tesla', 'USD'), ('UNH', 'UnitedHealth', 'USD'), ('BRK-B', 'Berkshire B', 'USD')],
-    'Tech-CN': [('0700.HK', 'Tencent', 'HKD'), ('BABA', 'Alibaba ADR', 'USD'), ('PDD', 'PDD Holdings', 'USD')],
-    'Others': [('600519.SS', 'Moutai', 'CNY'), ('TSM', 'TSMC', 'USD'), ('OXY', 'Occidental', 'USD')]
+assets = {
+    'Crypto': [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')],
+    'Metals': [('GC=F', 'Gold'), ('SI=F', 'Silver')],
+    'Stocks': [
+        ('0700.HK', 'Tencent'), ('600519.SS', 'Moutai'), ('AAPL', 'Apple'),
+        ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba ADR'),
+        ('PDD', 'PDD Holdings'), ('TSM', 'TSMC'), ('BRK-B', 'Berkshire B')
+    ]
 }
 
 rates = get_exchange_rates()
-macro = get_macro_weather()
 all_results = []
-for cat, items in assets_config.items():
-    for ticker, name, curr in items:
-        data = get_ahr999_analysis(ticker, name=name, currency=curr, rates=rates)
-        if data:
-            data['category'] = cat
-            all_results.append(data)
+for cat, items in assets.items():
+    for ticker, name in items:
+        data = get_ahr999_data(ticker, name=name) # 内部处理汇率
+        # 为了简洁，汇总页不再展示美元价格，只展示核心指标
+        data_full = get_ahr999_analysis(ticker, name=name)
+        if data_full:
+            data_full['category'] = cat
+            all_results.append(data_full)
 
 # 生成报告
-report = f"# 🚀 Haowu999 全资产定投看板 (V7 - 宏观版)\n\n"
-report += f"### 🌤 市场气候监测 (Market Weather)\n"
-report += f"- **当前气候**: {macro['weather']}\n"
-report += f"- **恐慌指数 (VIX)**: `{macro['vix']:.1f}` | **美元指数 (DXY)**: `{macro['dxy']:.1f}` | **美债10Y**: `{macro['us10y']:.2f}%`  \n\n"
+report = f"# 🚀 Haowu999 全资产智能定投导航\n\n"
+report += f"> **策略**: 动态权重分配 | **更新时间**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)`\n\n"
 
-# 1. 核心买入指令
-report += "## 💰 动态资金分配指令\n"
-investable = [x for x in all_results if x['ahr999'] < x['p50']]
-if investable:
-    total_score = sum([x['score'] for x in investable])
-    # 宏观调节系数：如果 VIX 高（恐慌），总预算提升
-    macro_multiplier = 1.2 if macro['vix'] > 25 else 1.0
-    actual_base = TOTAL_BUDGET_PER_TICK * macro_multiplier
-    
-    is_bottom = any(x['ahr999'] < x['p10'] for x in investable)
-    actual_budget = actual_base * (BOTTOM_MULTIPLIER if is_bottom else 1.0)
-    
-    report += f"> **今日总预算**: `${actual_budget:.2f}` / 10min (已根据宏观气候自动调节)\n\n"
-    report += f"| 资产 | 建议金额 | 预期回归涨幅 | 理由 |\n"
-    report += "| :--- | :--- | :--- | :--- |\n"
-    for item in sorted(investable, key=lambda x: x['score'], reverse=True)[:5]:
-        alloc = actual_budget * (item['score'] / total_score)
-        report += f"| **{item['name']}** | **`${alloc:.3f}`** | +{item['upside']:.1f}% | {'💎抄底' if item['ahr999'] < item['p10'] else '✅定投'} |\n"
-else:
-    report += "- 😴 **目前全线资产溢价，建议暂停投入，增加现金头寸。**\n"
+# 1. 机会排行榜 (隐私保护版)
+report += "## 🏆 综合机会排行榜 (Top Opportunities)\n"
+report += "| 排名 | 资产 | 机会得分 | 建议仓位 | 拟合准确度 (R²) |\n"
+report += "| :--- | :--- | :--- | :--- | :--- |\n"
+top_sorted = sorted(all_results, key=lambda x: x['score'], reverse=True)
+for i, item in enumerate(top_sorted[:5]):
+    # 将金额改为“份数”
+    units = "3.0 Units" if item['ahr999'] < item['p10'] else "1.0 Unit" if item['ahr999'] < item['p50'] else "0.0 Units"
+    report += f"| {i+1} | **{item['name']}** | **{item['score']:.1f}** | `{units}` | `{item['accuracy']:.4f}` |\n"
 
 report += "\n---\n"
 
-# 2. 全资产因透视
-report += "### 📊 全资产扫描 (宏观透视)\n"
-report += "| 资产 | AHR999 | 1Y回撤 | 历史水位 | 预期空间 | 建议 |\n"
-report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-for item in sorted(all_results, key=lambda x: x['score'], reverse=True):
-    status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-    report += f"| {item['name']} | **{item['ahr999']:.3f}** | {item['drawdown']:.1f}% | {get_visual_bar(item['rank'])} | {item['upside']:+.1f}% | {status} |\n"
+# 2. 全资产扫描
+for cat in assets.keys():
+    report += f"### 📊 {cat} 详细分析\n"
+    report += "| 资产 | AHR999 | 1Y回撤 | 历史水位 (越短越便宜) | 建议 |\n"
+    report += "| :--- | :--- | :--- | :--- | :--- |\n"
+    cat_items = [x for x in all_results if x['category'] == cat]
+    for item in cat_items:
+        status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
+        report += f"| {item['name']} | **{item['ahr999']:.3f}** | {item['drawdown']:.1f}% | {get_visual_bar(item['rank'])} | {status} |\n"
+    report += "\n"
+
+report += "\n---\n*注：拟合准确度 (R²) 越接近 1.0 表示模型越可靠。定投建议已隐藏具体金额，单位 (Unit) 由用户自行定义。*"
 
 with open("README.md", "w", encoding="utf-8") as f:
     f.write(report)
-    f.write("\n\n--- \n*注：预期空间表示价格回归至对数增长中值的潜在涨幅。气候调节已考虑 VIX 波动率补偿。*")
+
+# 保存 JSON 供 App 使用 (包含所有详细数据)
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(all_results, f, indent=4, default=str)
