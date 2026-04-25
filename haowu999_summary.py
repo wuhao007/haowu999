@@ -7,33 +7,45 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 隐私配置 ---
-BASE_UNIT = float(os.getenv('DCA_AMOUNT', 1.0))
+# --- 配置 ---
+BOTTOM_RATIO = 0.45
+INVEST_RATIO = 1.2
+STOP_RATIO = 3.0 # ahr999x 逃顶阈值的倒数关系
 
-def calculate_performance(df_hist, w, b, ticker, start_date):
-    """计算过去 3 年 AHR999 策略的收益率"""
+def solve_price_for_ahr(target_ahr, ma200_sum_199, fit_price):
+    """
+    求解方程: 200 * P^2 - (target * fit) * P - (target * fit * sum199) = 0
+    """
+    a = 200
+    b = - (target_ahr * fit_price)
+    c = - (target_ahr * fit_price * ma200_sum_199)
+    delta = b**2 - 4*a*c
+    if delta < 0: return 0
+    return (-b + math.sqrt(delta)) / (2 * a)
+
+def calculate_alpha(df_hist, w, b, start_date):
+    """回测 AHR999 策略 vs 普通 DCA 的超额收益"""
     try:
         df = df_hist.copy()
         df['MA200'] = df['Close'].rolling(200).mean()
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
         df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df = df.dropna().tail(365 * 3)
+        df = df.dropna().tail(365 * 2) # 过去两年
         
-        if len(df) < 100: return 0.0
+        # AHR999 策略
+        df['Invest_AHR'] = 0.0
+        df.loc[df['AHR'] < 0.45, 'Invest_AHR'] = 3.0
+        df.loc[(df['AHR'] >= 0.45) & (df['AHR'] < 1.2), 'Invest_AHR'] = 1.0
+        ahr_total_coins = (df['Invest_AHR'] / df['Close']).sum()
+        ahr_total_spent = df['Invest_AHR'].sum()
+        ahr_roi = (ahr_total_coins * df['Close'].iloc[-1] / ahr_total_spent - 1) * 100 if ahr_total_spent > 0 else 0
         
-        # 策略：<0.45 买3份, <1.2 买1份, 否则不买
-        df['Invest'] = 0.0
-        df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
-        df.loc[(df['AHR'] >= 0.45) & (df['AHR'] < 1.2), 'Invest'] = 1.0
+        # 普通定投 (每日 $1)
+        dca_total_coins = (1.0 / df['Close']).sum()
+        dca_roi = (dca_total_coins * df['Close'].iloc[-1] / len(df) - 1) * 100
         
-        df['Bought'] = df['Invest'] / df['Close']
-        total_spent = df['Invest'].sum()
-        total_coins = df['Bought'].sum()
-        
-        if total_spent == 0: return 0.0
-        roi = (total_coins * df['Close'].iloc[-1] / total_spent - 1) * 100
-        return round(roi, 1)
+        return round(ahr_roi - dca_roi, 1) # 返回 Alpha (超额)
     except: return 0.0
 
 def analyze_asset(ticker, start_date='2010-01-01', name=''):
@@ -48,84 +60,59 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与误差
-        fit_df = df.copy()
-        fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
-        fit_df = fit_df[fit_df['Days'] > 0]
-        x = np.log10(fit_df['Days'].values).reshape(-1, 1)
-        y = np.log10(fit_df['Close'].values)
+        x = np.log10((df['Date'] - pd.to_datetime(start_date)).dt.days.values).reshape(-1, 1)
+        y = np.log10(df['Close'].values)
         model = LinearRegression().fit(x, y)
-        r2 = model.score(x, y)
+        w, b = model.coef_[0], model.intercept_
         
-        # 计算 MAPE (平均绝对百分比误差)
-        preds = 10 ** model.predict(x)
-        actuals = 10 ** y
-        mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
+        latest_price = float(df['Close'].iloc[-1])
+        ma200_sum_199 = df['Close'].iloc[-199:].sum()
+        days = (df['Date'].iloc[-1] - pd.to_datetime(start_date)).days
+        fit_price = 10 ** (w * math.log10(max(1, days)) + b)
+        ahr999 = (latest_price / (ma200_sum_199 + latest_price) * 200) * (latest_price / fit_price)
+        ahr999_real = (latest_price / df['Close'].tail(200).mean()) * (latest_price / fit_price)
+
+        # 预测目标价格
+        p_bottom = solve_price_for_ahr(0.45, ma200_sum_199, fit_price)
+        p_invest = solve_price_for_ahr(1.20, ma200_sum_199, fit_price)
         
-        # 2. 当前指标
-        latest = df.iloc[-1]
-        ma200 = df['Close'].tail(200).mean()
-        days = (latest['Date'] - pd.to_datetime(start_date)).days
-        fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
-        ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
-        ahr999x = (ma200 * fit_price * 3) / (latest['Close'] ** 2)
-        
-        # 3. 历史性能
-        roi_3y = calculate_performance(df, model.coef_[0], model.intercept_, ticker, start_date)
-        
-        # 4. 水位与评分
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
-        df = df.dropna()
-        rank = (df['AHR_Hist'] < ahr999).mean() * 100
-        drawdown = (latest['Close'] / df['Close'].tail(252).max() - 1) * 100
-        score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
+        alpha = calculate_alpha(df, w, b, start_date)
         
         return {
-            'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
-            'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'drawdown': round(float(drawdown), 1), 'score': round(float(score), 1),
-            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
-            'roi_3y': roi_3y, 'fair': round(float(fit_price), 2)
+            'name': name, 'ticker': ticker, 'price': round(latest_price, 2),
+            'ahr999': round(ahr999_real, 3), 'alpha_3y': alpha,
+            'r2': round(model.score(x, y), 4),
+            'p_bottom': round(p_bottom, 2), 'p_invest': round(p_invest, 2),
+            'rank': (df['Close'].pct_change().std() * 100) # 波动率作为辅助
         }
     except: return None
 
-assets_config = [
+assets = [
     ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
-    ('GC=F', 'Gold'), ('SI=F', 'Silver'),
     ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'), ('PDD', 'PDD')
 ]
 
-all_results = []
-for ticker, name in assets_config:
+results = []
+for ticker, name in assets:
     res = analyze_asset(ticker, name=name)
-    if res: all_results.append(res)
+    if res: results.append(res)
 
-all_results.sort(key=lambda x: x['score'], reverse=True)
-
-# --- 生成 README (App 后端风格) ---
-report = f"# 🚀 Haowu999 量化投研终端 (V14)\n\n"
-report += f"### 💎 [App 模式预览](https://wuhao007.github.io/haowu999/)\n\n"
-
-report += "## 🏆 策略战绩榜 (Backtest ROI)\n"
-report += "| 资产 | 3年累计收益 | 拟合误差(MAPE) | 状态 |\n"
+# 生成 README
+report = f"# 🚀 Haowu999 策略实证与价格预警 (V15)\n\n"
+report += "## 📈 策略超额收益榜 (Alpha Report)\n"
+report += "| 资产 | 超额收益 (vs DCA) | 拟合准确度 (R²) | 状态 |\n"
 report += "| :--- | :--- | :--- | :--- |\n"
-for item in sorted(all_results, key=lambda x: x['roi_3y'], reverse=True):
-    report += f"| **{item['name']}** | `+{item['roi_3y']}%` | {item['mape']}% | {'🌟高信度' if item['mape'] < 15 else '✅中等'} |\n"
+for item in sorted(results, key=lambda x: x['alpha_3y'], reverse=True):
+    report += f"| **{item['name']}** | `+{item['alpha_3y']}%` | `{item['r2']}` | {'🌟强力推荐' if item['alpha_3y'] > 0 else '✅同步市场'} |\n"
 
-report += "\n## ⚡️ 今日实时信号\n"
-report += "| 资产 | 建议指令 | 机会分 | 历史分位 |\n"
-report += "| :--- | :--- | :--- | :--- |\n"
-for item in all_results:
-    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "0.0 Units"
-    report += f"| {item['name']} | `{units}` | **{item['score']}** | {item['rank']}% |\n"
+report += "\n## 🎯 精准买入价格参考 (Price Targets)\n"
+report += "| 资产 | 当前价 | 抄底价 (0.45) | 定投价 (1.20) | 偏离度 |\n"
+report += "| :--- | :--- | :--- | :--- | :--- |\n"
+for item in results:
+    bias = (item['price'] / item['p_invest'] - 1) * 100
+    report += f"| {item['name']} | {item['price']} | **{item['p_bottom']}** | {item['p_invest']} | {bias:+.1f}% |\n"
 
-report += "\n---\n"
-report += "### 📱 开发者接口 (App API Instructions)\n"
-report += "如果你想开发 App，请直接解析本仓库生成的 `latest_data.json`。\n"
-report += "- **字段说明**: `score` (0-100 购买力分数), `roi_3y` (历史验证收益), `mape` (模型误差率)。\n"
+report += "\n---\n*注：超额收益表示 AHR999 策略在过去 2 年比盲给定投多赚的百分比。准确度 R² 越高，价格预测越精准。*"
 
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(report)
-
-with open("latest_data.json", "w", encoding="utf-8") as f:
-    json.dump(all_results, f, indent=4)
+with open("README.md", "w", encoding="utf-8") as f: f.write(report)
+with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(results, f, indent=4)
