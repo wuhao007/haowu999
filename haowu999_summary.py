@@ -74,22 +74,21 @@ def get_ahr999_analysis(ticker, start_date='2010-01-01', name='', currency='USD'
         return None
 
 assets = {
-    'Crypto': [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')],
-    'Metals': [('GC=F', 'Gold'), ('SI=F', 'Silver')],
+    'Crypto': [('BTC-USD', 'Bitcoin', 'USD')],
+    'ETH': [('ETH-USD', 'Ethereum', 'USD')],
+    'Metals': [('GC=F', 'Gold', 'USD'), ('SI=F', 'Silver', 'USD')],
     'Stocks': [
-        ('0700.HK', 'Tencent'), ('600519.SS', 'Moutai'), ('AAPL', 'Apple'),
-        ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba ADR'),
-        ('PDD', 'PDD Holdings'), ('TSM', 'TSMC'), ('BRK-B', 'Berkshire B')
+        ('0700.HK', 'Tencent', 'HKD'), ('600519.SS', 'Moutai', 'CNY'), ('AAPL', 'Apple', 'USD'),
+        ('NVDA', 'NVIDIA', 'USD'), ('TSLA', 'Tesla', 'USD'), ('BABA', 'Alibaba ADR', 'USD'),
+        ('PDD', 'PDD Holdings', 'USD'), ('TSM', 'TSMC', 'USD'), ('BRK-B', 'Berkshire B', 'USD')
     ]
 }
 
 rates = get_exchange_rates()
 all_results = []
 for cat, items in assets.items():
-    for ticker, name in items:
-        data = get_ahr999_data(ticker, name=name) # 内部处理汇率
-        # 为了简洁，汇总页不再展示美元价格，只展示核心指标
-        data_full = get_ahr999_analysis(ticker, name=name)
+    for ticker, name, curr in items:
+        data_full = get_ahr999_analysis(ticker, name=name, currency=curr, rates=rates)
         if data_full:
             data_full['category'] = cat
             all_results.append(data_full)
@@ -104,7 +103,6 @@ report += "| 排名 | 资产 | 机会得分 | 建议仓位 | 拟合准确度 (R�
 report += "| :--- | :--- | :--- | :--- | :--- |\n"
 top_sorted = sorted(all_results, key=lambda x: x['score'], reverse=True)
 for i, item in enumerate(top_sorted[:5]):
-    # 将金额改为“份数”
     units = "3.0 Units" if item['ahr999'] < item['p10'] else "1.0 Unit" if item['ahr999'] < item['p50'] else "0.0 Units"
     report += f"| {i+1} | **{item['name']}** | **{item['score']:.1f}** | `{units}` | `{item['accuracy']:.4f}` |\n"
 
@@ -126,6 +124,5 @@ report += "\n---\n*注：拟合准确度 (R²) 越接近 1.0 表示模型越可�
 with open("README.md", "w", encoding="utf-8") as f:
     f.write(report)
 
-# 保存 JSON 供 App 使用 (包含所有详细数据)
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4, default=str)
