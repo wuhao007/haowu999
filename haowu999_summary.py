@@ -12,81 +12,76 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_exchange_rates():
-    """抓取实时汇率"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': float(data['HKDUSD=X']), 'CNY': float(data['CNYUSD=X'])}
     except: return {'HKD': 0.128, 'CNY': 0.138}
 
 def solve_price(target_ahr, ma200_sum_199, fit_p):
-    """逆推价格"""
     try:
-        a = 200
-        b = - (target_ahr * fit_p)
-        c = - (target_ahr * fit_p * ma200_sum_199)
+        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
         delta = b**2 - 4*a*c
-        if delta < 0: return 0.0
-        return round((-b + math.sqrt(delta)) / (2 * a), 2)
+        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
     except: return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
-    ticker = asset_cfg['ticker']
-    name = asset_cfg['name']
+    ticker, name = asset_cfg['ticker'], asset_cfg['name']
     try:
-        start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
-        df = yf.download(ticker, start=start_date, progress=False).reset_index()
+        start = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
+        df = yf.download(ticker, start=start, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 拟合
-        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
+        df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        x = np.log10(df['Days'].values).reshape(-1, 1)
+        y = np.log10(df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
         
-        # 指标
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 收益空间
-        upside = round((fit_p / latest['Close'] - 1) * 100, 1)
-        p_btm = solve_price(0.45, ma200_sum_199, fit_p)
-        
         # 历史分位
         df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10(df['Days']) + model.intercept_)))
         percentile = (df['AHR_Hist'].dropna() < ahr).mean() * 100
         
-        hist = df.tail(60).copy()
-        
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'percentile': round(float(percentile), 1),
-            'upside': upside, 'p_btm': p_btm, 'price': round(float(latest['Close']), 2),
+            'upside': round((fit_p / latest['Close'] - 1) * 100, 1),
+            'p_btm': solve_price(0.45, ma200_sum_199, fit_p),
+            'price': round(float(latest['Close']), 2),
             'currency': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅DCA" if ahr < 1.2 else "☕️WAIT",
-            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
-            'values': hist['Close'].round(2).tolist()
+            'labels': df.tail(60)['Date'].dt.strftime('%m-%d').tolist(),
+            'values': df.tail(60)['Close'].round(2).tolist()
         }
     except: return None
 
 rates = get_exchange_rates()
-all_results = []
-for asset in config['assets']:
-    res = analyze_asset(asset)
-    if res: all_results.append(res)
+results = []
+for a in config['assets']:
+    res = analyze_asset(a)
+    if res: results.append(res)
 
-all_results.sort(key=lambda x: x['ahr999'])
-market_score = int(np.mean([max(0, min(100, (1.2 - x['ahr999']) / (1.2 - 0.45) * 100)) if x['ahr999'] < 1.2 else 0 for x in all_results]))
+results.sort(key=lambda x: x['ahr999'])
+market_score = int(np.mean([max(0, min(100, (1.2-x['ahr999'])/(1.2-0.45)*100)) if x['ahr999'] < 1.2 else 0 for x in results]))
 
-# --- UI 模块生成 ---
+# --- 安全构建 HTML 片段 ---
 cards_html = ""
 scripts_html = ""
-vault_inputs = ""
-for i, item in enumerate(all_results):
+vault_html = ""
+for i, item in enumerate(results):
     blur = "pro-blur" if item['is_pro'] else ""
+    # 修复逻辑：预先生成 Pro 覆盖层，避免 f-string 内部转义冲突
+    pro_layer = ""
+    if item['is_pro']:
+        pro_layer = "<div class='pro-overlay'><button class='btn btn-primary btn-sm rounded-pill' onclick='switchTab(\"settings\")'>Unlock Pro</button></div>"
+    
     cards_html += f"""
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -97,26 +92,21 @@ for i, item in enumerate(all_results):
             <div style="height:80px;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-2">
                 <div class="col-6"><div class="p-2 rounded bg-opacity-10 bg-success border border-success border-opacity-25"><div class="small text-secondary">预期空间</div><div class="fw-bold text-success">{item['upside']:+}%</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-opacity-10 bg-info border border-info border-opacity-25"><div class="small text-secondary">抄底目标</div><div class="fw-bold text-white">${item['p_btm']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-opacity-10 bg-info border border-info border-opacity-25"><div class="small text-secondary">抄底挂单</div><div class="fw-bold text-white">${item['p_btm']}</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
                 <div><div class="text-secondary small">AHR999</div><div class="fw-bold text-white">{item['ahr999']}</div></div>
                 <div class="text-end"><div class="text-secondary small">信号</div><div class="fs-5 fw-bold text-primary">{item['signal']}</div></div>
             </div>
         </div>
-        {"<div class='pro-overlay'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>解锁 Pro</button></div>" if item['is_pro'] else ""}
+        {pro_layer}
     </div>
     """
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_inputs += f"""
-    <div class="mb-3">
-        <label class="small text-secondary">{item['name']}持仓 (Units)</label>
-        <input type="number" class="form-control bg-black border-secondary text-white hold-in" data-ticker="{item['ticker']}" data-price="{item['price']}" data-cur="{item['currency']}" onchange="calcVault()">
-    </div>
-    """
+    vault_html += f"<div class='mb-3'><label class='small text-secondary'>{item['name']} 持仓</label><input type='number' class='form-control bg-black border-secondary text-white hold-in' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['currency']}' onchange='calcVault()'></div>"
 
-# --- 核心 HTML 模板 ---
-final_template = """
+# --- 最终模板替换 ---
+final_html = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -135,17 +125,16 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(12px); opacity: 0.3; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .gauge-container { background:#1c1c1e; border-radius:24px; padding:25px; margin:15px; border:1px solid #0a84ff; text-align:center; position:relative; }
-        .gauge-val { font-size:3.5rem; font-weight:900; color:#32d74b; }
+        .gauge-card { background:#1c1c1e; border-radius:24px; padding:25px; margin:15px; border:1px solid #0a84ff; text-align:center; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富机遇实时罗盘 | REPLACE_TIME</p></div>
-        <div class="gauge-container shadow">
-            <div style="color:#8e8e93; font-size:0.7rem;">全球核心资产机会指数</div>
-            <div class="gauge-val">REPLACE_SCORE%</div>
+        <div class="gauge-card shadow">
+            <div style="color:#8e8e93; font-size:0.7rem;">全球核心资产性价比指数</div>
+            <div style="font-size:3.5rem; font-weight:900; color:#32d74b;">REPLACE_SCORE%</div>
             <div style="font-weight:bold; color:#0a84ff; font-size:0.8rem;">REPLACE_MSG</div>
         </div>
         <div class="px-3">REPLACE_CARDS</div>
@@ -154,9 +143,9 @@ final_template = """
     <div id="tab-portfolio" class="tab-view container py-5 mt-4">
         <h2 style="font-weight:800;">资产金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-center">
-            <div class="text-secondary small">持仓预估总值 (USD)</div>
+            <div class="text-secondary small">持仓总值 (USD折算)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="small text-success mt-2">实时汇率折算已激活</div>
+            <div class="small text-success mt-2">实时汇率已激活</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4">REPLACE_VAULT</div>
     </div>
@@ -168,7 +157,7 @@ final_template = """
             <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="激活码">
             <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">激活</button>
         </div>
-        <div class="text-center text-secondary small">V73.0 Final | 零成本商业闭环</div>
+        <div class="text-center text-secondary small">V74.0 Fixed | 财富决策终极系统</div>
     </div>
 
     <nav class="nav-bar">
@@ -218,15 +207,13 @@ final_template = """
     </script>
 </body>
 </html>
-"""
-
-final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+""".replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
     .replace("REPLACE_SCORE", str(market_score)) \
-    .replace("REPLACE_MSG", "机会窗口开放" if market_score > 50 else "观望为宜") \
+    .replace("REPLACE_MSG", "机会窗口极大" if market_score > 70 else "稳健定投期" if market_score > 40 else "高位观望期") \
     .replace("REPLACE_CARDS", cards_html) \
-    .replace("REPLACE_VAULT", vault_inputs) \
+    .replace("REPLACE_VAULT", vault_html) \
     .replace("REPLACE_RATES", json.dumps(rates)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
+with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(results, f, indent=4)

@@ -4,10 +4,11 @@
         "ticker": "ETH-USD",
         "ahr999": 0.462,
         "r2": 0.6061,
-        "alpha": 21.3,
-        "mape": 91.8,
+        "percentile": 23.0,
+        "upside": 80.6,
         "p_btm": 2288.87,
-        "price": 2318.73,
+        "price": 2319.75,
+        "currency": "USD",
         "is_pro": false,
         "signal": "\u2705DCA",
         "labels": [
@@ -72,7 +73,7 @@
             "04-24",
             "04-25"
         ],
-        "actual": [
+        "values": [
             2054.63,
             2026.79,
             1930.76,
@@ -132,7 +133,7 @@
             2376.09,
             2331.51,
             2315.69,
-            2318.73
+            2319.75
         ]
     },
     {
@@ -140,10 +141,11 @@
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "alpha": 18.7,
-        "mape": 21.4,
+        "percentile": 46.5,
+        "upside": -15.2,
         "p_btm": 330.88,
         "price": 493.4,
+        "currency": "HKD",
         "is_pro": true,
         "signal": "\u2705DCA",
         "labels": [
@@ -208,7 +210,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             595.0,
             599.5,
             607.0,
@@ -276,10 +278,11 @@
         "ticker": "BTC-USD",
         "ahr999": 1.316,
         "r2": 0.8177,
-        "alpha": 28.1,
-        "mape": 24.7,
-        "p_btm": 45331.6,
-        "price": 77591.68,
+        "percentile": 60.4,
+        "upside": -30.6,
+        "p_btm": 45331.62,
+        "price": 77609.98,
+        "currency": "USD",
         "is_pro": false,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -344,7 +347,7 @@
             "04-24",
             "04-25"
         ],
-        "actual": [
+        "values": [
             67960.12,
             67453.77,
             65881.8,
@@ -404,7 +407,7 @@
             78203.1,
             78268.95,
             77455.31,
-            77591.68
+            77609.98
         ]
     },
     {
@@ -412,10 +415,11 @@
         "ticker": "600519.SS",
         "ahr999": 1.339,
         "r2": 0.6545,
-        "alpha": 8.9,
-        "mape": 22.9,
+        "percentile": 59.4,
+        "upside": -23.5,
         "p_btm": 844.71,
         "price": 1458.49,
+        "currency": "CNY",
         "is_pro": true,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -480,7 +484,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             1340.06,
             1337.0,
             1342.0,
@@ -548,10 +552,11 @@
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "alpha": 75.1,
-        "mape": 49.3,
+        "percentile": 69.5,
+        "upside": -46.6,
         "p_btm": 190.31,
         "price": 376.3,
+        "currency": "USD",
         "is_pro": true,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -616,7 +621,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             416.56,
             430.41,
             421.81,
@@ -684,10 +689,11 @@
         "ticker": "9992.HK",
         "ahr999": 1.755,
         "r2": 0.0321,
-        "alpha": 253.8,
-        "mape": 69.0,
+        "percentile": 67.3,
+        "upside": -61.2,
         "p_btm": 79.19,
         "price": 156.5,
+        "currency": "HKD",
         "is_pro": true,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -752,7 +758,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             219.6,
             217.6,
             216.2,
@@ -820,10 +826,11 @@
         "ticker": "GC=F",
         "ahr999": 2.775,
         "r2": 0.2356,
-        "alpha": 0.0,
-        "mape": 61.0,
+        "percentile": 98.0,
+        "upside": -59.8,
         "p_btm": 1898.56,
         "price": 4722.3,
+        "currency": "USD",
         "is_pro": false,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -888,7 +895,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             5318.4,
             4713.9,
             4622.5,
@@ -956,10 +963,11 @@
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "alpha": 0.0,
-        "mape": 89.4,
+        "percentile": 97.2,
+        "upside": -90.5,
         "p_btm": 40.34,
         "price": 208.27,
+        "currency": "USD",
         "is_pro": true,
         "signal": "\u2615\ufe0fWAIT",
         "labels": [
@@ -1024,7 +1032,7 @@
             "04-23",
             "04-24"
         ],
-        "actual": [
+        "values": [
             192.5,
             191.12,
             185.6,
