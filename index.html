@@ -8,171 +8,185 @@
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:0.5px solid #222; }
-        .compass-box { background:#1c1c1e; border-radius:24px; padding:25px; margin:15px; border:1px solid #0a84ff; text-align:center; }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
         .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; }
         .nav-item.active { color:#0a84ff; }
-        .disclaimer { font-size:0.55rem; color:#444; padding:20px; text-align:center; line-height:1.4; }
+        .tab-content { display:none; padding:20px; }
+        .active-tab { display:block; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 style="font-weight:900; margin:0;">财富 <span style="color:#0a84ff;">罗盘</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">全球资产全周期量化终端 | 04-25 15:51</p>
+    <div id="tab-signals" class="tab-content active-tab">
+        <div class="header"><h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">全球多币种实时审计终端 | 04-25 15:51</p></div>
+        <div style="padding:15px 0;">
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">Ethereum </span>
+            <span style="color:#8e8e93; font-size:0.7rem;">2318.5 USD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.46</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">+80.7%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">60%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ✅定投
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 91.8% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.7rem;">493.4 HKD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">0.999</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-15.2%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">79%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ✅定投
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 21.4% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">Bitcoin </span>
+            <span style="color:#8e8e93; font-size:0.7rem;">77558.58 USD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.311</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-30.6%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">81%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 24.7% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.7rem;">1458.49 CNY</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.339</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-23.5%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">65%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 22.9% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">泡泡玛特 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.7rem;">156.5 HKD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.751</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-61.2%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">3%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 69.0% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.7rem;">376.3 USD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">1.757</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-46.6%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">82%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 49.3% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">黄金期货 </span>
+            <span style="color:#8e8e93; font-size:0.7rem;">4722.3 USD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">2.779</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-59.8%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">23%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 61.0% | 拟合信度 ✅正常</div>
+    </div>
+    
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:1.15rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
+            <span style="color:#8e8e93; font-size:0.7rem;">208.27 USD</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
+            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">11.952</div></div>
+            <div style="border-left:1px solid #222; border-right:1px solid #222;">
+                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">-90.5%</div>
+            </div>
+            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">59%</div></div>
+        </div>
+        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
+            ☕️观望
+        </div>
+        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): 89.4% | 拟合信度 ✅正常</div>
+    </div>
+    </div>
     </div>
 
-    <div class="compass-box">
-        <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">全球资产抄底热度 (Opportunity Index)</div>
-        <div style="font-size:3.5rem; font-weight:900; color:#32d74b;">15%</div>
-        <div style="font-size:0.8rem; font-weight:bold; color:#0a84ff;">☕️ 战略观望期</div>
-    </div>
-
-    <div style="padding:0 15px;">
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">Ethereum </span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 2318.32 USD</span>
+    <div id="tab-portfolio" class="tab-content" style="padding-top:60px;">
+        <h2 style="font-weight:800;">本地金库</h2>
+        <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #0a84ff;">
+            <div style="color:#8e8e93; font-size:0.8rem;">总资产估值 (USD折算)</div>
+            <div style="font-size:2.5rem; font-weight:900; margin:10px 0;">$0.00</div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">0.46</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">6.525</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">98</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ✅定投
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">腾讯控股 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 493.4 HKD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">0.999</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">3.003</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">26</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ✅定投
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">Bitcoin </span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 77555.71 USD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">1.311</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">2.288</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#8e8e93; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ☕️观望
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">黄金期货 </span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 4722.3 USD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">2.779</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">1.079</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#8e8e93; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ☕️观望
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">英伟达 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 208.27 USD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">11.952</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">0.251</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#ffd700; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: 🔥风险
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">特斯拉 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 376.3 USD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">1.757</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">1.708</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#8e8e93; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ☕️观望
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">泡泡玛特 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 156.5 HKD</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">1.751</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">1.713</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#8e8e93; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ☕️观望
-        </div>
-    </div>
-    
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">贵州茅台 <span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span></span>
-            <span style="color:#8e8e93; font-size:0.7rem;">报价: 1458.49 CNY</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">1.339</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">2.241</div>
-            </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">机会分</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">0</div></div>
-        </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#8e8e93; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            决策指令: ☕️观望
-        </div>
-    </div>
-    </div>
-
-    <div class="disclaimer">
-        <b>Financial Disclaimer</b>: This App is for quantitative analysis and informational purposes only. It does NOT constitute financial advice. Past performance (R²) is not indicative of future results. Investment involves risks.
+        <p style="color:#444; font-size:0.7rem; margin-top:20px;">* 所有资产持仓数据仅保存在手机浏览器本地 LocalStorage。1 Unit 可代表任何基数（如 $0.53）。</p>
     </div>
 
     <div class="nav-bar">
-        <button class="nav-item active" style="color:#0a84ff;">📊<br>信号</button>
-        <button class="nav-item" onclick="alert('PRO 功能：全自动风险相关性审计即将上线')">🛡<br>风控</button>
-        <button class="nav-item" onclick="alert('隐私加密协议已在手机本地激活')">⚙️<br>设置</button>
+        <button class="nav-item active" onclick="showTab('signals', this)">📊<br>机会</button>
+        <button class="nav-item" onclick="showTab('portfolio', this)">💰<br>资产</button>
+        <button class="nav-item" onclick="alert('Alpha Hub V66 | 实时汇率：HKD=0.12763729691505432, CNY=0.14629721641540527')">⚙️<br>设置</button>
     </div>
+
+    <script>
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active-tab');
+        btn.classList.add('active');
+    }
+    </script>
 </body>
 </html>
