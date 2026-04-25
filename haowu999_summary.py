@@ -77,13 +77,11 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         hist['Fit_H'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
         mape = np.mean(np.abs((hist['Close'] - hist['Fit_H']) / hist['Close'])) * 100
         
-        currency = 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD'
-        
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'alpha': alpha, 'mape': round(float(mape), 1),
             'p_btm': p_btm, 'price': round(float(latest['Close']), 2),
-            'currency': currency, 'is_pro': asset_cfg['is_pro'],
+            'is_pro': asset_cfg['is_pro'],
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅DCA" if ahr < 1.2 else "☕️WAIT",
             'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
             'actual': hist['Close'].round(2).tolist()
@@ -102,6 +100,8 @@ cards_html = ""
 scripts_html = ""
 for i, item in enumerate(all_results):
     blur_class = "pro-blur" if item['is_pro'] else ""
+    overlay_html = "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill fw-bold px-3' onclick=\"switchTab('settings')\">Unlock Pro</button></div>" if item['is_pro'] else ""
+    
     cards_html += f"""
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -125,12 +125,12 @@ for i, item in enumerate(all_results):
                 <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
             </div>
         </div>
-        {"<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill fw-bold px-3' onclick='switchTab(\"settings\")'>Unlock Pro</button></div>" if item['is_pro'] else ""}
+        {overlay_html}
     </div>
     """
-    scripts_html += f"new Chart(document.getElementById('c_{i}'), {{ type:'line', data:{{ labels:{json.dumps(item['labels'])}, datasets:[{{data:{json.dumps(item['actual'])}, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}}] }}, options:{{ responsive:true, maintainAspectRatio:false, plugins:{{legend:{{display:false}}}}, scales:{{x:{{display:false}},y:{{display:false}}}} }} }});\n"
+    scripts_html += "new Chart(document.getElementById('c_" + str(i) + "'), { type:'line', data:{ labels:" + json.dumps(item['labels']) + ", datasets:[{data:" + json.dumps(item['actual']) + ", borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });\n"
 
-final_html = """
+final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -222,7 +222,9 @@ final_html = """
     </script>
 </body>
 </html>
-""".replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+"""
+
+final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
    .replace("REPLACE_CARDS", cards_html) \
    .replace("REPLACE_WECHAT", config['contact_wechat']) \
    .replace("REPLACE_TG", config['contact_telegram']) \
