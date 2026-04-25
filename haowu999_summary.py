@@ -9,13 +9,20 @@ from datetime import datetime
 BASE_DCA_AMOUNT = 0.53  
 BOTTOM_MULTIPLIER = 3.0 
 
+def get_exchange_rates():
+    """获取港币和人民币兑美元的实时汇率"""
+    try:
+        rates = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
+        return {'HKD': rates['HKDUSD=X'], 'CNY': rates['CNYUSD=X']}
+    except:
+        return {'HKD': 0.128, 'CNY': 0.138} # 后备汇率
+
 def get_visual_bar(percentile):
-    """生成一个简单的 Markdown 进度条表示便宜程度 (越短越便宜)"""
     full_blocks = int(percentile / 10)
     bar = "█" * full_blocks + "░" * (10 - full_blocks)
     return f"`{bar}` {percentile:.1f}%"
 
-def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
+def get_ahr999_data(ticker, start_date='2010-01-01', name='', currency='USD', rates={}):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2014-09-17'
@@ -53,74 +60,67 @@ def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
         p50 = df['AHR_Hist'].quantile(0.50)
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
-        trend = "➖"
-        if len(df) > 5:
-            prev_ahr = df['AHR_Hist'].iloc[-5]
-            trend = "📈" if ahr999 > prev_ahr else "📉"
+        # 汇率转换
+        price_usd = latest['Close']
+        if currency == 'HKD': price_usd *= rates['HKD']
+        if currency == 'CNY': price_usd *= rates['CNY']
             
         return {
-            'name': name, 'ticker': ticker, 'price': latest['Close'],
-            'ahr999': ahr999, 'p10': p10, 'p50': p50, 'rank': rank, 'trend': trend
+            'name': name, 'ticker': ticker, 'price_usd': price_usd,
+            'ahr999': ahr999, 'p10': p10, 'p50': p50, 'rank': rank
         }
     except:
         return None
 
+# 全资产清单 (补全至 15 只股票)
 assets = {
-    'Crypto': [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum')],
-    'Metals': [('GC=F', 'Gold'), ('SI=F', 'Silver')],
+    'Crypto': [('BTC-USD', 'Bitcoin', 'USD'), ('ETH-USD', 'Ethereum', 'USD')],
+    'Metals': [('GC=F', 'Gold', 'USD'), ('SI=F', 'Silver', 'USD')],
     'Stocks': [
-        ('0700.HK', 'Tencent'), ('600519.SS', 'Moutai'), ('AAPL', 'Apple'),
-        ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba ADR'), 
-        ('PDD', 'PDD Holdings'), ('TSM', 'TSMC'), ('BRK-B', 'Berkshire B')
+        ('0700.HK', 'Tencent', 'HKD'), ('600519.SS', 'Moutai', 'CNY'), ('AAPL', 'Apple', 'USD'),
+        ('ASML', 'ASML', 'USD'), ('BABA', 'Alibaba ADR', 'USD'), ('BRK-B', 'Berkshire B', 'USD'),
+        ('NTDOY', 'Nintendo ADR', 'USD'), ('NVDA', 'NVIDIA', 'USD'), ('OXY', 'Occidental', 'USD'),
+        ('PDD', 'PDD Holdings', 'USD'), ('PMRTY', 'Pop Mart ADR', 'USD'), ('TCEHY', 'Tencent ADR', 'USD'),
+        ('TSLA', 'Tesla', 'USD'), ('TSM', 'TSMC', 'USD'), ('UNH', 'UnitedHealth', 'USD')
     ]
 }
 
+rates = get_exchange_rates()
 all_results = []
 for cat, items in assets.items():
-    for ticker, name in items:
-        data = get_ahr999_data(ticker, name=name)
+    for ticker, name, curr in items:
+        data = get_ahr999_data(ticker, name=name, currency=curr, rates=rates)
         if data:
             data['category'] = cat
             all_results.append(data)
 
 # 生成报告
-report = f"# 🚀 Haowu999 定投指挥部\n\n"
-report += f"> **实时定投参数**: 基础步长 `${BASE_DCA_AMOUNT}`, 抄底倍数 `{BOTTOM_MULTIPLIER}x`  \n"
+report = f"# 🚀 Haowu999 全球资产定投看板\n\n"
+report += f"> **参数**: 基础 `${BASE_DCA_AMOUNT}`, 抄底 `x{BOTTOM_MULTIPLIER}` | **统一计价**: `USD`  \n"
 report += f"> **更新时间**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)`\n\n"
 
-# 1. 自动执行列表
+# 1. 自动买入指令
 report += "## 💰 今日买入指令 (Action Plan)\n"
-total_daily = 0
-action_list = []
+total_dca_daily = 0
 for item in sorted(all_results, key=lambda x: x['rank']):
     if item['ahr999'] < item['p50']:
-        amount = BASE_DCA_AMOUNT * (BOTTOM_MULTIPLIER if item['ahr999'] < item['p10'] else 1.0)
-        total_daily += amount * 6 * 24
+        multiplier = BOTTOM_MULTIPLIER if item['ahr999'] < item['p10'] else 1.0
+        amount = BASE_DCA_AMOUNT * multiplier
+        total_dca_daily += amount * 6 * 24
         icon = "🔥" if item['ahr999'] < item['p10'] else "🛒"
-        action_list.append(f"- {icon} **{item['name']}**: 投入 **`${amount:.2f}`** / 10min (分位: {item['rank']:.1f}% {item['trend']})")
+        report += f"- {icon} **{item['name']}**: 每10min购入 **`${amount:.2f}`** (分位: {item['rank']:.1f}%)\n"
 
-if action_list:
-    report += "\n".join(action_list)
-    report += f"\n\n**📈 预计总日均投入**: `${total_daily:.2f}`\n"
-else:
-    report += "- 😴 全线处于高位，目前建议休息，持币观望。\n"
+report += f"\n**📈 预计总日均投入**: `${total_dca_daily:.2f}`\n\n---\n"
 
-report += "\n---\n"
-
-# 2. 全市场仪表盘
-avg_rank = np.mean([x['rank'] for x in all_results])
-emoji = "😨 极度恐慌" if avg_rank < 20 else "🙂 价值发现" if avg_rank < 50 else "🔥 略显浮躁" if avg_rank < 80 else "😱 泡沫阶段"
-report += f"### 🧪 全市场估值水位: **{avg_rank:.1f} / 100** ({emoji})\n\n"
-
-# 3. 资产详情表
+# 2. 资产详情
 for cat in assets.keys():
-    report += f"### 📊 {cat} 资产清单\n"
-    report += "| 资产 | 当前价 | AHR999 | 趋势 | 历史水位 (越短越便宜) | 建议 |\n"
-    report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
+    report += f"### 📊 {cat} 资产估值\n"
+    report += "| 资产 | 当前价 (USD) | AHR999 | 历史水位 | 建议 |\n"
+    report += "| :--- | :--- | :--- | :--- | :--- |\n"
     cat_items = [x for x in all_results if x['category'] == cat]
     for item in cat_items:
         status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-        report += f"| {item['name']} | {item['price']:.2f} | **{item['ahr999']:.3f}** | {item['trend']} | {get_visual_bar(item['rank'])} | {status} |\n"
+        report += f"| {item['name']} | {item['price_usd']:.2f} | **{item['ahr999']:.3f}** | {get_visual_bar(item['rank'])} | {status} |\n"
     report += "\n"
 
 with open("README.md", "w", encoding="utf-8") as f:
