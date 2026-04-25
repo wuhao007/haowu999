@@ -1,79 +1,86 @@
 [
     {
+        "name": "Bitcoin",
+        "ticker": "BTC-USD",
+        "ahr999": 0.536,
+        "r2": 0.9201,
+        "mape": 41.8,
+        "price": 77482.18,
+        "target_045": 70985.52,
+        "target_120": 116072.6,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
+    },
+    {
         "name": "Tesla",
         "ticker": "TSLA",
-        "ahr999": 1.757,
-        "roi": 101.3,
-        "alpha": 75.1,
+        "ahr999": 1.755,
         "r2": 0.8245,
-        "rank": 88.5,
+        "mape": 74.3,
         "price": 376.3,
-        "is_pro": true
+        "target_045": 190.31,
+        "target_120": 311.01,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
     },
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.459,
-        "roi": 7.0,
-        "alpha": 21.2,
+        "ahr999": 0.46,
         "r2": 0.6061,
-        "rank": 54.1,
-        "price": 2315.53,
-        "is_pro": false
+        "mape": 63.9,
+        "price": 2315.25,
+        "target_045": 2288.86,
+        "target_120": 3742.58,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
-        "name": "Alibaba",
-        "ticker": "BABA",
-        "ahr999": 0.962,
-        "roi": 43.1,
-        "alpha": 17.7,
-        "r2": 0.0205,
-        "rank": 50.1,
-        "price": 135.82,
-        "is_pro": false
-    },
-    {
-        "name": "Bitcoin",
-        "ticker": "BTC-USD",
-        "ahr999": 0.553,
-        "roi": -3.0,
-        "alpha": 13.6,
-        "r2": 0.923,
-        "rank": 80.9,
-        "price": 77488.05,
-        "is_pro": false
+        "name": "NVIDIA",
+        "ticker": "NVDA",
+        "ahr999": 11.937,
+        "r2": 0.5944,
+        "mape": 145.4,
+        "price": 208.27,
+        "target_045": 40.34,
+        "target_120": 65.91,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
     },
     {
         "name": "PDD",
         "ticker": "PDD",
         "ahr999": 0.559,
-        "roi": -11.7,
-        "alpha": 3.3,
         "r2": 0.5676,
-        "rank": 42.0,
+        "mape": 31.4,
         "price": 98.03,
-        "is_pro": false
-    },
-    {
-        "name": "NVIDIA",
-        "ticker": "NVDA",
-        "ahr999": 11.952,
-        "roi": 0,
-        "alpha": -48.5,
-        "r2": 0.5944,
-        "rank": 98.9,
-        "price": 208.27,
-        "is_pro": true
+        "target_045": 87.95,
+        "target_120": 143.8,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "ahr999": 2.779,
-        "roi": 0,
-        "alpha": -50.2,
+        "ahr999": 2.775,
         "r2": 0.2356,
-        "rank": 98.1,
+        "mape": 21.4,
         "price": 4722.3,
-        "is_pro": false
+        "target_045": 1898.56,
+        "target_120": 3102.55,
+        "is_pro": false,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Alibaba",
+        "ticker": "BABA",
+        "ahr999": 0.961,
+        "r2": 0.0205,
+        "mape": 35.8,
+        "price": 135.82,
+        "target_045": 92.87,
+        "target_120": 151.82,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
     }
 ]

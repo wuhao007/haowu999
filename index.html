@@ -1,180 +1,193 @@
 
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Haowu999 Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Haowu999 Global Quant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: -apple-system; padding-bottom: 80px; }
-        .app-card { background: #1c1c1e; border-radius: 20px; padding: 20px; margin: 15px; border: 0.5px solid #333; }
-        .roi-pill { background: rgba(50,215,75,0.1); color: #32d74b; font-size: 0.7rem; padding: 2px 10px; border-radius: 10px; font-weight: bold; }
-        .header-bg { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: rgba(20,20,22,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 1px solid #2c2c2e; }
-        .pro-badge { background: #0a84ff; color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 5px; }
+        body { background: #000; color: #fff; font-family: -apple-system, sans-serif; padding-bottom: 80px; }
+        .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .asset-card { background: #1c1c1e; border-radius: 24px; padding: 20px; margin: 15px; border: 0.5px solid #333; }
+        .target-box { background: rgba(10, 132, 255, 0.1); border-radius: 12px; padding: 12px; margin-top: 15px; }
+        .accuracy-badge { font-size: 0.7rem; font-weight: bold; background: #32d74b22; color: #32d74b; padding: 2px 8px; border-radius: 6px; }
+        .pro-mask { filter: blur(12px); opacity: 0.3; pointer-events: none; }
+        .paywall { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background: #0a84ff; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header-bg">
-        <h1 class="fw-bold mb-0">投资 <span class="text-primary">Pro</span></h1>
-        <p class="text-secondary small">V30.0 商业版 | 自动回测收益对比系统</p>
+    <div class="header">
+        <h1 class="fw-bold">智能 <span class="text-primary">定投</span></h1>
+        <p class="text-secondary small">V31 商业版 | 价格预测与拟合审计</p>
     </div>
 
     <div class="container-fluid px-0">
 
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">Tesla <span class="pro-badge ms-2">PRO</span></span>
-            <span class="roi-pill">策略比定投多赚 75.1%</span>
+        <div class="asset-card position-relative shadow-lg">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Bitcoin</h4>
+                    <span class="accuracy-badge">信度 R²: 0.9201</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">0.536</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">✅定投</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$70985.52</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$116072.6</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">1.757</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">82%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+101.3%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">Ethereum </span>
-            <span class="roi-pill">策略比定投多赚 21.2%</span>
+        <div class="asset-card position-relative shadow-lg">
+            <button class="paywall shadow" onclick="alert('升级 Pro 会员解锁个股预测价')">解锁 Pro 预测价</button>
+            <div class="pro-mask">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Tesla</h4>
+                    <span class="accuracy-badge">信度 R²: 0.8245</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">1.755</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">☕️观望</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$190.31</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$311.01</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">0.459</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">60%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+7.0%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">Alibaba </span>
-            <span class="roi-pill">策略比定投多赚 17.7%</span>
+        <div class="asset-card position-relative shadow-lg">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Ethereum</h4>
+                    <span class="accuracy-badge">信度 R²: 0.6061</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">0.46</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">✅定投</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$2288.86</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$3742.58</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">0.962</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">2%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+43.1%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">Bitcoin </span>
-            <span class="roi-pill">策略比定投多赚 13.6%</span>
+        <div class="asset-card position-relative shadow-lg">
+            <button class="paywall shadow" onclick="alert('升级 Pro 会员解锁个股预测价')">解锁 Pro 预测价</button>
+            <div class="pro-mask">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">NVIDIA</h4>
+                    <span class="accuracy-badge">信度 R²: 0.5944</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">11.937</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">☕️观望</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$40.34</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$65.91</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">0.553</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">92%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+-3.0%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">PDD </span>
-            <span class="roi-pill">策略比定投多赚 3.3%</span>
+        <div class="asset-card position-relative shadow-lg">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">PDD</h4>
+                    <span class="accuracy-badge">信度 R²: 0.5676</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">0.559</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">✅定投</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$87.95</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$143.8</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">0.559</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">56%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+-11.7%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">NVIDIA <span class="pro-badge ms-2">PRO</span></span>
-            <span class="roi-pill">与市场持平</span>
+        <div class="asset-card position-relative shadow-lg">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Gold</h4>
+                    <span class="accuracy-badge">信度 R²: 0.2356</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">2.775</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">☕️观望</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$1898.56</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$3102.55</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">11.952</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">59%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+0%</div>
-            </div>
-        </div>
-    </div>
     
-    <div class="app-card shadow">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-weight:700; font-size:1.3rem;">Gold </span>
-            <span class="roi-pill">与市场持平</span>
+        <div class="asset-card position-relative shadow-lg">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Alibaba</h4>
+                    <span class="accuracy-badge">信度 R²: 0.0205</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div><div class="text-secondary small">当前 AHR999</div><div class="fs-4 fw-bold">0.961</div></div>
+                    <div class="text-end"><div class="text-secondary small">模型状态</div><div class="fs-4 fw-bold text-info">✅定投</div></div>
+                </div>
+                <div class="target-box">
+                    <div style="color:#8e8e93; font-size:0.7rem; margin-bottom:5px;">🎯 智能挂单预测 (Target Prices)</div>
+                    <div class="d-flex justify-content-between">
+                        <span>抄底买入价:</span><strong class="text-danger">$92.87</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>定投截止价:</span><strong class="text-success">$151.82</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row text-center">
-            <div class="col-4">
-                <div class="text-secondary small">AHR999</div>
-                <div class="fw-bold">2.779</div>
-            </div>
-            <div class="col-4 border-start border-end border-secondary">
-                <div class="text-secondary small">拟合信度</div>
-                <div class="fw-bold text-success">23%</div>
-            </div>
-            <div class="col-4">
-                <div class="text-secondary small">2Y战绩</div>
-                <div class="fw-bold text-info">+0%</div>
-            </div>
-        </div>
-    </div>
     
     </div>
-    <div class="nav-bar">
-        <div class="text-primary small" style="text-align:center;">📊<br>机会</div>
-        <div class="text-secondary small" style="text-align:center;">🏆<br>战绩</div>
-        <div class="text-secondary small" style="text-align:center;">⚙️<br>设置</div>
+    <div style="text-align:center; padding:30px; opacity:0.3; font-size:0.7rem;">
+        © 2026 Haowu999 Quantitative | 拟合误差: MAPE 系统平均 2.1%
     </div>
 </body>
 </html>
