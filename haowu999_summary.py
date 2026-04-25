@@ -7,9 +7,8 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置 (无金额，纯单位权重) ---
-# 隐私：1.0 Unit 可以代表你的 $0.53，GitHub 上没人知道
-PRO_TICKERS = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
+# --- 配置 (全自动，去隐私) ---
+PRO_LIST = ['NVDA', 'TSLA', '600519.SS', '0700.HK']
 
 def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
@@ -23,7 +22,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与收益率回测 (过去两年)
+        # 1. 拟合与MAPE
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -32,32 +31,35 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 模拟定投收益
-        df['MA200'] = df['Close'].rolling(200).mean()
-        df['Fit'] = 10 ** (model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)
-        df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df_roi = df.dropna().tail(252 * 2) # 过去两年
-        df_roi['Invest'] = 0.0
-        df_roi.loc[df_roi['AHR'] < 0.45, 'Invest'] = 3.0
-        df_roi.loc[(df_roi['AHR'] >= 0.45) & (df_roi['AHR'] < 1.2), 'Invest'] = 1.0
-        roi = round(((df_roi['Invest']/df_roi['Close']).sum() * df_roi['Close'].iloc[-1] / df_roi['Invest'].sum() - 1) * 100, 1) if df_roi['Invest'].sum() > 0 else 0.0
+        # 计算 MAPE
+        preds = 10 ** model.predict(x)
+        actuals = 10 ** y
+        mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
         
-        # 2. 当前指标
+        # 2. 实时
         latest = df.iloc[-1]
-        ahr999 = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / df['Fit'].iloc[-1])
-        rank = (df['AHR'].dropna() < ahr999).mean() * 100
+        days_now = (latest['Date'] - pd.to_datetime(start_date)).days
+        fit_p = 10 ** (model.coef_[0] * math.log10(max(1, days_now)) + model.intercept_)
+        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
+        
+        # 3. 水位
+        df['Fit_Full'] = 10 ** (model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / df['Fit_Full'])
+        rank = (df['AHR_Hist'].dropna() < ahr).mean() * 100
         
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'r2': round(float(r2), 4), 'roi': roi, 'is_pro': ticker in PRO_TICKERS,
-            'signal': "💎抄底" if ahr999 < 0.45 else "✅定投" if ahr999 < 1.2 else "☕️观望"
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
+            'rank': round(float(rank), 1), 'price': round(float(latest['Close']), 2),
+            'is_pro': ticker in PRO_LIST,
+            'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
         }
     except: return None
 
 assets_config = [
-    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'), ('GC=F', '黄金期货'),
-    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', '阿里巴巴'),
-    ('0700.HK', '腾讯控股'), ('PDD', '拼多多')
+    ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
+    ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('AAPL', 'Apple'),
+    ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold')
 ]
 
 all_results = []
@@ -65,10 +67,10 @@ for t, n in assets_config:
     res = analyze_asset(t, name=n)
     if res: all_results.append(res)
 
-all_results.sort(key=lambda x: x['ahr999'])
+all_results.sort(key=lambda x: x['r2'], reverse=True) # 按拟合精度排序
 
-# --- 生成顶级商业版 HTML ---
-html_app = f"""
+# --- 生成极致手机 App 网页 V28 ---
+html_template = f"""
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -77,66 +79,72 @@ html_app = f"""
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Haowu999 Pro</title>
+    <title>Haowu999 Terminal</title>
     <style>
-        body {{ background: #000; color: #fff; font-family: -apple-system, system-ui; margin: 0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }}
-        .header {{ padding: 60px 20px 25px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }}
-        .asset-card {{ background: #1c1c1e; border-radius: 24px; padding: 20px; margin: 15px; border: 0.5px solid #333; position: relative; overflow: hidden; }}
-        .asset-card:active {{ background: #2c2c2e; }}
-        .pro-overlay {{ filter: blur(12px); opacity: 0.4; pointer-events: none; }}
-        .paywall-btn {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background: #0a84ff; color: #fff; border: none; padding: 12px 24px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(10,132,255,0.4); }}
-        .roi-badge {{ background: rgba(50,215,75,0.1); color: #32d74b; font-size: 0.7rem; padding: 4px 10px; border-radius: 10px; font-weight: bold; }}
-        .ad-box {{ background: #1c1c1e; height: 60px; margin: 15px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #444; font-size: 0.8rem; border: 1px dashed #333; }}
-        .nav-bar {{ position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: rgba(28,28,30,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #333; }}
-        .nav-item {{ color: #8e8e93; font-size: 0.7rem; text-align: center; text-decoration: none; }}
-        .nav-item.active {{ color: #0a84ff; }}
+        :root {{ --bg: #000; --card: #121214; --primary: #0a84ff; --gray: #8e8e93; }}
+        body {{ background: var(--bg); color: #fff; font-family: -apple-system, system-ui; margin:0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }}
+        .app-bar {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom: 0.5px solid #222; }}
+        .asset-card {{ background: var(--card); border-radius: 24px; padding: 20px; margin: 15px; border: 0.5px solid #222; transition: all 0.2s; }}
+        .asset-card:active {{ opacity: 0.7; scale: 0.98; }}
+        .reliability-label {{ font-size: 0.65rem; font-weight: bold; padding: 2px 8px; border-radius: 8px; }}
+        .badge-high {{ background: rgba(50,215,75,0.1); color: #32d74b; }}
+        .badge-mid {{ background: rgba(255,214,10,0.1); color: #ffd60a; }}
+        .pro-overlay {{ filter: blur(12px); opacity: 0.3; pointer-events: none; }}
+        .paywall-btn {{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 4px 20px rgba(10,132,255,0.3); }}
+        .nav-bar {{ position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: rgba(18,18,18,0.9); backdrop-filter: blur(25px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #222; }}
+        .nav-item {{ color: var(--gray); font-size: 0.65rem; text-align: center; text-decoration: none; }}
+        .nav-item.active {{ color: var(--primary); }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 style="font-weight: 800; font-size: 2.2rem; margin:0;">投研 <span style="color:#0a84ff">PRO</span></h1>
-        <p style="color:#8e8e93; font-size: 0.85rem; margin-top:5px;">全球首个全资产 AHR999 决策系统<br>更新: {datetime.now().strftime('%m/%d %H:%M')}</p>
+    <div class="app-bar">
+        <h1 style="font-weight: 900; font-size: 2.2rem; margin:0;">投研 <span style="color:var(--primary)">Pro</span></h1>
+        <p style="color:var(--gray); font-size: 0.8rem; margin-top: 5px;">全球首个全资产 AHR999 决策中心<br>更新: {datetime.now().strftime('%m-%d %H:%M')}</p>
     </div>
 
-    <div class="ad-box">AdSense 商业广告预留位</div>
+    <div style="padding: 15px;">
+        <h5 style="font-weight: 700; color:var(--gray); margin-left: 5px; margin-bottom: 15px;">模型信度排行榜</h5>
+        {" ".join([f'<span class="reliability-label badge-high" style="margin-right:8px;">{x["name"]} R² {x["r2"]}</span>' for x in all_results[:3]])}
+    </div>
 
     <div class="container-fluid px-0">
 """
 
-for item in all_results:
+for item in sorted(all_results, key=lambda x: x['ahr999']):
+    rel_class = "badge-high" if item['r2'] > 0.9 else "badge-mid"
     is_pro = item['is_pro']
-    overlay = f'<button class="paywall-btn" onclick="alert(\'升级钻石会员解锁个股精准信号\')">订阅解锁 PRO</button>' if is_pro else ''
+    overlay = f'<button class="paywall-btn" onclick="alert(\'升级 Pro 版解锁 {item["name"]} 信号\')">订阅解锁个股信号</button>' if is_pro else ''
     
-    html_app += f"""
-        <div class="asset-card shadow">
+    html_template += f"""
+        <div class="asset-card position-relative">
             {overlay}
             <div class="{"pro-overlay" if is_pro else ""}">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                     <span style="font-size:1.4rem; font-weight:700;">{item['name']}</span>
-                    <span class="roi-badge">策略收益 +{item['roi']}%</span>
+                    <span class="reliability-label {rel_class}">准确度: {item['mape']}%</span>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; text-align:center;">
-                    <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.3rem; font-weight:700;">{item['ahr999']}</div></div>
-                    <div><div style="color:#8e8e93; font-size:0.6rem;">历史水位</div><div style="font-size:1.3rem; font-weight:700;">{item['rank']}%</div></div>
-                    <div><div style="color:#8e8e93; font-size:0.6rem;">当前建议</div><div style="font-size:1.1rem; font-weight:700; color:#0a84ff;">{item['signal']}</div></div>
+                    <div><div style="color:var(--gray); font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
+                    <div><div style="color:var(--gray); font-size:0.6rem;">历史分位</div><div style="font-size:1.4rem; font-weight:800;">{item['rank']}%</div></div>
+                    <div><div style="color:var(--gray); font-size:0.6rem;">当前动作</div><div style="font-size:1.2rem; font-weight:800; color:var(--primary);">{item['signal']}</div></div>
                 </div>
-                <div style="margin-top:15px; font-size:0.6rem; color:#444;">模型准确度 (R²): {item['r2']}</div>
+                <div style="margin-top:15px; font-size:0.6rem; color:#333;">基于 10 年对数回归 R²: {item['r2']}</div>
             </div>
         </div>
     """
 
-html_app += """
+html_template += """
     </div>
 
     <div class="nav-bar">
-        <a href="#" class="nav-item active">📈<br>信号</a>
+        <a href="#" class="nav-item active">📊<br>机会</a>
+        <a href="#" class="nav-item">🏆<br>盈利</a>
         <a href="#" class="nav-item">💎<br>会员</a>
-        <a href="#" class="nav-item">💰<br>资产</a>
         <a href="#" class="nav-item">⚙️<br>设置</a>
     </div>
 </body>
 </html>
 """
 
-with open("index.html", "w", encoding="utf-8") as f: f.write(html_app)
+with open("index.html", "w", encoding="utf-8") as f: f.write(html_template)
 with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
