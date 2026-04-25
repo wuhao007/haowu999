@@ -3,261 +3,202 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Haowu999 Global Quant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Haowu999 Quant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: -apple-system, system-ui; }
-        .sentiment-bar { height: 40px; border-radius: 20px; background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000); position: relative; }
-        .sentiment-pointer { position: absolute; top: -5px; width: 4px; height: 50px; background: #fff; border-radius: 2px; }
-        .card { background: #1c1c1e; border: none; border-radius: 15px; margin-bottom: 15px; }
-        .pro-badge { background: #ffd700; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 5px; }
-        .ad-placeholder { height: 60px; background: #2c2c2e; border: 1px dashed #444; color: #666; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border-radius: 10px; }
+        body { background: #000; color: #fff; font-family: -apple-system, system-ui; padding-bottom: 50px; }
+        .app-header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .asset-card { background: #1c1c1e; border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
+        .pro-mask { filter: blur(4px); pointer-events: none; opacity: 0.5; }
+        .pro-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .btn-pro { background: #0a84ff; color: #fff; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+        .accuracy-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <div class="mb-4">
-        <h1 class="fw-bold mb-0">Haowu999 <span class="text-primary">Quant</span></h1>
-        <p class="text-secondary small">V17.0 商业版 | 2026-04-25 13:59</p>
+    <div class="app-header">
+        <h1 class="fw-bold display-6">仪表盘 <span class="text-primary">Pro</span></h1>
+        <p class="text-secondary small">全自动对数回归模型 | 04/25 14:04</p>
     </div>
 
-    <div class="card p-4 mb-4">
-        <h5 class="text-secondary">全球全资产恐慌贪婪指数</h5>
-        <div class="h2 fw-bold mb-3">59 / 100 <small class="fs-6 text-info">比较狂热 🔥</small></div>
-        <div class="sentiment-bar">
-            <div class="sentiment-pointer" style="left: 59.854545454545466%"></div>
-        </div>
-    </div>
+    <div class="container mt-3">
 
-    <div class="ad-placeholder mb-4">商业广告位 / Google AdSense Placeholder</div>
-
-    <div class="row g-3">
-
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">PDD</div>
-                    <div class="fw-bold" style="color: #32d74b">88分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Ethereum</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">PDD | 拟合 R²: 0.5676</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">98.03 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">0.459</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">0.559</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">1.0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.6061 | 实时价: $2315.61</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Bitcoin</div>
-                    <div class="fw-bold" style="color: #32d74b">85分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Bitcoin</h4>
+                    <span class="small" style="color: #32d74b"><span class="accuracy-dot" style="background: #32d74b"></span>✅ 可靠</span>
                 </div>
-                <div class="text-secondary small mb-2">BTC-USD | 拟合 R²: 0.923</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">77495.07 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">0.554</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">0.553</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">1.0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.923 | 实时价: $77533.19</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Ethereum</div>
-                    <div class="fw-bold" style="color: #32d74b">77分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">PDD</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">ETH-USD | 拟合 R²: 0.6061</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">2313.9 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">0.559</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">0.458</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">1.0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.5676 | 实时价: $98.03</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Alibaba</div>
-                    <div class="fw-bold" style="color: #32d74b">54分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Alibaba</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">BABA | 拟合 R²: 0.0205</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">135.82 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">0.962</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">0.962</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">1.0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.0205 | 实时价: $135.82</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Tencent<span class="pro-badge ms-2">PRO</span></div>
-                    <div class="fw-bold" style="color: #32d74b">53分</div>
+        <div class="asset-card position-relative">
+            <div class="pro-overlay"><button class="btn btn-pro shadow">点击订阅解锁 PRO 信号</button></div>
+            <div class="pro-mask">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Tesla</h4>
+                    <span class="small" style="color: #ffd60a"><span class="accuracy-dot" style="background: #ffd60a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">0700.HK | 拟合 R²: 0.7973</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">493.4 HKD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">1.757</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">0.999</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.8245 | 实时价: $376.3</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Moutai<span class="pro-badge ms-2">PRO</span></div>
-                    <div class="fw-bold" style="color: #ff453a">40分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Gold</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">600519.SS | 拟合 R²: 0.6545</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">1458.49 CNY</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">2.779</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">1.339</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.2356 | 实时价: $4722.3</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Tesla<span class="pro-badge ms-2">PRO</span></div>
-                    <div class="fw-bold" style="color: #ff453a">30分</div>
+        <div class="asset-card position-relative">
+            
+            <div class="">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">Silver</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">TSLA | 拟合 R²: 0.8245</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">376.3 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">4.148</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">1.757</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">0x</div>
                     </div>
                 </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.0041 | 实时价: $76.38</div>
             </div>
         </div>
     
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Apple</div>
-                    <div class="fw-bold" style="color: #ff453a">4分</div>
+        <div class="asset-card position-relative">
+            <div class="pro-overlay"><button class="btn btn-pro shadow">点击订阅解锁 PRO 信号</button></div>
+            <div class="pro-mask">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0 fw-bold">NVIDIA</h4>
+                    <span class="small" style="color: #ff453a"><span class="accuracy-dot" style="background: #ff453a"></span>⚠️ 波动</span>
                 </div>
-                <div class="text-secondary small mb-2">AAPL | 拟合 R²: 0.7285</div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">271.06 USD</div>
+                        <div class="text-secondary small">AHR999</div>
+                        <div class="fs-3 fw-bold">11.952</div>
                     </div>
                     <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">2.409</div>
+                        <div class="text-secondary small">建议权重</div>
+                        <div class="fs-3 fw-bold text-info">0x</div>
                     </div>
                 </div>
-            </div>
-        </div>
-    
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">NVIDIA<span class="pro-badge ms-2">PRO</span></div>
-                    <div class="fw-bold" style="color: #ff453a">2分</div>
-                </div>
-                <div class="text-secondary small mb-2">NVDA | 拟合 R²: 0.5944</div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">208.27 USD</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">11.952</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Silver</div>
-                    <div class="fw-bold" style="color: #ff453a">2分</div>
-                </div>
-                <div class="text-secondary small mb-2">SI=F | 拟合 R²: 0.0041</div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">76.38 USD</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">4.148</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between">
-                    <div class="fw-bold fs-5">Gold</div>
-                    <div class="fw-bold" style="color: #ff453a">1分</div>
-                </div>
-                <div class="text-secondary small mb-2">GC=F | 拟合 R²: 0.2356</div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="small text-secondary">当前报价</div>
-                        <div class="fs-6 fw-bold">4722.3 USD</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="small text-secondary">AHR999</div>
-                        <div class="fs-6 fw-bold">2.779</div>
-                    </div>
-                </div>
+                <div class="mt-2 text-secondary x-small">拟合准确度 R²: 0.5944 | 实时价: $208.27</div>
             </div>
         </div>
     
     </div>
-    <div class="mt-5 text-center text-secondary small">
-        © 2026 Haowu999 Quantitative. 所有数据基于对数回归模型。
+    <div class="text-center mt-4 mb-5 p-4">
+        <div class="ad-box p-3 border border-secondary rounded text-secondary small">
+            广告占位符 (Google AdMob / Carbon Ads)
+        </div>
     </div>
-</div>
 </body>
 </html>

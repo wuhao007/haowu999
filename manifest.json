@@ -1,0 +1,16 @@
+{
+  "name": "Haowu999 Quant Pro",
+  "short_name": "Haowu999",
+  "description": "全球资产智能定投决策系统",
+  "start_url": "/haowu999/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0a84ff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2534/2534312.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
