@@ -11,13 +11,6 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def solve_price(target_ahr, ma200_sum_199, fit_p):
-    try:
-        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
-        delta = b**2 - 4*a*c
-        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
-    except: return 0.0
-
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
     try:
@@ -26,25 +19,28 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
+        # 拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
-        latest = df.iloc[-1]
-        ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
+        # 计算 AHR999 历史序列 (最后 30 天)
+        hist = df.tail(60).copy()
+        hist['MA200'] = df['Close'].rolling(200).mean().tail(60)
+        hist['Fit'] = 10 ** (model.coef_[0] * np.log10(hist['Days']) + model.intercept_)
+        hist['AHR'] = (hist['Close'] / hist['MA200']) * (hist['Close'] / hist['Fit'])
+        
+        latest = hist.iloc[-1]
         
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))), 4),
-            'upside': round((fit_p / latest['Close'] - 1) * 100, 1),
-            'p_btm': solve_price(0.45, ma200_sum_199, fit_p),
-            'price': round(float(latest['Close']), 2),
-            'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
+            'name': name, 'ticker': ticker, 'ahr999': round(float(latest['AHR']), 3),
+            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
+            'upside': round((latest['Fit'] / latest['Close'] - 1) * 100, 1),
             'is_pro': asset_cfg['is_pro'],
-            'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
-            'values': df.tail(30)['Close'].round(2).tolist()
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'ahr_vals': hist['AHR'].round(3).tolist(),
+            'signal': "BOTTOM" if latest['AHR'] < 0.45 else "INVEST" if latest['AHR'] < 1.2 else "WAIT"
         }
     except: return None
 
@@ -55,32 +51,34 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# --- UI 模块生成 ---
+# --- 安全构建 HTML 片段 ---
 cards_html = ""
 scripts_html = ""
-vault_html = ""
 for i, item in enumerate(all_results):
     blur = "pro-blur" if item['is_pro'] else ""
+    s_cn = "💎 抄底" if item['signal']=="BOTTOM" else "✅ 定投" if item['signal']=="INVEST" else "☕️ 观望"
+    s_en = "💎 BOTTOM" if item['signal']=="BOTTOM" else "✅ INVEST" if item['signal']=="INVEST" else "☕️ WAIT"
+    
     cards_html += f"""
-    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">{item['name']}</span>
-            <span class="text-success small fw-bold">回归潜力: {item['upside']:+}%</span>
+            <span class="text-success small fw-bold">R²: {item['r2']}</span>
         </div>
         <div class="{blur}">
-            <div style="height:80px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
+            <div style="height:60px;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">AHR999</div><div class="fw-bold text-white">{item['ahr999']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">抄底目标</div><div class="fw-bold text-info">${item['p_btm']}</div></div></div>
+                <div class="col-4"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.5rem">AHR999</div><div class="fw-bold text-white small">{item['ahr999']}</div></div></div>
+                <div class="col-4"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.5rem">UPSIDE</div><div class="fw-bold text-success small">{item['upside']:+}%</div></div></div>
+                <div class="col-4"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.5rem">SIGNAL</div><div class="fw-bold text-primary small" data-en="{s_en}" data-cn="{s_cn}">{s_cn}</div></div></div>
             </div>
-            <div class="mt-3 pt-2 border-top border-secondary text-end"><span class="fs-5 fw-bold text-primary">{'💎抄底' if item['ahr999']<0.45 else '✅定投' if item['ahr999']<1.2 else '☕️观望'}</span></div>
         </div>
-        {"<div class='pro-overlay'><button class='btn btn-primary btn-sm rounded-pill fw-bold' onclick='switchTab(\"settings\")'>Unlock Pro Analytics</button></div>" if item['is_pro'] else ""}
+        {"<div class='pro-overlay'><button class='btn btn-primary btn-sm rounded-pill fw-bold' onclick='switchTab(\"settings\")'>Unlock Pro</button></div>" if item['is_pro'] else ""}
     </div>
     """
-    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_html += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' placeholder='0.00' onchange='calcVault()' style='width:100px; background:#111; border:1px solid #333; color:#fff; border-radius:8px; text-align:center;'></div>"
+    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['ahr_vals'])});\n"
 
+# --- 最终模板 ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
@@ -92,9 +90,9 @@ final_template = """
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
-        .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); display:flex; justify-content:space-between; align-items:flex-end; }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
-        .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }
+        .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; }
         .nav-item.active { color:#0a84ff; }
         .tab-view { display:none; animation: fadeIn 0.3s; }
         .active-tab { display:block; }
@@ -105,62 +103,51 @@ final_template = """
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富机遇审计终端 | REPLACE_TIME</p></div>
+        <div class="header">
+            <div><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p id="sub-title" style="color:#8e8e93; font-size:0.8rem;">财富机遇审计终端 | REPLACE_TIME</p></div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="toggleLang()" style="font-size:0.6rem;">EN / 中文</button>
+        </div>
         <div class="px-3">REPLACE_CARDS</div>
     </div>
 
-    <div id="tab-portfolio" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">持仓金库</h2>
-        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-center">
-            <div class="text-secondary small">我的持仓实时市值 (USD)</div>
-            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="small text-success mt-2">Privacy: 持仓数据永不离机</div>
-        </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4">REPLACE_VAULT</div>
-    </div>
-
     <div id="tab-settings" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">法律与激活</h2>
-        <div class="card bg-dark border-secondary p-3 rounded-4 mb-3">
+        <h2 style="font-weight:800;" id="set-title">会员与设置</h2>
+        <div class="card bg-dark border-secondary p-3 rounded-4 mb-4">
             <p class="small text-secondary">解锁 Pro 激活码：<br>WeChat: <b>REPLACE_WECHAT</b></p>
             <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="激活码">
             <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">立即激活</button>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 small text-secondary" style="font-size:0.6rem;">
-            <b>法律披露 (Disclaimer)</b>: 本App仅提供量化数据展示，不构成投资建议。AHR999是一种对数回归统计概率，不能保证未来收益。投资有风险，入市需谨慎。数据来源: Yahoo Finance API。
+            <b>Financial Disclaimer</b>: For informational purposes only. Investment involves risks. V80.0 Final.
         </div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>金库</div>
-        <div class="nav-item" onclick="switchTab('settings', this)">💎<br>激活</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br><span class="n-txt">信号</span></div>
+        <div class="nav-item" onclick="alert('Alpha Ledger 持仓核算即将在下版本上线')">💰<br><span class="n-txt">资产</span></div>
+        <div class="nav-item" onclick="switchTab('settings', this)">⚙️<br><span class="n-txt">设置</span></div>
     </nav>
 
     <script>
+        function toggleLang() {
+            const isEN = document.documentElement.lang === 'en';
+            document.documentElement.lang = isEN ? 'zh' : 'en';
+            document.getElementById('sub-title').innerText = isEN ? '财富机遇审计终端' : 'Real-time Alpha Audit Hub';
+            document.getElementById('set-title').innerText = isEN ? '会员与设置' : 'Pro & Settings';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = isEN ? el.getAttribute('data-cn') : el.getAttribute('data-en');
+            });
+        }
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'portfolio') calcVault();
         }
         function unlock() {
             if(document.getElementById('key-in').value === '666888') {
-                localStorage.setItem('p', '1'); alert('激活成功！'); location.reload();
-            } else { alert('激活码无效'); }
-        }
-        function calcVault() {
-            let total = 0; const h = {};
-            document.querySelectorAll('.hold-in').forEach(i => {
-                let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                h[i.dataset.ticker] = i.value;
-                let usd = v * p;
-                if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
-                total += usd;
-            });
-            localStorage.setItem('alpha_h', JSON.stringify(h));
-            document.getElementById('v-total').innerText = '$' + total.toFixed(2);
+                localStorage.setItem('p', '1'); location.reload();
+            }
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -170,9 +157,6 @@ final_template = """
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
                 document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
             }
-            let h = JSON.parse(localStorage.getItem('alpha_h') || '{}');
-            document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-            calcVault();
             REPLACE_SCRIPTS
         }
     </script>
@@ -180,7 +164,6 @@ final_template = """
 </html>
 """.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
     .replace("REPLACE_CARDS", cards_html) \
-    .replace("REPLACE_VAULT", vault_html) \
     .replace("REPLACE_WECHAT", config.get('contact_wechat', 'haowu999_quant')) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
