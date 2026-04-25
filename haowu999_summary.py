@@ -6,8 +6,14 @@ from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
 # --- 用户个性化配置 ---
-BASE_DCA_AMOUNT = 0.53  # 每 10 分钟基础定投金额
-BOTTOM_MULTIPLIER = 3.0 # 抄底时的倍数 (可以改 3.0 或 5.0)
+BASE_DCA_AMOUNT = 0.53  
+BOTTOM_MULTIPLIER = 3.0 
+
+def get_visual_bar(percentile):
+    """生成一个简单的 Markdown 进度条表示便宜程度 (越短越便宜)"""
+    full_blocks = int(percentile / 10)
+    bar = "█" * full_blocks + "░" * (10 - full_blocks)
+    return f"`{bar}` {percentile:.1f}%"
 
 def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
     try:
@@ -24,7 +30,6 @@ def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
         df.columns = ['Date', 'Close']
         df = df.dropna()
         
-        # Fit Model
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0].copy()
@@ -32,14 +37,12 @@ def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
         y = np.log10(fit_df['Close'].values)
         model = LinearRegression().fit(x, y)
         
-        # Current Metrics
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
         fit_price = 10 ** (model.coef_[0] * math.log10(days) + model.intercept_)
         ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # Percentiles
         df['MA200'] = df['Close'].rolling(200).mean()
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df['Fit'] = 10 ** (model.coef_[0] * np.log10(df['Days'].clip(lower=1)) + model.intercept_)
@@ -50,9 +53,14 @@ def get_ahr999_data(ticker, start_date='2010-01-01', name=''):
         p50 = df['AHR_Hist'].quantile(0.50)
         rank = (df['AHR_Hist'] < ahr999).mean() * 100
         
+        trend = "➖"
+        if len(df) > 5:
+            prev_ahr = df['AHR_Hist'].iloc[-5]
+            trend = "📈" if ahr999 > prev_ahr else "📉"
+            
         return {
             'name': name, 'ticker': ticker, 'price': latest['Close'],
-            'ahr999': ahr999, 'p10': p10, 'p50': p50, 'rank': rank
+            'ahr999': ahr999, 'p10': p10, 'p50': p50, 'rank': rank, 'trend': trend
         }
     except:
         return None
@@ -82,33 +90,37 @@ report += f"> **更新时间**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 
 
 # 1. 自动执行列表
 report += "## 💰 今日买入指令 (Action Plan)\n"
-action_found = False
+total_daily = 0
+action_list = []
 for item in sorted(all_results, key=lambda x: x['rank']):
     if item['ahr999'] < item['p50']:
-        action_found = True
         amount = BASE_DCA_AMOUNT * (BOTTOM_MULTIPLIER if item['ahr999'] < item['p10'] else 1.0)
+        total_daily += amount * 6 * 24
         icon = "🔥" if item['ahr999'] < item['p10'] else "🛒"
-        report += f"- {icon} **{item['name']}**: 投入 **`${amount:.2f}`** / 10min (分位: {item['rank']:.1f}%)\n"
+        action_list.append(f"- {icon} **{item['name']}**: 投入 **`${amount:.2f}`** / 10min (分位: {item['rank']:.1f}% {item['trend']})")
 
-if not action_found:
+if action_list:
+    report += "\n".join(action_list)
+    report += f"\n\n**📈 预计总日均投入**: `${total_daily:.2f}`\n"
+else:
     report += "- 😴 全线处于高位，目前建议休息，持币观望。\n"
 
 report += "\n---\n"
 
 # 2. 全市场仪表盘
 avg_rank = np.mean([x['rank'] for x in all_results])
-emoji = "😨 极度恐慌 (满仓干)" if avg_rank < 20 else "🙂 价值发现 (定投中)" if avg_rank < 50 else "🔥 略显浮躁 (减量)" if avg_rank < 80 else "😱 泡沫阶段 (止盈)"
-report += f"### 🧪 全市场估值水位: **{avg_rank:.1f} / 100**\n**当前市场情绪**: {emoji}\n\n"
+emoji = "😨 极度恐慌" if avg_rank < 20 else "🙂 价值发现" if avg_rank < 50 else "🔥 略显浮躁" if avg_rank < 80 else "😱 泡沫阶段"
+report += f"### 🧪 全市场估值水位: **{avg_rank:.1f} / 100** ({emoji})\n\n"
 
 # 3. 资产详情表
 for cat in assets.keys():
     report += f"### 📊 {cat} 资产清单\n"
-    report += "| 资产 | 当前价 | AHR999 | 历史分位 | 建议 |\n"
-    report += "| :--- | :--- | :--- | :--- | :--- |\n"
+    report += "| 资产 | 当前价 | AHR999 | 趋势 | 历史水位 (越短越便宜) | 建议 |\n"
+    report += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
     cat_items = [x for x in all_results if x['category'] == cat]
     for item in cat_items:
         status = "💎 抄底" if item['ahr999'] < item['p10'] else "✅ 定投" if item['ahr999'] < item['p50'] else "☕️ 观望"
-        report += f"| {item['name']} | {item['price']:.2f} | **{item['ahr999']:.3f}** | {item['rank']:.1f}% | {status} |\n"
+        report += f"| {item['name']} | {item['price']:.2f} | **{item['ahr999']:.3f}** | {item['trend']} | {get_visual_bar(item['rank'])} | {status} |\n"
     report += "\n"
 
 with open("README.md", "w", encoding="utf-8") as f:
