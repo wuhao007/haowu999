@@ -13,7 +13,7 @@ with open('config.json', 'r') as f:
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker = asset_cfg['ticker']
-    name = asset_cfg['name']
+    asset_name = asset_cfg['name']
     try:
         actual_start = '2015-01-01' if 'BTC' in ticker else base_start
         df = yf.download(ticker, start=actual_start, progress=False).reset_index()
@@ -32,32 +32,26 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
         
-        # 3. 机会评分 (0-100)
-        # 算法：AHR 越低分越高 (80%) + R2 越高分越高 (20%)
-        # 归一化 AHR: 0.45 以下 100 分，1.2 以上 0 分
+        # 3. 机会评分
         ahr_score = max(0, min(100, (1.2 - ahr) / (1.2 - 0.45) * 100))
         opp_score = round(ahr_score * 0.8 + (r2 * 20), 1)
         
-        # 4. 图表数据
         hist = df.tail(60).copy()
         
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'name': asset_name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'score': opp_score,
             'is_pro': asset_cfg['is_pro'],
             'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望",
             'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
             'values': hist['Close'].tolist()
-        }, df.set_index('Date')['Close'].tail(90)
-    except: return None, None
+        }
+    except: return None
 
 all_results = []
-price_matrix = {}
 for asset in config['assets']:
-    res, series = analyze_asset(asset)
-    if res:
-        all_results.append(res)
-        price_matrix[name] = series
+    res = analyze_asset(asset)
+    if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['score'], reverse=True)
 
@@ -67,22 +61,19 @@ scripts_html = ""
 for i, item in enumerate(all_results):
     pro = '<span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span>' if item['is_pro'] else ''
     cards_html += f"""
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333; transition: transform 0.1s;">
+    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="font-weight:800; font-size:1.2rem;">{item['name']} {pro}</span>
             <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.7rem; font-weight:800; padding:2px 10px; border-radius:10px;">机会分 {item['score']}</span>
         </div>
-        <div style="height:60px; margin:10px 0;"><canvas id="c_{i}"></canvas></div>
+        <div style="height:60px; margin:15px 0;"><canvas id="c_{i}"></canvas></div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.4rem; font-weight:900;">{item['ahr999']}</div></div>
             <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">今日动作</div><div style="font-size:1.2rem; font-weight:900; color:#0a84ff;">{item['signal']}</div></div>
         </div>
-        <div style="margin-top:10px; font-size:0.6rem; color:#444; border-top:1px solid #222; padding-top:10px;">
-            拟合信度 (R²): {item['r2']} | 资产代码: {item['ticker']}
-        </div>
     </div>
     """
-    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
+    scripts_html += f"if(document.getElementById('c_{i}')) renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
 
 final_html = """
 <!DOCTYPE html>
@@ -90,26 +81,25 @@ final_html = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Haowu999 Heatmap</title>
+    <title>Haowu999 Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:0.5px solid #222; }
+        body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; }
+        .header { padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
         .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 style="font-weight:900; margin:0;">机会 <span style="color:#0a84ff;">罗盘</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">全球核心资产性价比实时评分 | REPLACE_TIME</p>
+        <h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1>
+        <p style="color:#8e8e93; font-size:0.8rem;">跨资产对数回归实时终端 | REPLACE_TIME</p>
     </div>
     <div style="padding:15px;">REPLACE_CARDS</div>
     <div class="nav-bar">
         <button class="nav-item" style="color:#0a84ff;">📊<br>机会</button>
-        <button class="nav-item" onclick="alert('PRO 功能：全自动风险对冲矩阵即将在下版本上线')">🛡<br>风控</button>
-        <button class="nav-item" onclick="alert('隐私提示：持仓 Units 仅存本地缓存')">⚙️<br>设置</button>
+        <button class="nav-item" onclick="alert('PRO 功能：全自动风险对冲中心即将在下版本上线')">🛡<br>风控</button>
+        <button class="nav-item" onclick="alert('隐私提示：所有持仓数据仅存本地缓存')">⚙️<br>设置</button>
     </div>
     <script>
     function renderChart(id, labels, data) {
