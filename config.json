@@ -5,13 +5,11 @@
         {"ticker": "BTC-USD", "name": "Bitcoin", "type": "Crypto", "is_pro": false},
         {"ticker": "ETH-USD", "name": "Ethereum", "type": "Crypto", "is_pro": false},
         {"ticker": "GC=F", "name": "黄金期货", "type": "Metals", "is_pro": false},
-        {"ticker": "SI=F", "name": "白银期货", "type": "Metals", "is_pro": false},
         {"ticker": "NVDA", "name": "英伟达", "type": "Stocks", "is_pro": true},
         {"ticker": "TSLA", "name": "特斯拉", "type": "Stocks", "is_pro": true},
-        {"ticker": "AAPL", "name": "苹果", "type": "Stocks", "is_pro": true},
-        {"ticker": "BABA", "name": "阿里巴巴", "type": "Stocks", "is_pro": true},
-        {"ticker": "PDD", "name": "拼多多", "type": "Stocks", "is_pro": true},
+        {"ticker": "9992.HK", "name": "泡泡玛特", "type": "Stocks", "is_pro": true},
         {"ticker": "0700.HK", "name": "腾讯控股", "type": "Stocks", "is_pro": true},
-        {"ticker": "600519.SS", "name": "贵州茅台", "type": "Stocks", "is_pro": true}
+        {"ticker": "600519.SS", "name": "贵州茅台", "type": "Stocks", "is_pro": true},
+        {"ticker": "BABA", "name": "阿里巴巴", "type": "Stocks", "is_pro": true}
     ]
 }
