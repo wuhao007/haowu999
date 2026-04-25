@@ -1,4 +1,4 @@
-const CACHE_NAME = 'haowu999-v20';
+const CACHE_NAME = 'haowu-v33';
 const ASSETS = [
   './',
   './index.html',

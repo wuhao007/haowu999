@@ -1,7 +1,7 @@
 {
   "name": "Haowu999 Quant Pro",
   "short_name": "Haowu999",
-  "description": "全球资产智能定投决策系统",
+  "description": "全球资产对数回归智能定投终端",
   "start_url": "/haowu999/",
   "display": "standalone",
   "background_color": "#000000",

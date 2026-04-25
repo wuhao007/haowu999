@@ -7,14 +7,13 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 商业化配置 ---
+# --- 配置 ---
 PRO_LIST = ['NVDA', 'TSLA', 'AAPL', '0700.HK', '600519.SS']
 
-def analyze_asset(ticker, start_date='2010-01-01', name=''):
+def analyze_asset(ticker, start_date='2010-01-01', name_cn='', name_en=''):
     try:
         actual_start = start_date
         if 'BTC' in ticker: actual_start = '2015-01-01'
-        if 'ETH' in ticker: actual_start = '2017-11-09'
         
         df = yf.download(ticker, start=actual_start, progress=False)
         if df.empty: return None
@@ -22,7 +21,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合
+        # Fit
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0]
@@ -31,96 +30,131 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # 2. 回测过去 180 天 (实际 vs 拟合)
-        hist = df.tail(180).copy()
-        hist['Days'] = (hist['Date'] - pd.to_datetime(start_date)).dt.days
-        hist['Fit'] = 10 ** (model.coef_[0] * np.log10(hist['Days'].clip(lower=1)) + model.intercept_)
-        
+        # Metrics
         latest = df.iloc[-1]
-        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / hist['Fit'].iloc[-1])
+        fit_p = 10 ** (model.coef_[0] * math.log10(max(1, (latest['Date'] - pd.to_datetime(start_date)).days)) + model.intercept_)
+        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
+        
+        # Stability (Recent Drift)
+        recent_r2 = LinearRegression().fit(x[-60:], y[-60:]).score(x[-60:], y[-60:])
+        drift = "STABLE" if recent_r2 > 0.8 else "DRIFTING"
         
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
-            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
-            'actual_values': hist['Close'].round(2).tolist(),
-            'fair_values': hist['Fit'].round(2).tolist(),
+            'name_cn': name_cn, 'name_en': name_en, 'ticker': ticker,
+            'ahr999': round(float(ahr), 3), 'r2': round(float(r2), 4),
+            'drift': drift, 'price': round(float(latest['Close']), 2),
             'is_pro': ticker in PRO_LIST,
-            'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
+            'signal': "BOTTOM" if ahr < 0.45 else "INVEST" if ahr < 1.2 else "WAIT"
         }
     except: return None
 
-assets = [('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'), ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('BABA', 'Alibaba'), ('PDD', 'PDD'), ('GC=F', 'Gold')]
-results = []
-for t, n in assets:
-    res = analyze_asset(t, name=n)
-    if res: results.append(res)
+assets_config = [
+    ('BTC-USD', '比特币', 'Bitcoin'), ('ETH-USD', '以太坊', 'Ethereum'),
+    ('NVDA', '英伟达', 'NVIDIA'), ('TSLA', '特斯拉', 'Tesla'),
+    ('BABA', '阿里巴巴', 'Alibaba'), ('GC=F', '黄金期货', 'Gold')
+]
 
-# --- 生成极致交互式 App HTML V32 ---
-html_v32 = """
+all_results = []
+for t, cn, en in assets_config:
+    res = analyze_asset(t, name_cn=cn, name_en=en)
+    if res: all_results.append(res)
+
+all_results.sort(key=lambda x: x['ahr999'])
+
+# --- 生成最终版 HTML V33 ---
+html_template = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Haowu999 Terminal</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Haowu999 Global</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: -apple-system; padding: 20px; }
-        .card { background: #1c1c1e; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
-        .chart-box { height: 100px; margin: 15px 0; }
-        .pro-mask { filter: blur(10px); opacity: 0.3; pointer-events: none; }
+        body {{ background: #000; color: #fff; font-family: -apple-system; padding-bottom: 90px; }}
+        .app-card {{ background: #1c1c1e; border-radius: 20px; padding: 20px; margin: 15px; border: 0.5px solid #333; }}
+        .lang-toggle {{ color: #0a84ff; cursor: pointer; font-weight: bold; }}
+        .drift-dot {{ width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }}
+        .nav-bar {{ position: fixed; bottom: 0; left:0; right:0; height: 80px; background: rgba(28,28,30,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #333; }}
     </style>
 </head>
 <body>
-    <h1 style="font-weight: 800;">投资 <span style="color:#0a84ff">PRO</span></h1>
-    <p style="color:#8e8e93; font-size: 0.8rem;">实时对数回归验证 | REPLACE_TIME</p>
-    <div id="app">REPLACE_CARDS</div>
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold mb-0">Haowu <span class="text-primary">Quant</span></h1>
+            <div class="lang-toggle" onclick="toggleLang()">EN / 中文</div>
+        </div>
+
+        <div id="view-cn">
+            <p class="text-secondary small">全球资产对数回归实时终端 | {datetime.now().strftime('%m-%d %H:%M')}</p>
+            <div class="row">REPLACE_CARDS_CN</div>
+        </div>
+
+        <div id="view-en" style="display:none;">
+            <p class="text-secondary small">Global Log-Regression Real-time Terminal | {datetime.now().strftime('%m-%d %H:%M')}</p>
+            <div class="row">REPLACE_CARDS_EN</div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="text-primary small" style="text-align:center;">📊<br><span class="txt-sig">信号</span></div>
+        <div class="text-secondary small" style="text-align:center;">💎<br><span class="txt-pro">PRO</span></div>
+        <div class="text-secondary small" style="text-align:center;">⚙️<br><span class="txt-set">设置</span></div>
+    </div>
+
 <script>
-function renderChart(id, labels, actual, fair) {
-    new Chart(document.getElementById(id), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { data: actual, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false },
-                { data: fair, borderColor: '#444', borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false }
-            ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-    });
-}
-REPLACE_SCRIPTS
+    if ('serviceWorker' in navigator) {{ navigator.serviceWorker.register('sw.js'); }}
+    function toggleLang() {{
+        const cn = document.getElementById('view-cn');
+        const en = document.getElementById('view-en');
+        if(cn.style.display === 'none') {{ cn.style.display='block'; en.style.display='none'; }}
+        else {{ cn.style.display='none'; en.style.display='block'; }}
+    }}
 </script>
 </body>
 </html>
 """
 
-cards_html = ""
-scripts_html = ""
-for i, item in enumerate(results):
-    is_pro = item['is_pro']
-    content_class = "pro-mask" if is_pro else ""
-    pro_msg = '<div style="color:#0a84ff; font-weight:bold; text-align:center;">🔒 订阅解锁 Pro 信号图表</div>' if is_pro else ""
+cards_cn = ""
+cards_en = ""
+for item in all_results:
+    dot = "#32d74b" if item['drift'] == "STABLE" else "#ffd60a"
+    s_cn = "💎 抄底" if item['signal'] == "BOTTOM" else "✅ 定投" if item['signal'] == "INVEST" else "☕️ 观望"
+    s_en = "💎 BOTTOM" if item['signal'] == "BOTTOM" else "✅ DCA" if item['signal'] == "INVEST" else "☕️ WAIT"
     
-    cards_html += f"""
-    <div class="card">
-        <div style="display:flex; justify-content:space-between;">
-            <span style="font-weight:bold; font-size:1.1rem;">{item['name']}</span>
-            <span style="color:#32d74b; font-size:0.7rem;">R² 准度: {item['r2']}</span>
-        </div>
-        <div class="chart-box {content_class}"><canvas id="c_{i}"></canvas></div>
-        {pro_msg}
-        <div class="{"pro-mask" if is_pro else ""}" style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:800;">{item['ahr999']}</div></div>
-            <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">状态</div><div style="font-size:1.2rem; font-weight:800; color:#0a84ff;">{item['signal']}</div></div>
+    cards_cn += f"""
+    <div class="col-12 col-md-6 mb-3">
+        <div class="app-card shadow">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold fs-5">{item['name_cn']}</span>
+                <span style="font-size:0.7rem; color:{dot};"><span class="drift-dot" style="background:{dot};"></span>拟合信度 {item['r2']}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div><div class="text-secondary small">AHR999</div><div class="fs-4 fw-bold">{item['ahr999']}</div></div>
+                <div class="text-end"><div class="text-secondary small">指令</div><div class="fs-4 fw-bold text-primary">{s_cn}</div></div>
+            </div>
         </div>
     </div>
     """
-    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['actual_values'])}, {json.dumps(item['fair_values'])});\n"
+    cards_en += f"""
+    <div class="col-12 col-md-6 mb-3">
+        <div class="app-card shadow">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold fs-5">{item['name_en']}</span>
+                <span style="font-size:0.7rem; color:{dot};"><span class="drift-dot" style="background:{dot};"></span>Accuracy {item['r2']}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div><div class="text-secondary small">AHR999</div><div class="fs-4 fw-bold">{item['ahr999']}</div></div>
+                <div class="text-end"><div class="text-secondary small">Signal</div><div class="fs-4 fw-bold text-primary">{s_en}</div></div>
+            </div>
+        </div>
+    </div>
+    """
 
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_v32.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')).replace("REPLACE_CARDS", cards_html).replace("REPLACE_SCRIPTS", scripts_html))
+    f.write(html_template.replace("REPLACE_CARDS_CN", cards_cn).replace("REPLACE_CARDS_EN", cards_en))
 
 with open("latest_data.json", "w", encoding="utf-8") as f:
-    json.dump(results, f, indent=4)
+    json.dump(all_results, f, indent=4)
