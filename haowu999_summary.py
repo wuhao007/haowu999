@@ -3,11 +3,14 @@ import pandas as pd
 import numpy as np
 import math
 import json
+import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# --- 配置 ---
-BOTTOM_MULTIPLIER = 3.0 
+# --- 配置区 (隐私保护：通过环境变量获取或默认 1.0) ---
+# 在 GitHub Actions 中设置变量: DCA_AMOUNT
+BASE_UNIT = float(os.getenv('DCA_AMOUNT', 1.0))
+BOTTOM_MULT = 3.0
 
 def analyze_asset(ticker, start_date='2010-01-01', name=''):
     try:
@@ -21,7 +24,7 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Fit
+        # 1. 拟合与准确度
         fit_df = df.copy()
         fit_df['Days'] = (fit_df['Date'] - pd.to_datetime(start_date)).dt.days
         fit_df = fit_df[fit_df['Days'] > 0].copy()
@@ -30,41 +33,38 @@ def analyze_asset(ticker, start_date='2010-01-01', name=''):
         model = LinearRegression().fit(x, y)
         r2 = model.score(x, y)
         
-        # Metrics
+        # 2. 指标计算
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         days = (latest['Date'] - pd.to_datetime(start_date)).days
         fit_price = 10 ** (model.coef_[0] * math.log10(max(1, days)) + model.intercept_)
-        ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
         
-        # Drawdown
+        # ahr999 (买入指标)
+        ahr999 = (latest['Close'] / ma200) * (latest['Close'] / fit_price)
+        # ahr999x (卖出指标，原版定义：ahr999x < 0.45 逃顶)
+        ahr999x = (ma200 * fit_price * 3) / (latest['Close'] ** 2)
+        
+        # 3. 历史分位
+        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10((df['Date']-pd.to_datetime(start_date)).dt.days.clip(lower=1)) + model.intercept_)))
+        df = df.dropna()
+        rank = (df['AHR_Hist'] < ahr999).mean() * 100
+        
+        # 4. 回撤与波动
         year_high = df['Close'].tail(252).max()
         drawdown = (latest['Close'] / year_high - 1) * 100
         
-        # History for Charts (Last 180 days)
-        hist_data = df.tail(180).copy()
-        hist_dates = hist_data['Date'].dt.strftime('%Y-%m-%d').tolist()
-        hist_prices = hist_data['Close'].round(2).tolist()
-        
-        # Rank
-        df_p = df.copy()
-        df_p['MA200'] = df_p['Close'].rolling(200).mean()
-        df_p['Days'] = (df_p['Date'] - pd.to_datetime(start_date)).dt.days
-        df_p['Fit'] = 10 ** (model.coef_[0] * np.log10(df_p['Days'].clip(lower=1)) + model.intercept_)
-        df_p['AHR_Hist'] = (df_p['Close'] / df_p['MA200']) * (df_p['Close'] / df_p['Fit'])
-        df_p = df_p.dropna()
-        rank = (df_p['AHR_Hist'] < ahr999).mean() * 100
+        # 综合评分 (越高越值得买)
+        score = (100 - rank) * 0.7 + (abs(drawdown) / 100 * 100) * 0.3
         
         return {
             'name': name, 'ticker': ticker, 'price': round(float(latest['Close']), 2),
-            'ahr999': round(float(ahr999), 3), 'rank': round(float(rank), 1),
-            'drawdown': round(float(drawdown), 1), 'score': round(100 - rank, 1),
-            'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2),
-            'chart_labels': hist_dates, 'chart_values': hist_prices
+            'ahr999': round(float(ahr999), 3), 'ahr999x': round(float(ahr999x), 3),
+            'rank': round(float(rank), 1), 'drawdown': round(float(drawdown), 1),
+            'score': round(float(score), 1), 'r2': round(float(r2), 4), 'fair': round(float(fit_price), 2)
         }
     except: return None
 
-assets_config = [
+assets = [
     ('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'),
     ('GC=F', 'Gold'), ('SI=F', 'Silver'),
     ('NVDA', 'NVIDIA'), ('TSLA', 'Tesla'), ('AAPL', 'Apple'),
@@ -72,104 +72,48 @@ assets_config = [
 ]
 
 all_results = []
-for ticker, name in assets_config:
+for ticker, name in assets:
     res = analyze_asset(ticker, name=name)
     if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['score'], reverse=True)
 
-# --- 生成 HTML (采用 % 替换以避开 CSS 的大括号) ---
-cards_html = ""
-chart_scripts = ""
-for i, item in enumerate(all_results):
-    units = "3.0 Units" if item['rank'] < 10 else "1.0 Unit" if item['rank'] < 50 else "观望"
-    color_class = "buy-3" if item['rank'] < 10 else "buy-1" if item['rank'] < 50 else "text-secondary"
-    
-    cards_html += f"""
-    <div class="col-md-4">
-        <div class="card p-4 h-100 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <h4 class="fw-bold mb-0">{item['name']}</h4>
-                <div class="score-badge">{item['score']}分</div>
-            </div>
-            <div class="text-secondary small">{item['ticker']} | R²: {item['r2']}</div>
-            <div class="my-3">
-                <canvas id="chart_{i}" height="100"></canvas>
-            </div>
-            <div class="d-flex justify-content-between mb-1">
-                <span>建议操作:</span><span class="fw-bold {color_class}">{units}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-1 small text-secondary">
-                <span>1Y回撤:</span><span>{item['drawdown']}%</span>
-            </div>
-            <div class="d-flex justify-content-between small text-secondary">
-                <span>公允价值:</span><span>${item['fair']}</span>
-            </div>
-        </div>
-    </div>
-    """
-    chart_scripts += f"initChart('chart_{i}', {json.dumps(item['chart_labels'])}, {json.dumps(item['chart_values'])});\n"
+# --- 报告生成 ---
+report = f"# 🚀 Haowu999 全周期智能投研系统 (V11)\n\n"
+report += f"**更新时间**: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (UTC)`\n\n"
 
-final_html = """
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haowu999 专业投研仪表盘</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui; }
-        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
-        .score-badge { font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
-        .buy-3 { color: #f43f5e; }
-        .buy-1 { color: #10b981; }
-        .monetize-btn { background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 20px; border: none; }
-    </style>
-</head>
-<body>
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="display-4 fw-bold">Haowu999 Quant</h1>
-            <p class="text-secondary">全球资产对数回归抄底系统 | 更新: REPLACE_TIME</p>
-        </div>
-        <button class="btn monetize-btn px-4">解锁专业版 (Ads/Pro)</button>
-    </div>
-    <div class="row g-4">REPLACE_CARDS</div>
-</div>
-<script>
-    function initChart(id, labels, data) {
-        new Chart(document.getElementById(id), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    borderColor: '#38bdf8',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { x: { display: false }, y: { display: false } }
-            }
-        });
-    }
-    REPLACE_SCRIPTS
-</script>
-</body>
-</html>
-""".replace("REPLACE_TIME", datetime.now().strftime('%Y-%m-%d %H:%M')) \
-   .replace("REPLACE_CARDS", cards_html) \
-   .replace("REPLACE_SCRIPTS", chart_scripts)
+# 1. 核心交易指令 (Buy & Sell)
+report += "## ⚡️ 核心买卖指令 (Trading Signals)\n"
+report += "| 动作 | 资产 | 指令强度 | 理由 |\n"
+report += "| :--- | :--- | :--- | :--- |\n"
 
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(final_html)
+# 买入指令
+for item in [x for x in all_results if x['ahr999'] < 1.2]:
+    mult = BOTTOM_MULT if item['ahr999'] < 0.45 else 1.0
+    report += f"| 🟢 买入 | **{item['name']}** | `{mult} Unit(s)` | AHR999 处于低估区 ({item['ahr999']}) |\n"
 
+# 卖出指令 (AHR999x < 0.45)
+overheated = [x for x in all_results if x['ahr999x'] < 0.45]
+for item in overheated:
+    report += f"| 🔴 止盈 | **{item['name']}** | `减仓 20%-50%` | AHR999x 触发逃顶警告 ({item['ahr999x']}) |\n"
+
+if not overheated and not [x for x in all_results if x['ahr999'] < 1.2]:
+    report += "| 😴 休息 | 全市场 | `N/A` | 目前处于震荡市，建议持币不动 |\n"
+
+report += "\n---\n"
+
+# 2. 拟合质量与公允价值透视
+report += "### 🔍 拟合准确度分析 (Model Confidence)\n"
+report += "| 资产 | R² (准确度) | 当前价 | 公允价 | 溢价/折价 |\n"
+report += "| :--- | :--- | :--- | :--- | :--- |\n"
+for item in sorted(all_results, key=lambda x: x['r2'], reverse=True):
+    diff = (item['price'] / item['fair'] - 1) * 100
+    report += f"| {item['name']} | `{item['r2']}` | {item['price']} | {item['fair']} | {diff:+.1f}% |\n"
+
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(report)
+    f.write("\n\n--- \n*注：AHR999x < 0.45 为逃顶信号。所有计算已隐藏个人金额隐私。*")
+
+# 更新 JSON 用于 App
 with open("latest_data.json", "w", encoding="utf-8") as f:
     json.dump(all_results, f, indent=4)
