@@ -1,6 +1,7 @@
 {
     "base_unit": 1.0,
     "bottom_multiplier": 3.0,
+    "admob_id": "ca-app-pub-3940256099942544/6300978111", 
     "assets": [
         {"ticker": "BTC-USD", "name": "Bitcoin", "type": "Crypto", "is_pro": false},
         {"ticker": "ETH-USD", "name": "Ethereum", "type": "Crypto", "is_pro": false},
@@ -9,7 +10,6 @@
         {"ticker": "TSLA", "name": "特斯拉", "type": "Stocks", "is_pro": true},
         {"ticker": "9992.HK", "name": "泡泡玛特", "type": "Stocks", "is_pro": true},
         {"ticker": "0700.HK", "name": "腾讯控股", "type": "Stocks", "is_pro": true},
-        {"ticker": "600519.SS", "name": "贵州茅台", "type": "Stocks", "is_pro": true},
-        {"ticker": "BABA", "name": "阿里巴巴", "type": "Stocks", "is_pro": true}
+        {"ticker": "600519.SS", "name": "贵州茅台", "type": "Stocks", "is_pro": true}
     ]
 }
