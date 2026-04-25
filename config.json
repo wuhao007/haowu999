@@ -1,7 +1,9 @@
 {
-    "base_unit": 1.0,
+    "base_unit": 0.53,
     "publisher_id": "pub-5787134782741442",
     "ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+    "contact_wechat": "haowu999_quant",
+    "contact_telegram": "@haowu999",
     "assets": [
         {"ticker": "BTC-USD", "name": "Bitcoin", "type": "Crypto", "is_pro": false},
         {"ticker": "ETH-USD", "name": "Ethereum", "type": "Crypto", "is_pro": false},
