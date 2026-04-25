@@ -4,7 +4,6 @@ import numpy as np
 import math
 import json
 import os
-import requests
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
@@ -12,25 +11,7 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def get_exchange_rates():
-    """抓取实时汇率"""
-    try:
-        data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
-        return {'HKD': float(data['HKDUSD=X']), 'CNY': float(data['CNYUSD=X'])}
-    except: return {'HKD': 0.128, 'CNY': 0.138}
-
-def send_alert(results):
-    """如果检测到 0.45 以下的强力抄底信号，发送 Webhook 推送"""
-    webhook_url = os.environ.get('SIGNAL_WEBHOOK')
-    if not webhook_url: return
-    
-    signals = [f"【{x['name']}】AHR: {x['ahr999']} (💎抄底)" for x in results if x['ahr999'] < 0.45]
-    if signals:
-        msg = f"🚀 Alpha Hub 捡钱警报 ({datetime.now().strftime('%m-%d')}):\n" + "\n".join(signals)
-        try: requests.post(webhook_url, json={"text": msg}, timeout=10)
-        except: pass
-
-def analyze_asset(asset_cfg, rates, base_start='2010-01-01'):
+def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker = asset_cfg['ticker']
     name = asset_cfg['name']
     try:
@@ -39,66 +20,61 @@ def analyze_asset(asset_cfg, rates, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合
+        # 拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
-        # 2. 实时指标
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
         
-        # 3. MAPE 误差审计 (越低越好)
-        df_recent = df.tail(60).copy()
-        df_recent['Fit_H'] = 10 ** (model.coef_[0] * np.log10(df_recent['Days']) + model.intercept_)
-        mape = np.mean(np.abs((df_recent['Close'] - df_recent['Fit_H']) / df_recent['Close'])) * 100
-        
-        # 4. 价格回归空间
+        # 预期收益空间
         upside = round((fit_p / latest['Close'] - 1) * 100, 1)
         
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
-            'upside': upside, 'price_local': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'upside': upside,
+            'price': round(float(latest['Close']), 2),
             'currency': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'signal': "💎抄底" if ahr < 0.45 else "✅定投" if ahr < 1.2 else "☕️观望"
         }
     except: return None
 
-rates = get_exchange_rates()
 all_results = []
 for asset in config['assets']:
-    res = analyze_asset(asset, rates)
+    res = analyze_asset(asset)
     if res: all_results.append(res)
 
-send_alert(all_results)
 all_results.sort(key=lambda x: x['ahr999'])
+hero = all_results[0] # 机会最大的资产
 
-# --- 生成极致 App HTML V66 ---
+# --- 生成最终版 HTML V67 ---
 cards_html = ""
 for item in all_results:
-    pro = '<span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span>' if item['is_pro'] else ''
+    is_pro = item['is_pro']
+    blur_style = "filter: blur(10px); opacity: 0.3;" if is_pro else ""
+    pro_btn = f'<div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10;"><button onclick="showPro()" style="background:#0a84ff; color:#fff; border:none; padding:8px 16px; border-radius:20px; font-weight:bold; font-size:0.7rem;">解锁 Pro 信号</button></div>' if is_pro else ""
+    
     cards_html += f"""
-    <div class="card shadow" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-weight:800; font-size:1.15rem;">{item['name']} {pro}</span>
-            <span style="color:#8e8e93; font-size:0.7rem;">{item['price_local']} {item['currency']}</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999</div><div style="font-size:1.4rem; font-weight:900;">{item['ahr999']}</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">回归空间</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">{item['upside']:+}%</div>
+    <div class="card shadow-sm" style="background:#1c1c1e; border-radius:24px; padding:20px; margin-bottom:15px; border:1px solid #333; position:relative; overflow:hidden;">
+        {pro_btn}
+        <div style="{blur_style}">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="font-weight:800; font-size:1.1rem;">{item['name']} <small style="font-size:0.6rem; color:#666;">{item['ticker']}</small></span>
+                <span style="color:#ffd700; font-size:0.65rem;">拟合信度 {'★' * int(item['r2']*5+1)}</span>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">准确度</div><div style="font-size:1.4rem; font-weight:900;">{int(item['r2']*100)}%</div></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 指数</div><div style="font-size:1.5rem; font-weight:900;">{item['ahr999']}</div></div>
+                <div style="text-align:right;"><div style="color:#8e8e93; font-size:0.6rem;">回归预期收益</div><div style="font-size:1.5rem; font-weight:900; color:#32d74b;">{item['upside']:+}%</div></div>
+            </div>
+            <div style="margin-top:15px; font-size:0.8rem; font-weight:bold; color:#0a84ff; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
+                指令建议：{item['signal']}
+            </div>
         </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:#0a84ff; text-align:center; padding:10px; background:rgba(10,132,255,0.03); border-radius:15px;">
-            {item['signal']}
-        </div>
-        <div style="margin-top:10px; font-size:0.6rem; color:#444; text-align:center;">预测误差 (MAPE): {item['mape']}% | 拟合信度 {'🌟极高' if item['mape']<3 else '✅正常'}</div>
     </div>
     """
 
@@ -108,44 +84,69 @@ final_html = f"""
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Alpha Hub Pro</title>
     <style>
         body {{ background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }}
-        .header {{ padding: 60px 20px 30px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:0.5px solid #222; }}
+        .tab-content {{ display:none; padding:20px; }}
+        .active-tab {{ display:block; }}
+        .hero-banner {{ background: linear-gradient(135deg, #0a84ff, #5e5ce6); border-radius:24px; padding:25px; margin:20px 15px; position:relative; overflow:hidden; }}
         .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
         .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; }}
         .nav-item.active {{ color:#0a84ff; }}
-        .tab-content {{ display:none; padding:20px; }}
-        .active-tab {{ display:block; }}
+        .install-guide {{ position:fixed; top:20px; left:20px; right:20px; background:#1c1c1e; border:1px solid #0a84ff; padding:15px; border-radius:15px; z-index:2000; font-size:0.75rem; display:none; }}
     </style>
 </head>
 <body>
-    <div id="tab-signals" class="tab-content active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">全球多币种实时审计终端 | {datetime.now().strftime('%m-%d %H:%M')}</p></div>
-        <div style="padding:15px 0;">{cards_html}</div>
+    <div id="install-ui" class="install-guide shadow-lg" onclick="this.style.display='none'">
+        💡 <b>点击浏览器“分享”按钮 -> “添加到主屏幕”</b>，即可像使用原生 App 一样体验本系统！[点击关闭]
     </div>
 
-    <div id="tab-portfolio" class="tab-content" style="padding-top:60px;">
-        <h2 style="font-weight:800;">本地金库</h2>
-        <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #0a84ff;">
-            <div style="color:#8e8e93; font-size:0.8rem;">总资产估值 (USD折算)</div>
-            <div style="font-size:2.5rem; font-weight:900; margin:10px 0;">$0.00</div>
+    <div id="tab-home" class="tab-content active-tab">
+        <div style="padding: 40px 15px 0;"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">实时对数回归审计终端 | {datetime.now().strftime('%m-%d %H:%M')}</p></div>
+        
+        <div class="hero-banner shadow">
+            <div style="font-size:0.7rem; opacity:0.8;">🔥 今日最佳财富机会</div>
+            <div style="font-size:1.8rem; font-weight:900; margin:5px 0;">{hero['name']}</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <div><div style="font-size:0.6rem; opacity:0.7;">预期空间</div><div style="font-size:1.4rem; font-weight:800;">{hero['upside']:+}%</div></div>
+                <div style="text-align:right;"><div style="font-size:0.6rem; opacity:0.7;">当前 AHR</div><div style="font-size:1.4rem; font-weight:800;">{hero['ahr999']}</div></div>
+            </div>
         </div>
-        <p style="color:#444; font-size:0.7rem; margin-top:20px;">* 所有资产持仓数据仅保存在手机浏览器本地 LocalStorage。1 Unit 可代表任何基数（如 $0.53）。</p>
+
+        <div style="padding:0 15px;">{cards_html}</div>
+    </div>
+
+    <div id="tab-settings" class="tab-content" style="padding-top:60px;">
+        <h2 style="font-weight:800;">会员与设置</h2>
+        <div style="background:#1c1c1e; border-radius:20px; padding:25px; margin-top:20px; border:1px solid #ffd700;">
+            <div style="color:#ffd700; font-weight:900; font-size:1.2rem;">💎 升级 Alpha Pro</div>
+            <p style="color:#8e8e93; font-size:0.75rem; margin-top:10px;">解锁泡泡玛特、腾讯、英伟达等个股精准买卖信号。</p>
+            <button onclick="showPro()" style="width:100%; background:#ffd700; color:#000; border:none; padding:12px; border-radius:12px; font-weight:900; margin-top:10px;">获取激活码</button>
+        </div>
+        <div style="margin-top:30px; text-align:center; color:#444; font-size:0.7rem;">版本 V67.0 | PWA 离线模式已激活</div>
     </div>
 
     <div class="nav-bar">
-        <button class="nav-item active" onclick="showTab('signals', this)">📊<br>机会</button>
-        <button class="nav-item" onclick="showTab('portfolio', this)">💰<br>资产</button>
-        <button class="nav-item" onclick="alert('Alpha Hub V66 | 实时汇率：HKD={rates["HKD"]}, CNY={rates["CNY"]}')">⚙️<br>设置</button>
+        <button class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</button>
+        <button class="nav-item" onclick="switchTab('settings', this)">💎<br>Pro会员</button>
+        <button class="nav-item" onclick="alert('0.53 持仓账本即将在下版本上线')">💰<br>资产</button>
     </div>
 
     <script>
-    function showTab(id, btn) {{
+    if (!window.navigator.standalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {{
+        document.getElementById('install-ui').style.display = 'block';
+    }}
+    function switchTab(id, btn) {{
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('tab-' + id).classList.add('active-tab');
         btn.classList.add('active');
+    }}
+    function showPro() {{
+        alert('请联系管理员获取激活码\\nWeChat: haowu999_quant\\n开启个股及贵金属精准审计信号');
     }}
     </script>
 </body>
