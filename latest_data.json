@@ -1,78 +1,111 @@
 [
     {
-        "name": "\u6bd4\u7279\u5e01",
-        "ticker": "BTC-USD",
-        "ahr999": 0.535,
-        "r2": 0.9201,
-        "rank": 80.4,
-        "upside": 70.1,
-        "price": 77485.52,
-        "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "\u4ee5\u592a\u574a",
-        "ticker": "ETH-USD",
-        "ahr999": 0.459,
-        "r2": 0.6061,
-        "rank": 54.1,
-        "upside": 80.9,
-        "price": 2315.53,
-        "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "\u82f1\u4f1f\u8fbe",
-        "ticker": "NVDA",
-        "ahr999": 11.952,
-        "r2": 0.5944,
-        "rank": 98.9,
-        "upside": -90.5,
-        "price": 208.27,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
-    },
-    {
-        "name": "\u7279\u65af\u62c9",
-        "ticker": "TSLA",
-        "ahr999": 1.757,
-        "r2": 0.8245,
-        "rank": 88.5,
-        "upside": -46.6,
-        "price": 376.3,
-        "is_pro": true,
-        "signal": "\u2615\ufe0f\u89c2\u671b"
-    },
-    {
-        "name": "\u963f\u91cc\u5df4\u5df4",
-        "ticker": "BABA",
-        "ahr999": 0.962,
-        "r2": 0.0205,
-        "rank": 50.1,
-        "upside": -4.4,
-        "price": 135.82,
-        "is_pro": false,
-        "signal": "\u2705\u5b9a\u6295"
-    },
-    {
-        "name": "\u62fc\u591a\u591a",
+        "name": "PDD",
         "ticker": "PDD",
         "ahr999": 0.559,
+        "rank": 42,
         "r2": 0.5676,
-        "rank": 42.0,
-        "upside": 52.4,
-        "price": 98.03,
+        "score": 57.7,
         "is_pro": false,
         "signal": "\u2705\u5b9a\u6295"
     },
     {
-        "name": "\u9ec4\u91d1\u671f\u8d27",
+        "name": "Ethereum",
+        "ticker": "ETH-USD",
+        "ahr999": 0.443,
+        "rank": 53,
+        "r2": 0.6173,
+        "score": 49.8,
+        "is_pro": false,
+        "signal": "\ud83d\udc8e\u6284\u5e95"
+    },
+    {
+        "name": "Alibaba",
+        "ticker": "BABA",
+        "ahr999": 0.962,
+        "rank": 50,
+        "r2": 0.0205,
+        "score": 40.3,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
+    },
+    {
+        "name": "Tencent",
+        "ticker": "0700.HK",
+        "ahr999": 0.999,
+        "rank": 76,
+        "r2": 0.7973,
+        "score": 35.0,
+        "is_pro": true,
+        "signal": "\u2705\u5b9a\u6295"
+    },
+    {
+        "name": "Bitcoin",
+        "ticker": "BTC-USD",
+        "ahr999": 0.534,
+        "rank": 80,
+        "r2": 0.9201,
+        "score": 34.1,
+        "is_pro": false,
+        "signal": "\u2705\u5b9a\u6295"
+    },
+    {
+        "name": "Moutai",
+        "ticker": "600519.SS",
+        "ahr999": 1.339,
+        "rank": 76,
+        "r2": 0.6545,
+        "score": 31.8,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Tesla",
+        "ticker": "TSLA",
+        "ahr999": 1.757,
+        "rank": 88,
+        "r2": 0.8245,
+        "score": 25.7,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Apple",
+        "ticker": "AAPL",
+        "ahr999": 2.409,
+        "rank": 97,
+        "r2": 0.7285,
+        "score": 16.8,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "NVIDIA",
+        "ticker": "NVDA",
+        "ahr999": 11.952,
+        "rank": 98,
+        "r2": 0.5944,
+        "score": 12.7,
+        "is_pro": true,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Gold",
         "ticker": "GC=F",
         "ahr999": 2.779,
+        "rank": 98,
         "r2": 0.2356,
-        "rank": 98.1,
-        "upside": -59.8,
-        "price": 4722.3,
+        "score": 6.3,
+        "is_pro": false,
+        "signal": "\u2615\ufe0f\u89c2\u671b"
+    },
+    {
+        "name": "Silver",
+        "ticker": "SI=F",
+        "ahr999": 4.148,
+        "rank": 97,
+        "r2": 0.0041,
+        "score": 1.7,
         "is_pro": false,
         "signal": "\u2615\ufe0f\u89c2\u671b"
     }
