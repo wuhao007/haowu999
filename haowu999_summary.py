@@ -11,26 +11,12 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def run_backtest(df_hist, w, b, start_date):
-    """回测 2 年：系统指令 vs 普通定投"""
+def solve_price(target_ahr, ma200_sum_199, fit_p):
     try:
-        df = df_hist.copy()
-        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
-        df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
-        df['MA200'] = df['Close'].rolling(200).mean()
-        df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df = df.dropna().tail(252 * 2) 
-        
-        # 策略：0.45 抄底(3x), 1.2 定投(1x), 1.2以上观望(0x)
-        df['Invest'] = 1.0
-        df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
-        df.loc[df['AHR'] > 1.2, 'Invest'] = 0.0
-        if df['Invest'].sum() == 0: return 0.0, 0.0
-        
-        ahr_roi = (((df['Invest']/df['Close']).sum() * df['Close'].iloc[-1]) / df['Invest'].sum() - 1) * 100
-        dca_roi = (((1.0/df['Close']).sum() * df['Close'].iloc[-1]) / len(df) - 1) * 100
-        return round(float(ahr_roi), 1), round(float(ahr_roi - dca_roi), 1)
-    except: return 0.0, 0.0
+        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
+        delta = b**2 - 4*a*c
+        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
+    except: return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
@@ -43,64 +29,59 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
         latest = df.iloc[-1]
+        ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
-        
-        roi, alpha = run_backtest(df, model.coef_[0], model.intercept_, start)
-        upside = round((fit_p / latest['Close'] - 1) * 100, 1)
+        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha, 'roi': roi, 'upside': upside,
+            'r2': round(float(model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))), 4),
+            'upside': round((fit_p / latest['Close'] - 1) * 100, 1),
+            'p_btm': solve_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
-            'currency': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
+            'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
-            'labels': df.tail(60)['Date'].dt.strftime('%m-%d').tolist(),
-            'values': df.tail(60)['Close'].round(2).tolist()
+            'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
+            'values': df.tail(30)['Close'].round(2).tolist()
         }
     except: return None
 
-all_res = []
+all_results = []
 for a in config['assets']:
     res = analyze_asset(a)
-    if res: all_res.append(res)
+    if res: all_results.append(res)
 
-all_res.sort(key=lambda x: x['alpha'], reverse=True) # 按战绩排序
+all_results.sort(key=lambda x: x['ahr999'])
 
-# --- 安全构建 HTML 片段 ---
+# --- UI 模块生成 ---
 cards_html = ""
 scripts_html = ""
 vault_html = ""
-for i, item in enumerate(all_res):
+for i, item in enumerate(all_results):
     blur = "pro-blur" if item['is_pro'] else ""
     cards_html += f"""
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">{item['name']}</span>
-            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Alpha +{item['alpha']}%</span>
+            <span class="text-success small fw-bold">回归潜力: {item['upside']:+}%</span>
         </div>
         <div class="{blur}">
-            <div style="height:70px; opacity:0.5;"><canvas id="c_{i}"></canvas></div>
-            <div class="row g-2 text-center mt-2">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">AHR999 指数</div><div class="fw-bold text-white">{item['ahr999']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">回归获利空间</div><div class="fw-bold text-success">{item['upside']:+}%</div></div></div>
+            <div style="height:80px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">AHR999</div><div class="fw-bold text-white">{item['ahr999']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary">抄底目标</div><div class="fw-bold text-info">${item['p_btm']}</div></div></div>
             </div>
-            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary" style="font-size:0.6rem">拟合 R²: {item['r2']} | 2Y策略回报: +{item['roi']}%</div>
-                <div class="fs-5 fw-bold text-primary">{'💎抄底' if item['ahr999']<0.45 else '✅定投' if item['ahr999']<1.2 else '☕️观望'}</div>
-            </div>
+            <div class="mt-3 pt-2 border-top border-secondary text-end"><span class="fs-5 fw-bold text-primary">{'💎抄底' if item['ahr999']<0.45 else '✅定投' if item['ahr999']<1.2 else '☕️观望'}</span></div>
         </div>
-        {"<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill fw-bold' onclick='switchTab(\"settings\")'>Unlock Pro Analytics</button></div>" if item['is_pro'] else ""}
+        {"<div class='pro-overlay'><button class='btn btn-primary btn-sm rounded-pill fw-bold' onclick='switchTab(\"settings\")'>Unlock Pro Analytics</button></div>" if item['is_pro'] else ""}
     </div>
     """
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_html += f"<div class='mb-3'><label class='small text-secondary'>{item['name']} 持仓 Units</label><input type='number' class='form-control bg-black border-secondary text-white hold-in' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['currency']}' placeholder='0.00' onchange='calcVault()'></div>"
+    vault_html += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' placeholder='0.00' onchange='calcVault()' style='width:100px; background:#111; border:1px solid #333; color:#fff; border-radius:8px; text-align:center;'></div>"
 
-# --- 最终模板 ---
-final_html = """
+final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -124,36 +105,36 @@ final_html = """
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">投研 <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">战绩榜：策略超额收益实时审计 | REPLACE_TIME</p></div>
+        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富机遇审计终端 | REPLACE_TIME</p></div>
         <div class="px-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">我的金库</h2>
+        <h2 style="font-weight:800;">持仓金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-center">
-            <div class="text-secondary small">实时持仓估值 (USD)</div>
+            <div class="text-secondary small">我的持仓实时市值 (USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="small text-success mt-2">基于实时汇率 & 定投基准折算</div>
+            <div class="small text-success mt-2">Privacy: 持仓数据永不离机</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4">REPLACE_VAULT</div>
     </div>
 
     <div id="tab-settings" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">激活与设置</h2>
+        <h2 style="font-weight:800;">法律与激活</h2>
         <div class="card bg-dark border-secondary p-3 rounded-4 mb-3">
-            <div class="text-primary fw-bold mb-2">💎 解锁正式版</div>
-            <p class="small text-secondary">加微信获取激活码，解锁<b>泡泡玛特</b>等全资产信号：</p>
-            <div class="fw-bold mb-2">WeChat: REPLACE_WECHAT</div>
+            <p class="small text-secondary">解锁 Pro 激活码：<br>WeChat: <b>REPLACE_WECHAT</b></p>
             <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="激活码">
-            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">激活 PRO</button>
+            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">立即激活</button>
         </div>
-        <div class="text-center text-secondary small">V78.0 | 隐私记账与 Alpha 审计系统</div>
+        <div class="card bg-dark border-secondary p-3 rounded-4 small text-secondary" style="font-size:0.6rem;">
+            <b>法律披露 (Disclaimer)</b>: 本App仅提供量化数据展示，不构成投资建议。AHR999是一种对数回归统计概率，不能保证未来收益。投资有风险，入市需谨慎。数据来源: Yahoo Finance API。
+        </div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="switchTab('settings', this)">💎<br>Pro</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>金库</div>
+        <div class="nav-item" onclick="switchTab('settings', this)">💎<br>激活</div>
     </nav>
 
     <script>
@@ -166,8 +147,8 @@ final_html = """
         }
         function unlock() {
             if(document.getElementById('key-in').value === '666888') {
-                localStorage.setItem('p', '1'); location.reload();
-            }
+                localStorage.setItem('p', '1'); alert('激活成功！'); location.reload();
+            } else { alert('激活码无效'); }
         }
         function calcVault() {
             let total = 0; const h = {};
@@ -204,6 +185,4 @@ final_html = """
     .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_res, f, indent=4)
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write("# 🚀 Alpha Hub Pro: 全资产智能实证中心 (V78)\n\n## 🏆 策略战绩榜 (ROI PK)\n| 资产 | 2Y策略收益 | **超额收益 (Alpha)** | 预期涨幅 | 拟合信度 |\n| :--- | :--- | :--- | :--- | :--- |\n" + "\n".join([f"| {x['name']} | `+{x['roi']}%` | **`+{x['alpha']}%`** | `+{x['upside']}%` | `{x['r2']}` |" for x in all_res]) + "\n\n---\n*注：Alpha收益指该模型比盲给定投多赚的比例。数据每日自动更新。*")
+with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
