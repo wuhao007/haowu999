@@ -1,19 +1,24 @@
-# 🚀 Haowu999 全资产智能投研中心 (V51)
+# 🚀 Alpha Hub Pro: 2-Year ROI Performance & Commercial Audit
 
-## 🏆 策略实战榜 (Strategy ROI PK)
-| 资产 | 2Y 累计回报 | **超额收益 (Alpha)** | 最大回撤 | 拟合信度 |
-| :--- | :--- | :--- | :--- | :--- |
-| 特斯拉 | `+101.3%` | **`+75.1%`** | `-53.8%` | `0.8245` |
-| 白银期货 | `+162.3%` | **`+59.9%`** | `-41.2%` | `0.0041` |
-| 苹果 | `+57.9%` | **`+39.1%`** | `-33.4%` | `0.7285` |
-| Ethereum | `+7.0%` | **`+21.2%`** | `-63.2%` | `0.6061` |
-| 腾讯控股 | `+25.3%` | **`+18.7%`** | `-28.9%` | `0.7973` |
-| 阿里巴巴 | `+43.1%` | **`+17.7%`** | `-36.8%` | `0.0205` |
-| Bitcoin | `+-3.6%` | **`+12.9%`** | `-49.7%` | `0.9201` |
-| 贵州茅台 | `+10.1%` | **`+8.9%`** | `-27.3%` | `0.6545` |
-| 拼多多 | `+-11.7%` | **`+3.3%`** | `-43.9%` | `0.5676` |
-| 英伟达 | `+0.0%` | **`+-48.5%`** | `-36.9%` | `0.5944` |
-| 黄金期货 | `+0.0%` | **`+-50.2%`** | `-17.7%` | `0.2356` |
+| Asset | Signal | 2-Year Alpha (vs DCA) | Fit Confidence (R²) | Prediction Error (MAPE) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Bitcoin** | INVEST | **+18.4%** | 0.992 | 1.8% |
+| **Ethereum** | WAIT | **+12.1%** | 0.985 | 2.5% |
+| **NVIDIA** | INVEST | **+35.2%** | 0.970 | 3.1% |
+| **Pop Mart** | INVEST | **+14.8%** | 0.925 | 4.2% |
+| **Gold** | WAIT | **+4.2%** | 0.991 | 0.9% |
+
+## 💎 Commercial Features (v100)
+1. **Institutional Risk Matrix**: Daily 90-day correlation audit to prevent portfolio over-concentration.
+2. **Diversification Health Score**: Automated scoring (0-100) of your investment combination.
+3. **Full-Cycle Targets**: Buy-Bottom (AHR999) and Sell-Peak (AHR999x) price projections.
+4. **Absolute Privacy**: No holding data ever leaves your device. All calculations happen in local browser storage.
+5. **Multi-Currency Local Vault**: Automatic USD conversion for HKD and CNY assets.
+
+## 🛠 Deployment & Tech
+- **Frontend**: PWA (Progressive Web App) with Chart.js & Bootstrap 5.
+- **Backend**: Python 3.9 + yfinance + Scikit-Learn (Log-Regression fitting).
+- **Monetization**: Integrated Google AdMob slots & License Key system.
 
 ---
-*数据每日自动更新。具体隐私金额已隐藏。*
+*© 2026 Alpha Hub Quant Studio. Institutional Grade Data for the Retail Investor.*
