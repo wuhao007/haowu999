@@ -12,6 +12,7 @@
         {"ticker": "TSLA", "name": "Tesla", "type": "Stocks", "is_pro": true},
         {"ticker": "9992.HK", "name": "Pop Mart", "type": "Stocks", "is_pro": true},
         {"ticker": "0700.HK", "name": "Tencent", "type": "Stocks", "is_pro": true},
-        {"ticker": "600519.SS", "name": "Moutai", "type": "Stocks", "is_pro": true}
+        {"ticker": "600519.SS", "name": "Moutai", "type": "Stocks", "is_pro": true},
+        {"ticker": "BABA", "name": "Alibaba", "type": "Stocks", "is_pro": true}
     ]
 }

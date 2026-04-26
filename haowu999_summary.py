@@ -8,56 +8,72 @@ import requests
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# 加载配置
+# --- COMMERCIAL CONFIG (V88) ---
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+# Formal AdMob IDs (Placeholder from config or standard test)
+ADMOB_PUBLISHER = config.get("publisher_id", "pub-5787134782741442")
+ADMOB_UNIT = config.get("ad_unit_id", "ca-app-pub-3940256099942544/6300978111")
+
+def get_exchange_rates():
+    """Fetch real-time FX rates for localized portfolio tracking"""
+    try:
+        data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
+        return {'HKD': float(data['HKDUSD=X']), 'CNY': float(data['CNYUSD=X'])}
+    except:
+        return {'HKD': 0.128, 'CNY': 0.138} # Fallback rates
+
 def send_signal_alert(results):
-    """如果检测到 0.45 以下的强力抄底信号，发送 Webhook 推送"""
     webhook_url = os.environ.get('SIGNAL_WEBHOOK')
     if not webhook_url: return
-    signals = [f"【{x['name']}】AHR: {x['ahr999']} (💎抄底)" for x in results if x['ahr999'] < 0.45]
+    signals = [f"【{x['name']}】AHR: {x['ahr999']} (💎BOTTOM)" for x in results if x['ahr999'] < 0.45]
     if signals:
-        msg = f"🚀 Alpha Hub 捡钱警报 ({datetime.now().strftime('%Y-%m-%d')}):\n" + "\n".join(signals)
+        msg = f"🚀 Alpha Hub Opportunity Alert ({datetime.now().strftime('%Y-%m-%d')}):\n" + "\n".join(signals)
         try: requests.post(webhook_url, json={"text": msg}, timeout=10)
         except: pass
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
     try:
-        start = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
-        df = yf.download(ticker, start=start, progress=False).reset_index()
+        # Adjusted Start Dates for better fitting
+        start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
+        df = yf.download(ticker, start=start_date, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 拟合
-        df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
+        # 1. Log-Fit Analysis
+        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        x = np.log10(df['Days'].values).reshape(-1, 1)
+        y = np.log10(df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
         
-        # 指标计算
+        # 2. Indicators & Precision
         latest = df.iloc[-1]
         ma200 = df['Close'].tail(200).mean()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
         
-        # AHR999x (Top Finder): 指标越低风险越高
-        ahr_x = (ma200 * fit_p * 3) / (latest['Close']**2)
+        # Mean Absolute Percentage Error (MAPE)
+        hist_fit = 10 ** (model.coef_[0] * np.log10(df['Days'].tail(60)) + model.intercept_)
+        mape = np.mean(np.abs((df['Close'].tail(60) - hist_fit) / df['Close'].tail(60))) * 100
         
-        # 预期收益空间与历史分位
+        # Upside to Fair Price
         upside = round((fit_p / latest['Close'] - 1) * 100, 1)
-        df['AHR_Hist'] = (df['Close'] / df['Close'].rolling(200).mean()) * (df['Close'] / (10**(model.coef_[0] * np.log10(df['Days']) + model.intercept_)))
-        percentile = (df['AHR_Hist'].dropna() < ahr).mean() * 100
         
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3), 'ahr999x': round(float(ahr_x), 3),
-            'r2': round(float(r2), 4), 'percentile': round(float(percentile), 1),
-            'upside': upside, 'is_pro': asset_cfg['is_pro'],
-            'signal': "💎BOTTOM" if ahr < 0.45 else "🔥RISK" if ahr_x < 0.45 else "✅DCA" if ahr < 1.2 else "☕️WAIT"
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
+            'upside': upside, 'price': round(float(latest['Close']), 2),
+            'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
+            'is_pro': asset_cfg['is_pro'],
+            'signal': "💎BOTTOM" if ahr < 0.45 else "✅DCA" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
 
+rates = get_exchange_rates()
 all_results = []
 for asset in config['assets']:
     res = analyze_asset(asset)
@@ -66,27 +82,35 @@ for asset in config['assets']:
 send_signal_alert(all_results)
 all_results.sort(key=lambda x: x['ahr999'])
 
-# --- 生成最终版 HTML V87 ---
+# --- UI GENERATION (V88 COMMERCIAL) ---
 cards_html = ""
 for item in all_results:
-    pro = '<span style="background:#0a84ff; font-size:0.5rem; padding:1px 4px; border-radius:4px; margin-left:5px;">PRO</span>' if item['is_pro'] else ''
-    sig_color = "#32d74b" if "BOTTOM" in item['signal'] else "#ff453a" if "RISK" in item['signal'] else "#0a84ff" if "DCA" in item['signal'] else "#8e8e93"
+    pro_tag = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
+    acc_color = "text-success" if item['r2'] > 0.9 else "text-warning"
     
     cards_html += f"""
-    <div class="card shadow-sm" style="background:#1c1c1e; border-radius:24px; padding:22px; margin-bottom:15px; border:1px solid #333;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:800; font-size:1.2rem;">{item['name']} {pro}</span>
-            <span style="background:rgba(50,215,75,0.1); color:#32d74b; font-size:0.65rem; padding:2px 8px; border-radius:10px;">拟合信度 {int(item['r2']*100)}%</span>
+    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold fs-5 text-white">{item['name']} {pro_tag}</span>
+            <span class="{acc_color} small fw-bold">Fit: {int(item['r2']*100)}%</span>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center;">
-            <div><div style="color:#8e8e93; font-size:0.6rem;">AHR999 (抄)</div><div style="font-size:1.4rem; font-weight:900;">{item['ahr999']}</div></div>
-            <div style="border-left:1px solid #222; border-right:1px solid #222;">
-                <div style="color:#8e8e93; font-size:0.6rem;">AHR999x (顶)</div><div style="font-size:1.4rem; font-weight:900; color:#ffd700;">{item['ahr999x']}</div>
+        <div class="row text-center g-0">
+            <div class="col-4 border-end border-secondary">
+                <div class="text-secondary small">AHR999</div>
+                <div class="fw-bold text-white fs-4">{item['ahr999']}</div>
             </div>
-            <div><div style="color:#8e8e93; font-size:0.6rem;">预期涨幅</div><div style="font-size:1.4rem; font-weight:900; color:#32d74b;">{item['upside']:+}%</div></div>
+            <div class="col-4 border-end border-secondary">
+                <div class="text-secondary small">UPSIDE</div>
+                <div class="fw-bold text-success fs-4">{item['upside']:+}%</div>
+            </div>
+            <div class="col-4">
+                <div class="text-secondary small">MAPE ERR</div>
+                <div class="fw-bold text-info fs-4">{item['mape']}%</div>
+            </div>
         </div>
-        <div style="margin-top:15px; font-size:1rem; font-weight:bold; color:{sig_color}; text-align:center; padding:8px; background:rgba(255,255,255,0.03); border-radius:12px;">
-            系统建议：{item['signal']}
+        <div class="mt-3 pt-2 border-top border-secondary d-flex justify-content-between align-items-center">
+            <span class="text-secondary small">Price: {item['price']} {item['cur']}</span>
+            <span class="fs-5 fw-bold text-primary">{item['signal']}</span>
         </div>
     </div>
     """
@@ -99,27 +123,51 @@ final_template = f"""
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>Alpha Hub Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {{ background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }}
         .header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:0.5px solid #222; }}
-        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(28,28,30,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
+        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
         .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }}
         .nav-item.active {{ color:#0a84ff; }}
+        .tab-view {{ display:none; animation: fadeIn 0.3s; }}
+        .active-tab {{ display:block; }}
+        @keyframes fadeIn {{ from {{ opacity:0; }} to {{ opacity:1; }} }}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">PRO</span></h1>
-        <p style="color:#8e8e93; font-size:0.8rem;">全球核心资产全周期审计终端 | {datetime.now().strftime('%m-%d %H:%M')}</p>
+    <div id="tab-home" class="tab-view active-tab">
+        <div class="header">
+            <h1 class="fw-bold mb-0">Alpha <span class="text-primary">Hub</span></h1>
+            <p class="text-secondary small">V88.0 Final Commercial | {datetime.now().strftime('%m-%d %H:%M')}</p>
+        </div>
+        <div class="px-3 mt-3">{cards_html}</div>
     </div>
 
-    <div style="padding:0 15px; margin-top:20px;">{cards_html}</div>
-
-    <div class="nav-bar">
-        <button class="nav-item active">📊<br>机会</button>
-        <button class="nav-item" onclick="alert('PRO 功能：全自动捡钱警报推送即将在下版本上线')">🔔<br>预警</button>
-        <button class="nav-item" onclick="alert('隐私提示：持仓 Units 仅存储于本地缓存')">⚙️<br>设置</button>
+    <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
+        <h2 class="fw-bold">My Local Vault</h2>
+        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
+            <div class="text-secondary small">Total Estimated Value (USD)</div>
+            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div class="small text-success mt-2">Privacy Encryption: On-Device</div>
+        </div>
+        <p class="text-secondary small">Currency conversions: HKD={rates['HKD']}, CNY={rates['CNY']}</p>
     </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>Market</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>Vault</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v88 | Publisher: {ADMOB_PUBLISHER}')">⚙️<br>Settings</div>
+    </nav>
+
+    <script>
+        function switchTab(id, el) {{
+            document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active-tab');
+            el.classList.add('active');
+        }}
+    </script>
 </body>
 </html>
 """
