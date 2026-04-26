@@ -4,9 +4,8 @@
         "ticker": "ETH-USD",
         "ahr999": 0.482,
         "r2": 0.6061,
-        "alpha": -39.4,
-        "mdd": 63.1,
-        "price": 2369.65,
+        "sharpe": -0.78,
+        "price": 2368.63,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -71,17 +70,17 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2369.64990234375
+            2368.6298828125
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_weight": 2.9
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "ahr999": 0.962,
         "r2": 0.0205,
-        "alpha": 86.8,
-        "mdd": 36.8,
+        "sharpe": 0.56,
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
@@ -149,15 +148,15 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_weight": 2.9
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "alpha": 59.4,
-        "mdd": 28.9,
+        "sharpe": 0.47,
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
@@ -225,16 +224,16 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_weight": 10.9
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
         "ahr999": 1.338,
         "r2": 0.8177,
-        "alpha": -22.9,
-        "mdd": 49.7,
-        "price": 78274.0,
+        "sharpe": -0.84,
+        "price": 78260.81,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -299,17 +298,17 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78274.0
+            78260.8125
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 2.9
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
         "ahr999": 1.339,
         "r2": 0.6545,
-        "alpha": -8.9,
-        "mdd": 27.3,
+        "sharpe": -0.03,
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
@@ -377,15 +376,15 @@
             1419.0,
             1458.489990234375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 2.9
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
         "ahr999": 1.751,
         "r2": 0.0321,
-        "alpha": 425.9,
-        "mdd": 57.7,
+        "sharpe": 0.28,
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
@@ -453,15 +452,15 @@
             155.60000610351562,
             156.5
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 2.9
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
         "ahr999": 1.757,
         "r2": 0.8245,
-        "alpha": 123.6,
-        "mdd": 53.8,
+        "sharpe": 1.08,
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
@@ -529,15 +528,15 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 25.8
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
         "ahr999": 2.801,
         "r2": 0.2356,
-        "alpha": 106.9,
-        "mdd": 17.7,
+        "sharpe": 1.43,
         "price": 4740.9,
         "cur": "USD",
         "is_pro": false,
@@ -605,15 +604,15 @@
             4705.10009765625,
             4740.89990234375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 9.8
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
         "ahr999": 11.952,
         "r2": 0.5944,
-        "alpha": 137.5,
-        "mdd": 36.9,
+        "sharpe": 2.27,
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,
@@ -681,6 +680,7 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_weight": 39.1
     }
 ]
