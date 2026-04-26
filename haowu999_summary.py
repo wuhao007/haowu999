@@ -4,37 +4,25 @@ import numpy as np
 import math
 import json
 import os
+import requests
 from sklearn.linear_model import LinearRegression
-from datetime import datetime, timedelta
+from datetime import datetime
 
-# 1. Load Config
+# 加载配置
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def run_backtest_stats(df_hist, w, b, start_date):
-    """回测审计：WinRate, Alpha, ROI, MDD"""
-    try:
-        df = df_hist.copy()
-        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
-        df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
-        df['MA200'] = df['Close'].rolling(200).mean()
-        df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
-        df = df.dropna().tail(252 * 2)
-        
-        df['Invest'] = 1.0
-        df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
-        df.loc[df['AHR'] > 1.2, 'Invest'] = 0.0
-        
-        if df['Invest'].sum() == 0: return 0, 0, 0, 0
-        df['Equity'] = (df['Invest'] / df['Close']).cumsum() * df['Close']
-        df['Spent'] = df['Invest'].cumsum()
-        roi = (df['Equity'].iloc[-1] / df['Spent'].iloc[-1] - 1) * 100
-        mdd = ((df['Equity'] - df['Equity'].cummax()) / df['Equity'].cummax()).min() * 100
-        win_rate = (df[df['AHR'] < 1.2]['Close'].shift(-20) > df[df['AHR'] < 1.2]['Close']).mean() * 100
-        dca_roi = (((1.0/df['Close']).sum() * df['Close'].iloc[-1]) / len(df) - 1) * 100
-        
-        return round(float(win_rate),1), round(float(roi-dca_roi),1), round(float(roi),1), round(float(mdd),1)
-    except: return 0,0,0,0
+def send_push_alert(all_results):
+    """如果发现 0.45 以下的抄底机会，通过 Webhook 发送警报"""
+    webhook_url = os.environ.get('SIGNAL_WEBHOOK')
+    if not webhook_url: return
+    
+    signals = [f"【{x['name']}】AHR: {x['ahr999']} (💎 抄底时机!)" for x in all_results if x['ahr999'] < 0.45]
+    if signals:
+        msg = f"🚀 Alpha Hub 捡钱警报 ({datetime.now().strftime('%Y-%m-%d')}):\n" + "\n".join(signals)
+        try:
+            requests.post(webhook_url, json={"text": msg}, timeout=10)
+        except: pass
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
@@ -44,105 +32,105 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
+        # 1. 拟合与斜率 (用于预测)
         df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        x = np.log10(df['Days'].values).reshape(-1, 1)
+        y = np.log10(df['Close'].values)
+        model = LinearRegression().fit(x, y)
+        r2 = model.score(x, y)
+        slope = model.coef_[0] # 财富增长斜率
         
+        # 2. 指标计算
         latest = df.iloc[-1]
-        ma200_sum_199 = df['Close'].iloc[-199:].sum()
+        ma200 = df['Close'].tail(200).mean()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
         
-        # 5年增长预期 (基于斜率)
+        # 3. 5年复合增长预期 (FV = P * (1+r)^n)
         future_days = latest['Days'] + (365 * 5)
         future_p = 10 ** (model.coef_[0] * math.log10(future_days) + model.intercept_)
-        upside_5y = round((future_p / latest['Close'] - 1) * 100, 1)
-
-        win, alpha, roi, mdd = run_backtest_stats(df, model.coef_[0], model.intercept_, start)
+        growth_5y = round((future_p / latest['Close']), 2)
         
+        # 4. 回撤审计
+        returns = df['Close'].pct_change().dropna().tail(252*2)
+        cum_ret = (1 + returns).cumprod()
+        mdd = ((cum_ret - cum_ret.cummax()) / cum_ret.cummax()).min() * 100
+
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'win_rate': win, 'alpha': alpha, 'mdd': mdd,
-            'upside_5y': upside_5y, 'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'growth_5y': growth_5y, 'mdd': round(float(mdd), 1),
+            'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
-            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT",
-            'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
-            'values': df.tail(30)['Close'].tolist()
+            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }, df.set_index('Date')['Close'].tail(90)
     except: return None, None
 
 all_results = []
 price_matrix = {}
-for a in config['assets']:
-    res, series = analyze_asset(a)
-    if res: all_results.append(res); price_matrix[a['name']] = series
+for asset in config['assets']:
+    res, series = analyze_asset(asset)
+    if res: all_results.append(res); price_matrix[asset['name']] = series
+
+# 触发推送
+send_push_alert(all_results)
 
 # 风险矩阵计算
 corr_df = pd.DataFrame(price_matrix).pct_change().dropna(how='all').corr().round(2)
 corr_matrix = corr_df.to_dict()
 
 all_results.sort(key=lambda x: x['ahr999'])
-market_breadth = int(len([x for x in all_results if x['ahr999'] < 1.2]) / len(all_results) * 100)
 
-# --- UI Snippets ---
+# --- UI 构建 (采用 replace 策略规避 SyntaxError) ---
 cards_html = ""
-scripts_html = ""
 vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    stars = "⭐⭐⭐⭐⭐" if item['ahr999'] < 0.45 else "⭐⭐⭐" if item['ahr999'] < 1.0 else "⭐"
     
     cards_html += """
-    <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-warning small fw-bold">""" + stars + """</span>
+            <span class="text-success small fw-bold">拟合信度 """ + str(int(item['r2']*100)) + """%</span>
         </div>
         <div class='""" + blur + """'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">5年预期增幅</div><div class="fw-bold text-info">""" + str(item['upside_5y']) + """%+</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">超额收益 Alpha</div><div class="fw-bold text-success">+""" + str(item['alpha']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">5年预期增幅</div><div class="fw-bold text-info">""" + str(item['growth_5y']) + """x</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">历史最大回撤</div><div class="fw-bold text-danger">""" + str(item['mdd']) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">胜率: """ + str(item['win_rate']) + """% | 回撤: """ + str(item['mdd']) + """%</div>
+                <div class="text-secondary small">AHR999: """ + str(item['ahr999']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareSig('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 生成实战审计月报海报</button>
         </div>"""
     
     if item['is_pro']:
         cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock targets</button></div>"
     
     cards_html += "</div>"
-    scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
-    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-growth='" + str(item['growth_5y']) + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# 风险矩阵表格
-risk_table = '<table class="table table-dark table-sm mt-3" style="font-size:0.45rem;"><thead><tr><th></th>' + "".join([f'<th>{k[:3]}</th>' for k in corr_matrix.keys()]) + '</tr></thead><tbody>'
+# 风险矩阵 HTML
+risk_table = '<table class="table table-dark table-sm mt-3" style="font-size:0.5rem;"><thead><tr><th></th>' + "".join([f'<th>{k[:3]}</th>' for k in corr_matrix.keys()]) + '</tr></thead><tbody>'
 for a in corr_matrix.keys():
     risk_table += f'<tr><td>{a[:3]}</td>'
     for b in corr_matrix[a].keys():
         val = corr_matrix[a][b]
-        bg = f"rgba(255, 69, 58, {val})" if val > 0.7 else "rgba(10, 132, 255, 0.2)" if val < 0.3 else "transparent"
+        bg = f"rgba(255, 69, 58, {val})" if val > 0.7 else "rgba(10, 132, 255, 0.2)" if val < 0.2 else "transparent"
         risk_table += f'<td style="background:{bg}">{val}</td>'
     risk_table += '</tr>'
 risk_table += '</tbody></table>'
 
-# --- 最终模板 ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V109</title>
+    <title>Alpha Hub Pro V110</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -158,40 +146,33 @@ final_template = """
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header text-center">
-            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>市场定投广度</span><span>REPLACE_BREADTH%</span></div>
-                <div class="progress" style="height:4px; background:#222;"><div class="progress-bar bg-info" style="width:REPLACE_BREADTH%"></div></div>
-                <div class="mt-2 x-small text-muted">汇率: HKD 0.128 | CNY 0.138 | REPLACE_TIME</div>
-            </div>
-        </div>
+        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">全球核心资产审计中枢 | REPLACE_TIME</p></div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
         <h2 style="font-weight:800;">财富金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">我的当前持仓估值 (USD)</div>
+            <div class="text-secondary small">实时市值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
             <div class="mt-3 pt-3 border-top border-secondary">
-                <div class="x-small text-secondary mb-1">愿景预测：保持当前策略 5 年后</div>
-                <div id="v-future" class="fw-bold text-success fs-5">--</div>
+                <div class="x-small text-secondary mb-1">愿景：5 年后预计增至约为</div>
+                <div id="v-future" class="fw-bold text-success fs-5">$0</div>
             </div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <div id="tab-risk" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">组合压力测试</h2>
-        <div class="card bg-dark border-secondary p-2 rounded-4 overflow-auto">REPLACE_RISK</div>
+        <h2 style="font-weight:800;">风险对冲审计</h2>
+        <div class="card bg-dark border-secondary p-2 rounded-4 overflow-auto shadow">REPLACE_RISK</div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('risk', this)">🛡<br>风控</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v109 | 愿景模型已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v110 | 全自动 Webhook 捡钱机器人已上线')">⚙️<br>推送</div>
     </nav>
 
     <script>
@@ -203,28 +184,19 @@ final_template = """
             if(id === 'portfolio') calcVault();
         }
         function calcVault() {
-            let total = 0; let futureTotal = 0; const h = {};
+            let total = 0; let future = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let gr = parseFloat(i.dataset.growth);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
                 if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
-                // 此处模拟 5 年增长（基于全市场平均或各资产斜率，V109简化为总额外推）
-                futureTotal += usd * 2.5; 
+                future += usd * gr;
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            document.getElementById('v-future').innerText = '预计增至约为: $' + futureTotal.toLocaleString(undefined, {maximumFractionDigits: 0});
-        }
-        function renderChart(id, labels, data) {
-            new Chart(document.getElementById(id), { type:'line', data:{ labels, datasets:[{data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
-        }
-        function shareSig(id, name) {
-            const card = document.getElementById(id);
-            html2canvas(card, {backgroundColor:'#000', scale: 2}).then(canvas => {
-                const a = document.createElement('a'); a.download = `Alpha_Report_${name}.png`; a.href = canvas.toDataURL(); a.click();
-            });
+            document.getElementById('v-future').innerText = '$' + future.toLocaleString(undefined, {maximumFractionDigits: 0});
         }
         window.onload = function() {
             if(localStorage.getItem('p') === '1') {
@@ -233,7 +205,6 @@ final_template = """
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-            REPLACE_SCRIPTS
         }
     </script>
 </body>
@@ -241,11 +212,9 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_BREADTH", str(market_breadth)) \
     .replace("REPLACE_CARDS", cards_html) \
-    .replace("REPLACE_RISK", risk_table) \
     .replace("REPLACE_VAULT", vault_rows) \
-    .replace("REPLACE_SCRIPTS", scripts_html)
+    .replace("REPLACE_RISK", risk_table)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
 with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
