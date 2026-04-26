@@ -5,9 +5,9 @@
         "ahr999": 0.483,
         "r2": 0.6061,
         "p_buy": 2284.84,
-        "upside": 77.0,
-        "price": 2366.37,
-        "regime": "SIDEWAYS \u2615",
+        "sharpe": -0.79,
+        "price": 2366.11,
+        "regime": "SIDEWAYS",
         "reg_color": "#8e8e93",
         "cur": "USD",
         "is_pro": false,
@@ -73,9 +73,10 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2366.3701171875
+            2366.110107421875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_w": 2.9
     },
     {
         "name": "Alibaba",
@@ -83,9 +84,9 @@
         "ahr999": 0.961,
         "r2": 0.0205,
         "p_buy": 92.87,
-        "upside": -4.4,
+        "sharpe": 0.56,
         "price": 135.82,
-        "regime": "SIDEWAYS \u2615",
+        "regime": "SIDEWAYS",
         "reg_color": "#8e8e93",
         "cur": "USD",
         "is_pro": true,
@@ -153,7 +154,8 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_w": 2.9
     },
     {
         "name": "Tencent",
@@ -161,9 +163,9 @@
         "ahr999": 0.999,
         "r2": 0.7973,
         "p_buy": 330.88,
-        "upside": -15.2,
+        "sharpe": 0.47,
         "price": 493.4,
-        "regime": "BEAR \u2744\ufe0f",
+        "regime": "BEAR",
         "reg_color": "#ff453a",
         "cur": "HKD",
         "is_pro": true,
@@ -231,17 +233,18 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "target_w": 10.9
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
         "ahr999": 1.339,
         "r2": 0.8177,
-        "p_buy": 45286.77,
-        "upside": -31.1,
-        "price": 78187.98,
-        "regime": "SIDEWAYS \u2615",
+        "p_buy": 45286.76,
+        "sharpe": -0.85,
+        "price": 78182.79,
+        "regime": "SIDEWAYS",
         "reg_color": "#8e8e93",
         "cur": "USD",
         "is_pro": false,
@@ -307,9 +310,10 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78187.9765625
+            78182.7890625
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 2.9
     },
     {
         "name": "Moutai",
@@ -317,9 +321,9 @@
         "ahr999": 1.339,
         "r2": 0.6545,
         "p_buy": 844.71,
-        "upside": -23.5,
+        "sharpe": -0.03,
         "price": 1458.49,
-        "regime": "BULL \ud83d\udd25",
+        "regime": "BULL",
         "reg_color": "#32d74b",
         "cur": "CNY",
         "is_pro": true,
@@ -387,7 +391,8 @@
             1419.0,
             1458.489990234375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 2.9
     },
     {
         "name": "Tesla",
@@ -395,9 +400,9 @@
         "ahr999": 1.755,
         "r2": 0.8245,
         "p_buy": 190.31,
-        "upside": -46.6,
+        "sharpe": 1.08,
         "price": 376.3,
-        "regime": "BEAR \u2744\ufe0f",
+        "regime": "BEAR",
         "reg_color": "#ff453a",
         "cur": "USD",
         "is_pro": true,
@@ -465,7 +470,8 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 25.8
     },
     {
         "name": "Pop Mart",
@@ -473,9 +479,9 @@
         "ahr999": 1.755,
         "r2": 0.0321,
         "p_buy": 79.19,
-        "upside": -61.2,
+        "sharpe": 0.28,
         "price": 156.5,
-        "regime": "BEAR \u2744\ufe0f",
+        "regime": "BEAR",
         "reg_color": "#ff453a",
         "cur": "HKD",
         "is_pro": true,
@@ -543,7 +549,8 @@
             155.60000610351562,
             156.5
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 2.9
     },
     {
         "name": "Gold",
@@ -551,9 +558,9 @@
         "ahr999": 2.796,
         "r2": 0.2356,
         "p_buy": 1898.58,
-        "upside": -59.9,
+        "sharpe": 1.43,
         "price": 4740.9,
-        "regime": "SIDEWAYS \u2615",
+        "regime": "SIDEWAYS",
         "reg_color": "#8e8e93",
         "cur": "USD",
         "is_pro": false,
@@ -621,7 +628,8 @@
             4705.10009765625,
             4740.89990234375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 9.8
     },
     {
         "name": "NVIDIA",
@@ -629,9 +637,9 @@
         "ahr999": 11.937,
         "r2": 0.5944,
         "p_buy": 40.34,
-        "upside": -90.5,
+        "sharpe": 2.27,
         "price": 208.27,
-        "regime": "BULL \ud83d\udd25",
+        "regime": "BULL",
         "reg_color": "#32d74b",
         "cur": "USD",
         "is_pro": true,
@@ -699,6 +707,7 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "target_w": 39.1
     }
 ]

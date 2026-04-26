@@ -12,32 +12,26 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """Real-time FX for multi-currency conversion"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
     except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
 
 def detect_regime(df):
-    """Detect Bull/Bear/Sideways using MA crossovers"""
     try:
         ma50 = df['Close'].rolling(50).mean().iloc[-1]
         ma200 = df['Close'].rolling(200).mean().iloc[-1]
         curr = df['Close'].iloc[-1]
-        if curr > ma50 > ma200: return "BULL 🔥", "#32d74b"
-        if curr < ma50 < ma200: return "BEAR ❄️", "#ff453a"
-        return "SIDEWAYS ☕", "#8e8e93"
-    except: return "AUDIT...", "#8e8e93"
+        if curr > ma50 > ma200: return "BULL", "#32d74b"
+        if curr < ma50 < ma200: return "BEAR", "#ff453a"
+        return "SIDEWAYS", "#8e8e93"
+    except: return "AUDIT", "#8e8e93"
 
 def solve_target_price(target_ahr, ma200_sum_199, fit_p):
-    """Solve for price P given target AHR value"""
     try:
-        a = 200
-        b = - (target_ahr * fit_p)
-        c = - (target_ahr * fit_p * ma200_sum_199)
+        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
         delta = b**2 - 4*a*c
-        if delta < 0: return 0.0
-        return round((-b + math.sqrt(delta)) / (2 * a), 2)
+        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
     except: return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
@@ -48,7 +42,6 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # Log-Regression Fit
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -56,18 +49,18 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        ma200_now = (ma200_sum_199 + latest['Close']) / 200
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ma200_now) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # Targets & Metrics
+        # Risk efficiency: Alpha / Vol
+        rets = df['Close'].pct_change().dropna().tail(252)
+        sharpe = (np.sqrt(252) * rets.mean() / rets.std()) if rets.std() != 0 else 0
         regime, reg_color = detect_regime(df)
         p_buy = solve_target_price(0.45, ma200_sum_199, fit_p)
-        upside = round((fit_p / latest['Close'] - 1) * 100, 1)
-
+        
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'p_buy': p_buy, 'upside': upside,
+            'r2': round(float(r2), 4), 'p_buy': p_buy, 'sharpe': round(float(sharpe), 2),
             'price': round(float(latest['Close']), 2), 'regime': regime, 'reg_color': reg_color,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
@@ -83,21 +76,24 @@ for a in config['assets']:
     res = analyze_asset(a)
     if res: all_results.append(res)
 
-all_results.sort(key=lambda x: x['ahr999'])
-top_picks = ", ".join([x['name'] for x in all_results[:3] if x['ahr999'] < 1.0])
+# Calculate Target Weights (Sharpe-weighted)
+total_score = sum([max(0.1, x['sharpe'] * x['r2']) for x in all_results])
+for x in all_results:
+    x['target_w'] = round((max(0.1, x['sharpe'] * x['r2']) / total_score * 100), 1)
 
-# --- UI Generation ---
+all_results.sort(key=lambda x: x['ahr999'])
+
+# --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
 vault_rows = ""
-
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    hot_style = "border: 2px solid #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.1);" if i < 3 and item['ahr999'] < 1.0 else "border: 1px solid #333;"
+    hot_border = "border: 2px solid #ffd700;" if item['ahr999'] < 0.45 else "border: 1px solid #333;"
     
     cards_html += """
-    <div class="card bg-dark rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden" style='"""+hot_style+"""'>
+    <div class="card bg-dark rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden" style='"""+hot_border+"""'>
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
             <span style='color:""" + item['reg_color'] + """; font-size:0.6rem; font-weight:800;'>""" + item['regime'] + """</span>
@@ -105,11 +101,11 @@ for i, item in enumerate(all_results):
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">均值获利空间</div><div class="fw-bold text-info">+""" + str(item['upside']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">理想权重</div><div class="fw-bold text-info">""" + str(item['target_w']) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | R²: """ + str(int(item['r2']*100)) + """%</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Sharpe: """+str(item['sharpe'])+"""</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
         </div>"""
@@ -119,16 +115,16 @@ for i, item in enumerate(all_results):
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
-    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-tw='" + str(item['target_w']) + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# --- HTML Template ---
+# --- Main Template ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V133</title>
+    <title>Alpha Hub Pro V134</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -148,32 +144,25 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日核心机会 / Top Gems</span><span class="text-warning">GEMS_COUNT</span></div>
-                <div class="fw-bold" style="color:#ffd700; font-size:0.75rem;">REPLACE_TOP_PICKS</div>
-                <div class="x-small text-muted mt-2">系统审计时间: REPLACE_TIME</div>
-            </div>
+            <p class="x-small text-muted mt-2">全球财富全周期审计终端 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富金库</h2>
+        <h2 style="font-weight:800;">财富实验室</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">账户实时总市值 (USD)</div>
+            <div class="text-secondary small">账户总市值 (USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-4" onclick="stressTest()">🚀 启动“黑天鹅”压力测试</button>
-                <div id="v-stress" class="x-small text-warning mt-2"></div>
-            </div>
+            <div id="v-rebalance" class="mt-3 x-small text-warning text-start" style="display:none; border-top:1px solid #333; padding-top:10px;"></div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v133 | 商业级压力测试已就绪')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>调仓</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v134 | 智能再平衡算法已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -186,22 +175,32 @@ final_template = """
             if(id === 'portfolio') calcVault();
         }
         function calcVault() {
-            let total = 0; const h = {};
-            document.querySelectorAll('.hold-in').forEach(i => {
+            let total = 0; let rbMsg = ""; const h = {};
+            const inputs = document.querySelectorAll('.hold-in');
+            inputs.forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
                 if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
             });
+            
+            if(total > 0) {
+                inputs.forEach(i => {
+                    let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                    let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
+                    let actualW = (usd / total) * 100;
+                    let targetW = parseFloat(i.dataset.tw);
+                    if(Math.abs(actualW - targetW) > 5) {
+                        rbMsg += `⚠️ ${i.dataset.ticker}: 建议权重 ${targetW}% (当前 ${actualW.toFixed(1)}%)<br>`;
+                    }
+                });
+            }
+
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-        }
-        function stressTest() {
-            const current = parseFloat(document.getElementById('v-total').innerText.replace(/[$,]/g, ''));
-            if(current === 0) { alert('请先录入持仓！'); return; }
-            const crashVal = current * 0.72; // 模拟黑天鹅下跌 28%
-            document.getElementById('v-stress').innerText = `模拟 2020 级别熔断：您的账户可能缩水至 $${crashVal.toLocaleString()}。建议持有 15% 黄金对冲。`;
+            const rbEl = document.getElementById('v-rebalance');
+            if(rbMsg) { rbEl.innerHTML = rbMsg; rbEl.style.display = 'block'; } else { rbEl.style.display = 'none'; }
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -221,8 +220,6 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_TOP_PICKS", top_picks if top_picks else "市场等待中...") \
-    .replace("GEMS_COUNT", str(len(top_picks.split(", "))) if top_picks else "0") \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
