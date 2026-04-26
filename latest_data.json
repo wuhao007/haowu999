@@ -4,17 +4,14 @@
         "ticker": "ETH-USD",
         "ahr999": 0.461,
         "r2": 0.6061,
-        "win_rate": 43.7,
+        "win_rate": 43.1,
         "alpha": 21.2,
-        "roi": 7.1,
         "mdd": -52.2,
-        "mape": 88.0,
-        "percentile": 22.9,
-        "p_buy": 2289.69,
-        "p_sell": 8816.91,
-        "price": 2317.65,
+        "upside_5y": 465.9,
+        "price": 2317.83,
         "cur": "USD",
         "is_pro": false,
+        "signal": "\u2705INVEST",
         "labels": [
             "03-27",
             "03-28",
@@ -77,26 +74,22 @@
             2376.088134765625,
             2331.513916015625,
             2315.690185546875,
-            2317.64990234375
-        ],
-        "signal": "\u2705INVEST"
+            2317.830078125
+        ]
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "win_rate": 59.1,
+        "win_rate": 58.2,
         "alpha": 17.7,
-        "roi": 43.1,
         "mdd": -32.8,
-        "mape": 4.2,
-        "percentile": 45.4,
-        "p_buy": 92.87,
-        "p_sell": 357.81,
+        "upside_5y": -0.1,
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
+        "signal": "\u2705INVEST",
         "labels": [
             "03-13",
             "03-16",
@@ -160,25 +153,21 @@
             136.4199981689453,
             131.6999969482422,
             135.82000732421875
-        ],
-        "signal": "\u2705INVEST"
+        ]
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "win_rate": 67.4,
+        "win_rate": 61.9,
         "alpha": 18.7,
-        "roi": 25.3,
         "mdd": -21.8,
-        "mape": 18.3,
-        "percentile": 46.5,
-        "p_buy": 330.88,
-        "p_sell": 1274.95,
+        "upside_5y": 7.6,
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
+        "signal": "\u2705INVEST",
         "labels": [
             "03-11",
             "03-12",
@@ -242,25 +231,21 @@
             504.0,
             495.20001220703125,
             493.3999938964844
-        ],
-        "signal": "\u2705INVEST"
+        ]
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
         "ahr999": 1.314,
         "r2": 0.8177,
-        "win_rate": 51.3,
+        "win_rate": 39.5,
         "alpha": 28.0,
-        "roi": 11.5,
         "mdd": -3.4,
-        "mape": 25.5,
-        "percentile": 60.3,
-        "p_buy": 45340.83,
-        "p_sell": 174720.9,
-        "price": 77542.74,
+        "upside_5y": 29.1,
+        "price": 77554.03,
         "cur": "USD",
         "is_pro": false,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-27",
             "03-28",
@@ -323,26 +308,22 @@
             78203.1015625,
             78268.953125,
             77455.3125,
-            77542.7421875
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+            77554.03125
+        ]
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
         "ahr999": 1.339,
         "r2": 0.6545,
-        "win_rate": 63.5,
+        "win_rate": 21.2,
         "alpha": 8.9,
-        "roi": 10.1,
         "mdd": -18.4,
-        "mape": 22.7,
-        "percentile": 59.4,
-        "p_buy": 844.71,
-        "p_sell": 3254.62,
+        "upside_5y": -1.7,
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-13",
             "03-16",
@@ -406,25 +387,21 @@
             1409.5,
             1419.0,
             1458.489990234375
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+        ]
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "win_rate": 82.0,
+        "win_rate": 50.8,
         "alpha": 75.1,
-        "roi": 101.3,
         "mdd": -52.9,
-        "mape": 46.6,
-        "percentile": 69.5,
-        "p_buy": 190.31,
-        "p_sell": 733.48,
+        "upside_5y": -6.3,
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-13",
             "03-16",
@@ -488,25 +465,21 @@
             387.510009765625,
             373.7200012207031,
             376.29998779296875
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+        ]
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
         "ahr999": 1.755,
         "r2": 0.0321,
-        "win_rate": 86.2,
+        "win_rate": 64.9,
         "alpha": 253.8,
-        "roi": 333.1,
         "mdd": -57.7,
-        "mape": 64.3,
-        "percentile": 67.3,
-        "p_buy": 79.19,
-        "p_sell": 305.29,
+        "upside_5y": -56.8,
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-11",
             "03-12",
@@ -570,25 +543,21 @@
             160.1999969482422,
             155.60000610351562,
             156.5
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+        ]
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
         "ahr999": 2.775,
         "r2": 0.2356,
-        "win_rate": 0.0,
-        "alpha": 0.0,
-        "roi": 0.0,
-        "mdd": 0.0,
-        "mape": 59.6,
-        "percentile": 98.0,
-        "p_buy": 1898.56,
-        "p_sell": 7317.64,
+        "win_rate": 0,
+        "alpha": 0,
+        "mdd": 0,
+        "upside_5y": -58.0,
         "price": 4722.3,
         "cur": "USD",
         "is_pro": false,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-13",
             "03-16",
@@ -652,25 +621,21 @@
             4732.5,
             4705.10009765625,
             4722.2998046875
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+        ]
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "win_rate": 0.0,
-        "alpha": 0.0,
-        "roi": 0.0,
-        "mdd": 0.0,
-        "mape": 89.3,
-        "percentile": 97.2,
-        "p_buy": 40.34,
-        "p_sell": 155.59,
+        "win_rate": 0,
+        "alpha": 0,
+        "mdd": 0,
+        "upside_5y": -85.1,
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT",
         "labels": [
             "03-13",
             "03-16",
@@ -734,7 +699,6 @@
             202.5,
             199.63999938964844,
             208.27000427246094
-        ],
-        "signal": "\u2615\ufe0fWAIT"
+        ]
     }
 ]
