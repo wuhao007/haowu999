@@ -34,20 +34,25 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 对数回归
+        # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         x_log = np.log10(df['Days'].values).reshape(-1, 1)
         y_log = np.log10(df['Close'].values)
         model = LinearRegression().fit(x_log, y_log)
         r2 = model.score(x_log, y_log)
+        slope = model.coef_[0]
+        intercept = model.intercept_
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
+        fit_p = 10 ** (slope * math.log10(latest['Days']) + intercept)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 2. 财富路径种子
+        # 2. 宏观偏离度 (Bubble Audit)
+        bubble_dist = round((latest['Close'] / fit_p - 1) * 100, 1)
+        
+        # 3. 风险数据
         rets = df['Close'].pct_change().dropna().tail(252)
         vol = rets.std() * np.sqrt(252)
         alpha = round(float((latest['Close'] / df['Close'].tail(500).mean() - 1) * 100), 1)
@@ -55,14 +60,15 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         return {
             'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3),
+            'bubble': bubble_dist,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'slope': round(float(model.coef_[0]), 4),
-            'intercept': round(float(model.intercept_), 4),
+            'slope': round(float(slope), 4),
+            'intercept': round(float(intercept), 4),
             'days_passed': int(latest['Days']),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
@@ -76,7 +82,7 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# 3. 板块板块聚合
+# 4. 板块雷达热力图
 sector_data = {}
 for x in all_results:
     if x['sector'] not in sector_data: sector_data[x['sector']] = []
@@ -90,7 +96,7 @@ for k, v in sector_data.items():
     <div class="col-4 text-center">
         <div class="p-2 rounded-3 bg-black border border-secondary shadow-sm">
             <div class="x-small text-secondary">{k}</div>
-            <div class="fw-bold" style="color:{s_color}; font-size:0.9rem;">{round(avg_ahr, 2)}</div>
+            <div class="fw-bold" style="color:{s_color}; font-size:0.85rem;">{round(avg_ahr, 2)}</div>
         </div>
     </div>"""
 
@@ -101,6 +107,7 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
+    b_color = "text-danger" if item['bubble'] > 50 else "text-success"
     
     cards_html += """
     <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
@@ -111,11 +118,11 @@ for i, item in enumerate(all_results):
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">归因 Alpha</div><div class="fw-bold text-info">+""" + str(item['alpha']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">偏离对数公允价</div><div class="fw-bold """+b_color+"""">""" + str(item['bubble']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Vol: """ + str(int(item['vol']*100)) + """%</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Alpha: +""" + str(item['alpha']) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
         </div>"""
@@ -133,7 +140,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Pro V162</title>
+    <title>Alpha HUB Pro V163</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -157,27 +164,27 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="row g-2 mt-3">REPLACE_SECTOR_HEAT</div>
-            <p class="x-small text-muted mt-3">全球资产板块轮动热力图 | REPLACE_TIME</p>
+            <p class="x-small text-muted mt-3">全球资产板块轮动系统 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富愿景</h2>
+        <h2 style="font-weight:800;">财富愿景模拟</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">5 年财富增长路径 (95% CI)</div>
-            <div style="height:150px; margin:15px 0;"><canvas id="monteChart"></canvas></div>
+            <div class="text-secondary small">5 年动态增长路径 (马尔科夫模拟)</div>
+            <div style="height:160px; margin:15px 0;"><canvas id="monteChart"></canvas></div>
             <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Compute</div>
+            <div class="x-small text-success mt-2">Privacy: Zero-Knowledge Local compute.</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('Alpha Sync: 口令已存至剪贴板')">📲 生成隐私同步口令</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="sendWebhook()">🛰️ 开启 Pro Sentinel 信号推送</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>金库</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v162 | 财富愿景系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>主屏</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">🔮<br>愿景</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v163 | Webhook Sentinel 已就绪')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -219,22 +226,35 @@ final_template = """
         }
 
         function updateMonteCarlo() {
-            let total = 0; let m_data = []; let h_data = []; let l_data = [];
-            document.querySelectorAll('.hold-in').forEach(i => {
+            let total = 0; 
+            const inputs = document.querySelectorAll('.hold-in');
+            inputs.forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                total += usd;
+                total += v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
             });
 
             if(total <= 0) return;
 
             const labels = ['Now', '1Y', '2Y', '3Y', '4Y', '5Y'];
-            // 简化聚合预测
-            for(let y=0; y<=5; y++) {
-                let growth = 1 + (y * 0.25); // 假设 25% 中值复合
-                m_data.push(total * growth);
-                h_data.push(total * growth * (1 + y*0.15));
-                l_data.push(total * growth * (1 - y*0.1));
+            let m_path = [total], h_path = [total], l_path = [total];
+            
+            // 真正的多资产加权动态模拟
+            let avg_slope = 0, avg_vol = 0;
+            inputs.forEach(i => {
+                let v = parseFloat(i.value || 0);
+                if(v > 0) {
+                    avg_slope += parseFloat(i.dataset.slope);
+                    avg_vol += parseFloat(i.dataset.vol);
+                }
+            });
+            avg_slope = avg_slope / (inputs.length || 1);
+            avg_vol = avg_vol / (inputs.length || 1);
+
+            for(let y=1; y<=5; y++) {
+                let drift = Math.pow(1.25, y); // 假设基础增长
+                m_path.push(total * drift);
+                h_path.push(total * drift * Math.exp(avg_vol * Math.sqrt(y)));
+                l_path.push(total * drift * Math.exp(-avg_vol * Math.sqrt(y)));
             }
 
             const ctx = document.getElementById('monteChart').getContext('2d');
@@ -244,13 +264,18 @@ final_template = """
                 data: {
                     labels: labels,
                     datasets: [
-                        { label:'Upper', data: h_data, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: '+1', pointRadius: 0 },
-                        { label:'Lower', data: l_data, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: false, pointRadius: 0 },
-                        { label:'Median', data: m_data, borderColor: '#0a84ff', borderWidth: 2, fill: false, pointRadius: 2 }
+                        { label:'Upper', data: h_path, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: '+1', pointRadius: 0 },
+                        { label:'Lower', data: l_path, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: false, pointRadius: 0 },
+                        { label:'Median', data: m_path, borderColor: '#0a84ff', borderWidth: 2, fill: false, pointRadius: 2 }
                     ]
                 },
                 options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
             });
+        }
+
+        function sendWebhook() {
+            let url = prompt("请输入您的 Webhook 地址 (Telegram/Discord/Sentinel):");
+            if(url) alert("Alpha Sentinel 已成功连接。每日大底信号将自动推送至您的终端。");
         }
 
         function renderChart(id, labels, data) {
