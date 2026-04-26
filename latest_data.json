@@ -2,12 +2,14 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
+        "type": "Crypto",
         "ahr999": 0.483,
+        "bubble_pct": -43.5,
         "r2": 0.6061,
         "vol": 0.59,
         "alpha": -20.2,
         "p_buy": 2284.84,
-        "price": 2367.49,
+        "price": 2367.9,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -72,14 +74,16 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2367.489990234375
+            2367.89990234375
         ],
         "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
+        "type": "Stocks",
         "ahr999": 0.961,
+        "bubble_pct": 4.6,
         "r2": 0.0205,
         "vol": 0.429,
         "alpha": 30.6,
@@ -156,7 +160,9 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
+        "type": "Stocks",
         "ahr999": 0.999,
+        "bubble_pct": 17.9,
         "r2": 0.7973,
         "vol": 0.271,
         "alpha": 15.8,
@@ -233,7 +239,9 @@
     {
         "name": "Moutai",
         "ticker": "600519.SS",
+        "type": "Stocks",
         "ahr999": 1.339,
+        "bubble_pct": 30.8,
         "r2": 0.6545,
         "vol": 0.189,
         "alpha": -2.4,
@@ -310,12 +318,14 @@
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
+        "type": "Crypto",
         "ahr999": 1.34,
+        "bubble_pct": 45.2,
         "r2": 0.8177,
         "vol": 0.39,
         "alpha": -9.2,
-        "p_buy": 45286.81,
-        "price": 78218.12,
+        "p_buy": 45286.84,
+        "price": 78234.56,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -380,14 +390,16 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78218.1171875
+            78234.5625
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
+        "type": "Stocks",
         "ahr999": 1.755,
+        "bubble_pct": 87.1,
         "r2": 0.8245,
         "vol": 0.483,
         "alpha": 29.3,
@@ -464,7 +476,9 @@
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
+        "type": "Stocks",
         "ahr999": 1.755,
+        "bubble_pct": 158.0,
         "r2": 0.0321,
         "vol": 0.591,
         "alpha": 47.9,
@@ -541,7 +555,9 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
+        "type": "Metals",
         "ahr999": 2.796,
+        "bubble_pct": 149.5,
         "r2": 0.2356,
         "vol": 0.273,
         "alpha": 63.7,
@@ -618,7 +634,9 @@
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
+        "type": "Stocks",
         "ahr999": 11.937,
+        "bubble_pct": 949.2,
         "r2": 0.5944,
         "vol": 0.337,
         "alpha": 79.8,

@@ -45,19 +45,24 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
+        ma200_now = (ma200_sum_199 + latest['Close']) / 200
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ma200_now) * (latest['Close'] / fit_p)
         
         # 2. 统计波动率 (用于蒙特卡洛)
         rets = df['Close'].pct_change().dropna().tail(252)
         vol = round(float(rets.std() * np.sqrt(252)), 3)
         
-        # 3. 逆推抄底价与 Alpha (3年模拟)
+        # 3. 泡泡审计: 偏离公允价的百分比 (Bubble Audit)
+        bubble_pct = round((latest['Close'] / fit_p - 1) * 100, 1)
+        
+        # 4. 逆推抄底价与 Alpha (3年模拟)
         p_buy = solve_target_price(0.45, ma200_sum_199, fit_p)
         alpha_roi = round(float((latest['Close'] / df['Close'].tail(756).mean() - 1) * 100), 1)
 
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'name': name, 'ticker': ticker, 'type': asset_cfg.get('type', 'Stocks'),
+            'ahr999': round(float(ahr), 3), 'bubble_pct': bubble_pct,
             'r2': round(float(r2), 4), 'vol': vol, 'alpha': alpha_roi,
             'p_buy': p_buy, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
@@ -74,6 +79,19 @@ for a in config['assets']:
     res = analyze_asset(a)
     if res: all_results.append(res)
 
+# 板块轮动数据计算
+sector_map = {}
+for x in all_results:
+    s = x['type']
+    if s not in sector_map: sector_map[s] = []
+    sector_map[s].append(x['ahr999'])
+
+sector_heat = ""
+for s, vals in sector_map.items():
+    avg_s = round(sum(vals)/len(vals), 2)
+    s_color = "#32d74b" if avg_s < 0.6 else "#0a84ff" if avg_s < 1.2 else "#ff453a"
+    sector_heat += f"<div class='col-4'><div class='p-2 rounded bg-black border border-secondary text-center'><div class='x-small text-secondary'>{s}</div><div class='fw-bold' style='color:{s_color}'>{avg_s}</div></div></div>"
+
 all_results.sort(key=lambda x: x['ahr999'])
 avg_ahr = round(sum([x['ahr999'] for x in all_results]) / len(all_results), 3)
 
@@ -84,22 +102,22 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    efficiency = "S" if item['alpha'] > 15 else "A" if item['alpha'] > 5 else "B"
+    bubble_color = "text-success" if item['bubble_pct'] < 0 else "text-danger"
     
     cards_html += """
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-info small fw-bold">效率等级: """ + efficiency + """</span>
+            <span class='""" + bubble_color + """ small fw-bold'>估值偏离: """ + str(item['bubble_pct']) + """%</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底挂单价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">Alpha 胜率</div><div class="fw-bold text-white">""" + str(int(item['r2']*100)) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">模型信度 R²</div><div class="fw-bold text-white">""" + str(int(item['r2']*100)) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Vol: """ + str(int(item['vol']*100)) + """%</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Alpha: +""" + str(item['alpha']) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
         </div>"""
@@ -118,7 +136,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V138</title>
+    <title>Alpha Hub Pro V139</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -131,6 +149,7 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
+        .shadow-val { filter: blur(5px); }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
@@ -138,11 +157,8 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">全球市场平均 AHR 温度</div>
-                <div class="fs-2 fw-bold text-info">REPLACE_AVG_AHR</div>
-                <div class="x-small text-muted mt-2">系统运行时间: REPLACE_TIME</div>
-            </div>
+            <div class="row g-2 mt-3">REPLACE_SECTOR_HEAT</div>
+            <p class="x-small text-muted mt-3">全球板块轮动与估值审计 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
@@ -154,7 +170,7 @@ final_template = """
             <div id="v-mc" class="fs-2 fw-bold text-success">等待录入...</div>
             <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
                 <div class="x-small text-secondary mb-1">账户当前实时净值 (USD)</div>
-                <div id="v-total" class="fw-bold text-white fs-4">$0.00</div>
+                <div id="v-total" class="fs-1 fw-bold text-info data-v">$0.00</div>
             </div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
@@ -163,7 +179,7 @@ final_template = """
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>财富</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v138 | 机构级概率模拟系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v139 | 板块轮动审计系统已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -189,7 +205,6 @@ final_template = """
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             
-            // 蒙特卡洛简化模型: 95% 置信区间 (1.96 * sigma)
             if(total > 0) {
                 let avgVol = totalVol / total;
                 let low = total * Math.exp((0.15 - 0.5 * avgVol**2) * 5 - 1.96 * avgVol * Math.sqrt(5));
@@ -215,7 +230,7 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_AVG_AHR", str(avg_ahr)) \
+    .replace("REPLACE_SECTOR_HEAT", sector_heat) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
