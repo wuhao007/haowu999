@@ -2,16 +2,15 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.461,
+        "ahr999": 0.46,
         "r2": 0.6061,
         "mape": 88.0,
-        "sharpe": -0.82,
-        "p_btm": 2289.68,
-        "is_pro": false,
-        "price": 2316.6,
+        "p_buy": 2289.68,
+        "p_sell": 8816.89,
+        "price": 2316.26,
         "cur": "USD",
-        "signal": "\u2705INVEST",
-        "weight": 0.0
+        "is_pro": false,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
@@ -19,13 +18,12 @@
         "ahr999": 0.961,
         "r2": 0.0205,
         "mape": 4.2,
-        "sharpe": 0.55,
-        "p_btm": 92.87,
-        "is_pro": true,
+        "p_buy": 92.87,
+        "p_sell": 357.81,
         "price": 135.82,
         "cur": "USD",
-        "signal": "\u2705INVEST",
-        "weight": 0.4
+        "is_pro": true,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Tencent",
@@ -33,13 +31,12 @@
         "ahr999": 0.999,
         "r2": 0.7973,
         "mape": 18.3,
-        "sharpe": 0.46,
-        "p_btm": 330.88,
-        "is_pro": true,
+        "p_buy": 330.88,
+        "p_sell": 1274.95,
         "price": 493.4,
         "cur": "HKD",
-        "signal": "\u2705INVEST",
-        "weight": 12.8
+        "is_pro": true,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Bitcoin",
@@ -47,13 +44,12 @@
         "ahr999": 1.314,
         "r2": 0.8177,
         "mape": 25.5,
-        "sharpe": -0.87,
-        "p_btm": 45340.84,
-        "is_pro": false,
-        "price": 77548.14,
+        "p_buy": 45340.85,
+        "p_sell": 174720.97,
+        "price": 77553.73,
         "cur": "USD",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 0.0
+        "is_pro": false,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Moutai",
@@ -61,13 +57,12 @@
         "ahr999": 1.339,
         "r2": 0.6545,
         "mape": 22.7,
-        "sharpe": -0.1,
-        "p_btm": 844.71,
-        "is_pro": true,
+        "p_buy": 844.71,
+        "p_sell": 3254.62,
         "price": 1458.49,
         "cur": "CNY",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 0.0
+        "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
@@ -75,13 +70,12 @@
         "ahr999": 1.755,
         "r2": 0.8245,
         "mape": 46.6,
-        "sharpe": 1.01,
-        "p_btm": 190.31,
-        "is_pro": true,
+        "p_buy": 190.31,
+        "p_sell": 733.48,
         "price": 376.3,
         "cur": "USD",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 29.1
+        "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
@@ -89,13 +83,12 @@
         "ahr999": 1.755,
         "r2": 0.0321,
         "mape": 64.3,
-        "sharpe": 0.22,
-        "p_btm": 79.19,
-        "is_pro": true,
+        "p_buy": 79.19,
+        "p_sell": 305.29,
         "price": 156.5,
         "cur": "HKD",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 0.2
+        "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Gold",
@@ -103,13 +96,12 @@
         "ahr999": 2.775,
         "r2": 0.2356,
         "mape": 59.6,
-        "sharpe": 1.48,
-        "p_btm": 1898.56,
-        "is_pro": false,
+        "p_buy": 1898.56,
+        "p_sell": 7317.64,
         "price": 4722.3,
         "cur": "USD",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 12.2
+        "is_pro": false,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
@@ -117,12 +109,11 @@
         "ahr999": 11.937,
         "r2": 0.5944,
         "mape": 89.3,
-        "sharpe": 2.18,
-        "p_btm": 40.34,
-        "is_pro": true,
+        "p_buy": 40.34,
+        "p_sell": 155.59,
         "price": 208.27,
         "cur": "USD",
-        "signal": "\u2615\ufe0fWAIT",
-        "weight": 45.3
+        "is_pro": true,
+        "signal": "\u2615\ufe0fWAIT"
     }
 ]

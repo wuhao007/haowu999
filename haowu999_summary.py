@@ -11,18 +11,17 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def calculate_sharpe(df_bt):
-    """计算夏普比率：衡量风险收益比"""
+def solve_price(target, ma200_sum_199, fit_p, is_top=False):
+    """逆推价格: is_top=False 对应 AHR999 (抄底), is_top=True 对应 AHR999x (逃顶)"""
     try:
-        returns = df_bt['Close'].pct_change().dropna()
-        return (np.sqrt(252) * returns.mean() / returns.std()) if returns.std() != 0 else 0
-    except: return 0.0
-
-def solve_price(target, ma200_sum_199, fit_p):
-    try:
-        a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
-        delta = b**2 - 4*a*c
-        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
+        if not is_top:
+            a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
+            delta = b**2 - 4*a*c
+            return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
+        else:
+            # AHR999x = (MA200 * Fit * 3) / Price^2 < 0.45 为逃顶
+            ma200_approx = ma200_sum_199 / 199
+            return round(math.sqrt((ma200_approx * fit_p * 3) / target), 2)
     except: return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
@@ -33,45 +32,50 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
+        # 1. 拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
-        x = np.log10(df['Days'].values).reshape(-1, 1)
-        y = np.log10(df['Close'].values)
-        model = LinearRegression().fit(x, y)
-        r2 = model.score(x, y)
+        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 核心指标
-        sharpe = calculate_sharpe(df.tail(252))
-        mape = np.mean(np.abs((df['Close'].tail(30) - 10**(model.coef_[0]*np.log10(df['Days'].tail(30))+model.intercept_)) / df['Close'].tail(30))) * 100
+        # 2. 核心数据
+        p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
+        p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True)
         
+        hist = df.tail(30).copy()
+        mape = np.mean(np.abs((hist['Close'] - 10**(model.coef_[0]*np.log10(hist['Days'])+model.intercept_)) / hist['Close'])) * 100
+
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'mape': round(float(mape), 1),
-            'sharpe': round(float(sharpe), 2), 'p_btm': solve_price(0.45, ma200_sum_199, fit_p),
-            'is_pro': asset_cfg['is_pro'], 'price': round(float(latest['Close']), 2),
+            'p_buy': p_buy, 'p_sell': p_sell, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
+            'is_pro': asset_cfg['is_pro'],
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
-        }
-    except: return None
+        }, df.set_index('Date')['Close'].tail(90) # 返回价格序列用于相关性计算
+    except: return None, None
 
 all_results = []
-for a in config['assets']:
-    res = analyze_asset(a)
-    if res: all_results.append(res)
+price_matrix = {}
+for asset in config['assets']:
+    res, series = analyze_asset(asset)
+    if res:
+        all_results.append(res)
+        price_matrix[asset['name']] = series
 
-# --- 仓位权重优化算法: 结合 Sharpe 和 R2 ---
-total_score = sum([max(0, x['sharpe'] * x['r2']) for x in all_results])
-for x in all_results:
-    x['weight'] = round((max(0, x['sharpe'] * x['r2']) / total_score * 100), 1) if total_score > 0 else 0
+# 计算资产相关性矩阵 (90天)
+corr_df = pd.DataFrame(price_matrix).pct_change().dropna(how='all').corr().round(2)
+corr_dict = corr_df.to_dict()
 
 all_results.sort(key=lambda x: x['ahr999'])
+buy_breadth = int(len([x for x in all_results if x['ahr999'] < 1.2]) / len(all_results) * 100)
 
-# --- UI 片段生成 (绝对稳健版) ---
+# --- UI 模块拼接 ---
 cards_html = ""
 vault_rows = ""
 for i, item in enumerate(all_results):
@@ -82,25 +86,35 @@ for i, item in enumerate(all_results):
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-info small fw-bold">建议仓位: """ + str(item['weight']) + """%</span>
+            <span class="text-success small fw-bold">拟合信度 """ + str(int(item['r2']*100)) + """%</span>
         </div>
         <div class='""" + blur + """'>
-            <div class="row g-2 text-center mt-2">
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">AHR999</div><div class="fw-bold text-white small">""" + str(item['ahr999']) + """</div></div></div>
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem" onclick="alert('R²信度: 越高代表越符合规律, 0.95+极佳')">信度 R² ⓘ</div><div class="fw-bold text-success small">""" + str(int(item['r2']*100)) + """%</div></div></div>
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem" onclick="alert('MAPE误差: 越低越精准, 3%以内极佳')">误差 ⓘ</div><div class="fw-bold text-info small">""" + str(item['mape']) + """%</div></div></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.6rem">抄底挂单价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.6rem">逃顶目标价</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">抄底挂单: $""" + str(item['p_btm']) + """</div>
+                <div class="text-secondary small">Error: """ + str(item['mape']) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
         </div>"""
     
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Pro</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Targets</button></div>"
     
     cards_html += "</div>"
     vault_rows += "<div class='d-flex justify-content-between align-items-center mb-3'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+
+# --- 风险矩阵 HTML ---
+risk_html = '<table class="table table-dark table-sm mt-3" style="font-size:0.5rem;"><tr><th></th>' + "".join([f"<th>{k[:3]}</th>" for k in corr_dict.keys()]) + "</tr>"
+for a in corr_dict.keys():
+    risk_html += f"<tr><td>{a[:3]}</td>"
+    for b in corr_dict[a].keys():
+        val = corr_dict[a][b]
+        bg = f"rgba(255, 69, 58, {val})" if val > 0.7 else "rgba(10, 132, 255, 0.2)" if val < 0.2 else "transparent"
+        risk_html += f'<td style="background:{bg}">{val}</td>'
+    risk_html += "</tr>"
+risk_html += "</table>"
 
 # --- 最终模板 ---
 final_template = """
@@ -109,7 +123,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro</title>
+    <title>Alpha Hub Pro V98</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
@@ -126,33 +140,37 @@ final_template = """
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">PRO</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富机遇实时审计终端 | REPLACE_TIME</p></div>
+        <div class="header">
+            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
+            <p style="color:#8e8e93; font-size:0.8rem;">财富全周期决策终端 | REPLACE_TIME</p>
+            <div class="progress bg-secondary bg-opacity-25 mt-3" style="height:6px; border-radius:10px;">
+                <div class="progress-bar bg-info" style="width:REPLACE_BREADTH%"></div>
+            </div>
+            <p class="x-small text-secondary mt-1">市场抄底广度: REPLACE_BREADTH%</p>
+        </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
-    <div id="tab-portfolio" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">我的金库</h2>
-        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-center">
-            <div class="text-secondary small">实时持仓市值 (USD)</div>
-            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-        </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4">REPLACE_VAULT</div>
+    <div id="tab-risk" class="tab-view container py-5 mt-4">
+        <h2 style="font-weight:800;">风险对冲审计</h2>
+        <p class="small text-secondary">资产同步率审计（过去90天）：红色代表同步风险，蓝色代表天然对冲。</p>
+        <div class="card bg-dark border-secondary p-2 rounded-4 overflow-auto">REPLACE_RISK</div>
     </div>
 
-    <div id="tab-settings" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">设置</h2>
-        <div class="card bg-dark border-secondary p-3 rounded-4 mb-4">
-            <div class="fw-bold text-primary mb-2">解锁 Pro 激活码</div>
-            <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="激活码: 666888">
-            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">激活</button>
+    <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
+        <h2 style="font-weight:800;">本地金库</h2>
+        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
+            <div class="text-secondary small">实时市值 (折算USD)</div>
+            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
         </div>
-        <div class="text-center text-secondary small">V97.0 Final | 组合权重优化系统已激活</div>
+        <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
+        <div class="nav-item" onclick="switchTab('risk', this)">🛡<br>风险</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="switchTab('settings', this)">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v98 | 系统全模块审计完成')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -162,11 +180,6 @@ final_template = """
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
             if(id === 'portfolio') calcVault();
-        }
-        function unlock() {
-            if(document.getElementById('key-in').value === '666888') {
-                localStorage.setItem('p', '1'); location.reload();
-            }
         }
         function calcVault() {
             let total = 0; const h = {};
@@ -194,7 +207,9 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_BREADTH", str(buy_breadth)) \
     .replace("REPLACE_CARDS", cards_html) \
+    .replace("REPLACE_RISK", risk_html) \
     .replace("REPLACE_VAULT", vault_rows)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
