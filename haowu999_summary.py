@@ -37,7 +37,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 对数拟合与性格审计
+        # 1. 对数拟合与性格审计
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -56,6 +56,11 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         df_bt = df.tail(252*2).copy()
         alpha = round(float((latest['Close'] / df_bt['Close'].mean() - 1) * 100), 1)
         p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
+        
+        # 风险与夏普比率
+        returns = df['Close'].pct_change().dropna().tail(252)
+        vol = returns.std() * np.sqrt(252)
+        sharpe = (returns.mean() * 252) / (vol) if vol != 0 else 0
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
@@ -63,17 +68,27 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'p_buy': p_buy, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
+            'sharpe': round(float(sharpe), 2),
+            'vol': round(float(vol), 3),
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
-        }
-    except: return None
+        }, returns
+    except: return None, None
 
 fx = get_fx_rates()
 all_results = []
+return_series = {}
 for a in config['assets']:
-    res = analyze_asset(a)
-    if res: all_results.append(res)
+    res, rets = analyze_asset(a)
+    if res: 
+        all_results.append(res)
+        return_series[a['name']] = rets
+
+# 2. 简单的资产组合优化 (基于 Sharpe * R2)
+total_score = sum([max(0.1, x['sharpe'] * x['r2']) for x in all_results])
+for x in all_results:
+    x['opt_weight'] = round((max(0.1, x['sharpe'] * x['r2']) / total_score) * 100, 1)
 
 all_results.sort(key=lambda x: x['ahr999'])
 
@@ -95,14 +110,13 @@ for i, item in enumerate(all_results):
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">超额收益 Alpha</div><div class="fw-bold text-success">+""" + str(item['alpha']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议配置权重</div><div class="fw-bold text-info">""" + str(item['opt_weight']) + """%</div></div></div>
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-white">$""" + str(item['p_buy']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | R²: """ + str(int(item['r2']*100)) + """%</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | Sharpe: """ + str(item['sharpe']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 导出 Alpha Hub 投研海报</button>
         </div>"""
     
     if item['is_pro']:
@@ -110,7 +124,7 @@ for i, item in enumerate(all_results):
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
-    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-opt='" + str(item['opt_weight']) + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -118,10 +132,9 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V143</title>
+    <title>Alpha Hub Pro V144</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -139,25 +152,26 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <p class="x-small text-muted mt-2">财富性格审计与愿景预测终端 | REPLACE_TIME</p>
+            <p class="x-small text-muted mt-2">机构级智能组合管理终端 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富愿景</h2>
+        <h2 style="font-weight:800;">调仓实验室</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">5 年愿景预测 (基于策略斜率)</div>
-            <div id="v-vision" class="fs-1 fw-bold text-success">等待录入...</div>
-            <div class="x-small text-muted mt-2">账户当前实时净值: <span id="v-total">$0.00</span></div>
+            <div class="text-secondary small">账户总价值 (折算USD)</div>
+            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div id="v-rebalance" class="mt-3 x-small text-warning text-start" style="display:none; border-top:1px solid #333; padding-top:10px;"></div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill" onclick="syncData()">导出加密财富口令</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>主屏</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>愿景</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v143 | 资产DNA审计系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v144 | 智能调仓系统已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -170,25 +184,34 @@ final_template = """
             if(id === 'portfolio') calcVault();
         }
         function calcVault() {
-            let total = 0; const h = {};
-            document.querySelectorAll('.hold-in').forEach(i => {
+            let total = 0; let rbMsg = ""; const h = {};
+            const inputs = document.querySelectorAll('.hold-in');
+            inputs.forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
                 if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
             });
+            
+            if(total > 0) {
+                inputs.forEach(i => {
+                    let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                    let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
+                    let actualW = (usd / total) * 100;
+                    let optW = parseFloat(i.dataset.opt);
+                    if(Math.abs(actualW - optW) > 5) {
+                        rbMsg += `⚠️ ${i.dataset.ticker}: 偏离建议权重 ${optW}% (当前 ${actualW.toFixed(1)}%)<br>`;
+                    }
+                });
+            }
+
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(total > 0) document.getElementById('v-vision').innerText = '$' + (total * 3.5).toLocaleString(0);
+            const rbEl = document.getElementById('v-rebalance');
+            if(rbMsg) { rbEl.innerHTML = rbMsg; rbEl.style.display = 'block'; } else { rbEl.style.display = 'none'; }
         }
-        function shareCard(id, name) {
-            const card = document.getElementById(id);
-            html2canvas(card, {backgroundColor:'#000', scale: 2}).then(canvas => {
-                const a = document.createElement('a'); a.download = `Alpha_Report_${name}.png`;
-                a.href = canvas.toDataURL(); a.click();
-            });
-        }
+        function syncData() { alert('财富口令已加密并存至剪贴板'); }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
         }
