@@ -7,7 +7,7 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# 1. 加载配置
+# 1. Load Config
 with open('config.json', 'r') as f:
     config = json.load(f)
 
@@ -19,7 +19,7 @@ def solve_price(target, ma200_sum_199, fit_p, is_top=False):
             return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
         else:
             ma200_approx = ma200_sum_199 / 199
-            return round(math.sqrt((ma200_approx * fit_p * 3) / target), 2)
+            return round(math.sqrt(ma200_approx * fit_p * 3 / target), 2)
     except: return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
@@ -40,13 +40,15 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 指标计算
+        # Targets
         p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
         p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True)
         
-        # MAPE 误差
+        # Error Audit
         df['Fit'] = 10 ** (model.coef_[0] * np.log10(df['Days']) + model.intercept_)
         mape = np.mean(np.abs((df['Close'].tail(30) - df['Fit'].tail(30)) / df['Close'].tail(30))) * 100
+        
+        hist = df.tail(30).copy()
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
@@ -54,6 +56,8 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'p_buy': p_buy, 'p_sell': p_sell, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
+            'labels': hist['Date'].dt.strftime('%m-%d').tolist(),
+            'values': hist['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }, df.set_index('Date')['Close'].tail(90)
     except: return None, None
@@ -65,7 +69,7 @@ for asset in config['assets']:
     if res:
         all_results.append(res); price_matrix[asset['name']] = series
 
-# 宏观温度计算
+# Global Sentiment
 avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
 temp_label = "FROZEN ❄️" if avg_ahr < 0.6 else "COOL 🧊" if avg_ahr < 1.0 else "WARM ☀️" if avg_ahr < 2.0 else "BOILING 🔥"
 temp_color = "#0a84ff" if avg_ahr < 1.0 else "#32d74b" if avg_ahr < 2.0 else "#ff453a"
@@ -74,25 +78,31 @@ all_results.sort(key=lambda x: x['ahr999'])
 
 # --- UI Snippets ---
 cards_html = ""
+scripts_html = ""
 vault_inputs = ""
 for i, item in enumerate(all_results):
-    pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
+    pro_tag = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
     
     cards_html += """
-    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
+            <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro_tag + """</span>
             <span class="text-success small fw-bold">R²: """ + str(int(item['r2']*100)) + """%</span>
         </div>
         <div class='""" + blur + """'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价 / Buy Target</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈价 / Sell Target</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价 Buy</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈价 Sell</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
                 <div class="text-secondary small">Error: """ + str(item['mape']) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
+            </div>
+            <div class="d-flex gap-1 mt-2">
+                <button class="btn btn-outline-secondary btn-sm flex-fill rounded-pill" style="font-size:0.5rem" onclick="copySig('"""+item['name']+"""', '"""+str(item['p_buy'])+"""')">📋 Instruction</button>
+                <button class="btn btn-outline-secondary btn-sm flex-fill rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 Share</button>
             </div>
         </div>"""
     
@@ -100,17 +110,20 @@ for i, item in enumerate(all_results):
         cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock targets</button></div>"
     
     cards_html += "</div>"
-    vault_inputs += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
+    vault_inputs += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# --- 最终模板 ---
+# --- Main Template ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V101</title>
+    <title>Alpha Hub Pro V102</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -129,9 +142,9 @@ final_template = """
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
             <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">Global Market Temperature</div>
+                <div class="text-secondary small mb-1">Global Market Heat</div>
                 <div class="fs-2 fw-bold" style="color:REPLACE_TEMP_COLOR">REPLACE_TEMP_LABEL</div>
-                <div class="x-small text-muted mt-1">Weighted Avg AHR: REPLACE_AVG_AHR</div>
+                <div class="x-small text-muted mt-1">Avg AHR: REPLACE_AVG_AHR | REPLACE_TIME</div>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
@@ -140,8 +153,9 @@ final_template = """
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
         <h2 style="font-weight:800;">My Vault</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">Portfolio Net Value (USD)</div>
+            <div class="text-secondary small">Total Net Value (USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div style="height:100px; margin-top:10px;"><canvas id="historyChart"></canvas></div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
@@ -149,23 +163,24 @@ final_template = """
     <div id="tab-settings" class="tab-view container py-5 mt-4">
         <h2 style="font-weight:800;">Settings</h2>
         <div class="card bg-dark border-secondary p-3 rounded-4 mb-4">
-            <div class="fw-bold text-primary mb-2">Language / 语言</div>
-            <button class="btn btn-outline-secondary btn-sm w-100 rounded-pill" onclick="toggleLang()">Switch to English / 切换中文</button>
-        </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4">
-            <div class="fw-bold text-primary mb-2">Activate Pro</div>
+            <div class="fw-bold text-primary mb-2">Alpha Hub Pro</div>
+            <p class="small text-secondary">Advanced quant indicators for smart wealth management.</p>
             <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="Code: 666888">
-            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">Activate</button>
+            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">Activate Pro</button>
         </div>
+        <div class="text-center text-secondary small mt-5">V102.0 | Local Wealth Evolution Tracker Active</div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br><span class="l-home">Signals</span></div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br><span class="l-vault">Vault</span></div>
-        <div class="nav-item" onclick="switchTab('settings', this)">⚙️<br><span class="l-set">Settings</span></div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>Market</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>Vault</div>
+        <div class="nav-item" onclick="switchTab('settings', this)">⚙️<br>Settings</div>
     </nav>
 
     <script>
+        const PRICE_DATA = REPLACE_PRICES;
+        let hChart = null;
+
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -173,12 +188,9 @@ final_template = """
             el.classList.add('active');
             if(id === 'portfolio') calcVault();
         }
-        function toggleLang() {
-            const current = localStorage.getItem('lang') || 'zh';
-            localStorage.setItem('lang', current === 'zh' ? 'en' : 'zh');
-            location.reload();
-        }
+
         function unlock() { if(document.getElementById('key-in').value === '666888') { localStorage.setItem('p', '1'); location.reload(); } }
+
         function calcVault() {
             let total = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
@@ -188,16 +200,53 @@ final_template = """
                 if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
             });
-            localStorage.setItem('alpha_h_v4', JSON.stringify(h));
+            localStorage.setItem('alpha_h_v5', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            
+            // Wealth History Tracking
+            let hist = JSON.parse(localStorage.getItem('alpha_history') || '[]');
+            const now = new Date().toLocaleDateString();
+            if(hist.length === 0 || hist[hist.length-1].d !== now) {
+                hist.push({d: now, v: total});
+                if(hist.length > 30) hist.shift();
+                localStorage.setItem('alpha_history', JSON.stringify(hist));
+            }
+            renderHistoryChart(hist);
         }
+
+        function renderHistoryChart(data) {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            if(hChart) hChart.destroy();
+            hChart = new Chart(ctx, {
+                type:'line',
+                data:{ labels: data.map(x=>x.d), datasets:[{data: data.map(x=>x.v), borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:true, backgroundColor:'rgba(10,132,255,0.1)'}] },
+                options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+            });
+        }
+
+        function renderChart(id, labels, data) {
+            new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
+        }
+
+        function copySig(name, price) {
+            const text = `Limit Buy ${name} @ $${price} (Target AHR 0.45)`;
+            navigator.clipboard.writeText(text).then(() => alert('Instruction Copied!'));
+        }
+
+        function shareCard(id, name) {
+            html2canvas(document.getElementById(id), {backgroundColor:'#000'}).then(canvas => {
+                const a = document.createElement('a'); a.download = `Alpha_Hub_${name}.png`; a.href = canvas.toDataURL(); a.click();
+            });
+        }
+
         window.onload = function() {
             if(localStorage.getItem('p') === '1') {
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
                 document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
             }
-            let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
+            let h = JSON.parse(localStorage.getItem('alpha_h_v5') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
+            REPLACE_SCRIPTS
         }
     </script>
 </body>
@@ -209,7 +258,8 @@ final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-
     .replace("REPLACE_TEMP_COLOR", temp_color) \
     .replace("REPLACE_AVG_AHR", str(round(avg_ahr, 3))) \
     .replace("REPLACE_CARDS", cards_html) \
-    .replace("REPLACE_VAULT", vault_inputs)
+    .replace("REPLACE_PRICES", json.dumps([{'ticker':x['ticker'], 'price':x['price']} for x in all_results])) \
+    .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
 with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
