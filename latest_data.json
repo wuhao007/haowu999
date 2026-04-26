@@ -3,8 +3,9 @@
         "name": "Ethereum",
         "ticker": "ETH-USD",
         "ahr999": 0.461,
-        "ahr999x": 6.511,
         "r2": 0.6061,
+        "win_rate": 48.7,
+        "sharpe": 0.04,
         "p_buy": 2289.68,
         "p_sell": 8816.9,
         "price": 2316.9,
@@ -74,14 +75,16 @@
             2315.690185546875,
             2316.89990234375
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "opt_weight": 0.9
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "ahr999": 0.961,
-        "ahr999x": 3.122,
         "r2": 0.0205,
+        "win_rate": 52.0,
+        "sharpe": 0.57,
         "p_buy": 92.87,
         "p_sell": 357.81,
         "price": 135.82,
@@ -151,14 +154,16 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "opt_weight": 0.4
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
         "ahr999": 0.999,
-        "ahr999x": 3.002,
         "r2": 0.7973,
+        "win_rate": 53.8,
+        "sharpe": 0.47,
         "p_buy": 330.88,
         "p_sell": 1274.95,
         "price": 493.4,
@@ -228,17 +233,19 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "opt_weight": 14.1
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
         "ahr999": 1.313,
-        "ahr999x": 2.284,
         "r2": 0.8177,
-        "p_buy": 45340.82,
-        "p_sell": 174720.85,
-        "price": 77532.65,
+        "win_rate": 54.3,
+        "sharpe": 0.27,
+        "p_buy": 45340.81,
+        "p_sell": 174720.83,
+        "price": 77529.37,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -303,16 +310,18 @@
             78203.1015625,
             78268.953125,
             77455.3125,
-            77532.6484375
+            77529.3671875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 8.3
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
         "ahr999": 1.339,
-        "ahr999x": 2.241,
         "r2": 0.6545,
+        "win_rate": 63.5,
+        "sharpe": -0.02,
         "p_buy": 844.71,
         "p_sell": 3254.62,
         "price": 1458.49,
@@ -382,14 +391,16 @@
             1419.0,
             1458.489990234375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 0.0
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
         "ahr999": 1.755,
-        "ahr999x": 1.709,
         "r2": 0.8245,
+        "win_rate": 65.5,
+        "sharpe": 0.77,
         "p_buy": 190.31,
         "p_sell": 733.48,
         "price": 376.3,
@@ -459,14 +470,16 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 23.9
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
         "ahr999": 1.755,
-        "ahr999x": 1.71,
         "r2": 0.0321,
+        "win_rate": 61.8,
+        "sharpe": 1.51,
         "p_buy": 79.19,
         "p_sell": 305.29,
         "price": 156.5,
@@ -536,14 +549,16 @@
             155.60000610351562,
             156.5
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 1.8
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
         "ahr999": 2.775,
-        "ahr999x": 1.081,
         "r2": 0.2356,
+        "win_rate": 61.0,
+        "sharpe": 1.55,
         "p_buy": 1898.56,
         "p_sell": 7317.64,
         "price": 4722.3,
@@ -613,14 +628,16 @@
             4705.10009765625,
             4722.2998046875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 13.8
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
         "ahr999": 11.937,
-        "ahr999x": 0.251,
         "r2": 0.5944,
+        "win_rate": NaN,
+        "sharpe": 1.64,
         "p_buy": 40.34,
         "p_sell": 155.59,
         "price": 208.27,
@@ -690,6 +707,7 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\ud83d\udd25SELL/RISK"
+        "signal": "\u2615\ufe0fWAIT",
+        "opt_weight": 36.7
     }
 ]
