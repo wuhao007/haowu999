@@ -17,13 +17,6 @@ def get_fx_rates():
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
     except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
 
-def solve_target_price(target_ahr, ma200_sum_199, fit_p):
-    try:
-        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
-        delta = b**2 - 4*a*c
-        return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
-    except: return 0.0
-
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
     try:
@@ -42,28 +35,35 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # Risk: Volatility
-        rets = df['Close'].pct_change().dropna().tail(252)
-        vol = rets.std() * np.sqrt(252)
-        p_buy = solve_target_price(0.45, ma200_sum_199, fit_p)
-        
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'vol': round(float(vol), 3),
-            'p_buy': p_buy, 'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
+            'type': asset_cfg.get('type', 'Stocks'),
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
-        }
-    except: return None
+        }, df.set_index('Date')['Close'].tail(90)
+    except: return None, None
 
 fx = get_fx_rates()
 all_results = []
+price_matrix = {}
 for a in config['assets']:
-    res = analyze_asset(a)
-    if res: all_results.append(res)
+    res, series = analyze_asset(a)
+    if res: 
+        all_results.append(res); price_matrix[a['name']] = series
+
+# Correlation Matrix
+corr_df = pd.DataFrame(price_matrix).pct_change().dropna(how='all').corr().round(2)
+corr_matrix = corr_df.to_dict()
+
+# Sector Analysis
+sector_data = {}
+for x in all_results:
+    sector_data[x['type']] = sector_data.get(x['type'], []) + [x['ahr999']]
+sector_heat = {k: round(sum(v)/len(v), 2) for k, v in sector_data.items()}
 
 all_results.sort(key=lambda x: x['ahr999'])
 
@@ -83,12 +83,8 @@ for i, item in enumerate(all_results):
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">""" + str(round(item['vol']*100, 1)) + """%</div></div></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | """ + item['cur'] + """ """ + str(item['price']) + """</div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+                <div class="text-secondary small">""" + item['cur'] + " " + str(item['price']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
         </div>"""
@@ -98,7 +94,20 @@ for i, item in enumerate(all_results):
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
-    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-vol='" + str(item['vol']) + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+
+heat_rows = "".join([f"<div class='col-4'><div class='p-2 rounded bg-black border border-secondary text-center'><div class='x-small text-secondary'>{k}</div><div class='fw-bold text-info'>{v}</div></div></div>" for k, v in sector_heat.items()])
+
+# --- Risk Table ---
+risk_table = '<table class="table table-dark table-sm mt-3" style="font-size:0.5rem;"><thead><tr><th></th>' + "".join([f'<th>{k[:3]}</th>' for k in corr_matrix.keys()]) + '</tr></thead><tbody>'
+for a in corr_matrix.keys():
+    risk_table += f'<tr><td>{a[:3]}</td>'
+    for b in corr_matrix[a].keys():
+        val = corr_matrix[a][b]
+        bg = f"rgba(255, 69, 58, {val})" if val > 0.7 else "rgba(10, 132, 255, 0.2)" if val < 0.2 else "transparent"
+        risk_table += f'<td style="background:{bg}">{val}</td>'
+    risk_table += '</tr>'
+risk_table += '</tbody></table>'
 
 final_template = """
 <!DOCTYPE html>
@@ -106,7 +115,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V135</title>
+    <title>Alpha Hub Pro V136</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -126,7 +135,8 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <p class="x-small text-muted mt-3">财富全周期量化审计终端 | REPLACE_TIME</p>
+            <div class="row g-2 mt-3">REPLACE_HEAT</div>
+            <p class="x-small text-muted mt-3">机构级全周期审计终端 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
@@ -136,22 +146,22 @@ final_template = """
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
             <div class="text-secondary small">账户总价值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                <div class="x-small text-secondary mb-1">单日风险价值 (VaR 95%)</div>
-                <div id="v-var" class="fw-bold text-danger fs-5">-$0.00</div>
-            </div>
+            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Ledger</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-        <div class="mt-4 d-flex gap-2">
-            <button class="btn btn-outline-danger btn-sm flex-fill rounded-pill" onclick="stressTest()">💥 压力测试</button>
-            <button class="btn btn-outline-info btn-sm flex-fill rounded-pill" onclick="exportData()">💾 导出备份</button>
-        </div>
+    </div>
+
+    <div id="tab-pro" class="tab-view container py-5 mt-4">
+        <h2 style="font-weight:800;">机构风控</h2>
+        <div class="card bg-dark border-secondary p-2 rounded-4 overflow-auto shadow">REPLACE_RISK</div>
+        <p class="x-small text-secondary mt-3"><b>压力测试审计</b>：红色代表资产同步涨跌，风险较高。建议通过低相关性组合实现“Alpha”超额回报。</p>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>金库</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v135 | 机构级 VaR 系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="switchTab('pro', this)">🛡<br>风控</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v136 | 板块热力矩阵已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -164,31 +174,16 @@ final_template = """
             if(id === 'portfolio') calcVault();
         }
         function calcVault() {
-            let total = 0; let wVol = 0; const h = {};
+            let total = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let vol = parseFloat(i.dataset.vol);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
                 if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
-                wVol += usd * (vol / Math.sqrt(252));
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            // VaR calculation: 1.65 (95% CI)
-            let dailyVaR = wVol * 1.65;
-            document.getElementById('v-var').innerText = '-$' + dailyVaR.toLocaleString(undefined, {minimumFractionDigits: 2});
-        }
-        function stressTest() {
-            let total = parseFloat(document.getElementById('v-total').innerText.replace(/[$,]/g, ''));
-            if(total <= 0) { alert('请先录入持仓！'); return; }
-            let crash = total * 0.72; // 28% drop simulation
-            alert(`压力测试：若遭遇极端行情（-28%），您的资产预计缩水至 $${crash.toLocaleString()}。建议持有黄金对冲。`);
-        }
-        function exportData() {
-            let data = localStorage.getItem('alpha_h_v4');
-            prompt('这是您的加密财富备份口令，请保存：', btoa(data));
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -208,8 +203,10 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_HEAT", heat_rows) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
+    .replace("REPLACE_RISK", risk_table) \
     .replace("REPLACE_FX", json.dumps(fx)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
