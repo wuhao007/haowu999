@@ -2,12 +2,12 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.46,
+        "ahr999": 0.461,
         "r2": 0.6061,
         "mape": 88.0,
         "p_buy": 2289.68,
-        "p_sell": 8816.89,
-        "price": 2316.26,
+        "p_sell": 8816.9,
+        "price": 2316.88,
         "cur": "USD",
         "is_pro": false,
         "signal": "\u2705INVEST"
@@ -41,12 +41,12 @@
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.314,
+        "ahr999": 1.315,
         "r2": 0.8177,
         "mape": 25.5,
-        "p_buy": 45340.85,
-        "p_sell": 174720.97,
-        "price": 77553.73,
+        "p_buy": 45340.88,
+        "p_sell": 174721.09,
+        "price": 77575.29,
         "cur": "USD",
         "is_pro": false,
         "signal": "\u2615\ufe0fWAIT"
