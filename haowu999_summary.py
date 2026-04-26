@@ -27,6 +27,7 @@ def solve_target_price(target_ahr, ma200_sum_199, fit_p):
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
+    sector = asset_cfg.get('type', 'Stocks')
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
@@ -36,34 +37,26 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
-        x_log = np.log10(df['Days'].values).reshape(-1, 1)
-        y_log = np.log10(df['Close'].values)
-        model = LinearRegression().fit(x_log, y_log)
-        r2 = model.score(x_log, y_log)
+        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 2. 统计属性 (用于效率排名)
+        # 2. 风险收益审计 (Calmar Ratio)
         rets = df['Close'].pct_change().dropna().tail(252*2)
-        vol = rets.std() * np.sqrt(252)
+        ann_ret = rets.mean() * 252
+        cum_ret = (1 + rets).cumprod()
+        mdd = abs(((cum_ret - cum_ret.cummax()) / cum_ret.cummax()).min())
+        calmar = round(ann_ret / mdd, 2) if mdd > 0 else 0
+        
         alpha = round(float((latest['Close'] / df['Close'].tail(500).mean() - 1) * 100), 1)
-        
-        # 误差审计 (MAPE)
-        df['Fit'] = 10 ** (model.coef_[0] * np.log10(df['Days']) + model.intercept_)
-        mape = np.mean(np.abs((df['Close'].tail(60) - df['Fit'].tail(60)) / df['Close'].tail(60))) * 100
-        
-        # 信息比率 (Information Ratio 简化版: Alpha / MAPE)
-        ir = round(alpha / (mape + 0.1), 2)
-        # 资本效率 (Efficiency: Alpha / Vol)
-        eff = round(alpha / (vol * 100 + 0.1), 2)
 
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3),
-            'ir': ir, 'eff': eff,
+            'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'calmar': calmar,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
@@ -80,7 +73,25 @@ for a in config['assets']:
     res = analyze_asset(a)
     if res: all_results.append(res)
 
-all_results.sort(key=lambda x: x['eff'], reverse=True) # 按资本效率排序
+all_results.sort(key=lambda x: x['ahr999'])
+
+# 3. 行业板块热力图聚合
+sector_stats = {}
+for x in all_results:
+    if x['sector'] not in sector_stats: sector_stats[x['sector']] = []
+    sector_stats[x['sector']].append(x['ahr999'])
+
+sector_html = ""
+for k, v in sector_stats.items():
+    avg_ahr = round(sum(v)/len(v), 2)
+    s_color = "#32d74b" if avg_ahr < 0.6 else "#ffd60a" if avg_ahr < 1.2 else "#ff453a"
+    sector_html += f"""
+    <div class="col-4 text-center">
+        <div class="p-2 rounded bg-black border border-secondary shadow-sm">
+            <div class="x-small text-secondary">{k}</div>
+            <div class="fw-bold" style="color:{s_color}; font-size:0.85rem;">{avg_ahr}</div>
+        </div>
+    </div>"""
 
 # --- UI Snippets ---
 cards_html = ""
@@ -90,30 +101,30 @@ for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
     
-    cards_html += f"""
-    <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    cards_html += """
+    <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">{item['name']} {pro}</span>
-            <span class="text-info small fw-bold">资本效率: {item['eff']}</span>
+            <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
+            <span class="text-info small fw-bold">Calmar: """ + str(item['calmar']) + """</span>
         </div>
-        <div class='{blur}'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
+        <div class='""" + blur + """'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">信息比率 IR</div><div class="fw-bold text-success">{item['ir']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-white">${item['p_buy']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">归因 Alpha</div><div class="fw-bold text-info">+""" + str(item['alpha']) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">R²: {int(item['r2']*100)}% | Alpha: +{item['alpha']}%</div>
-                <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
+                <div class="text-secondary small">R²: """ + str(int(item['r2']*100)) + """% | AHR: """ + str(item['ahr999']) + """</div>
+                <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
-        </div>
-    """
-    if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Alpha Efficiency</button></div>"
-    cards_html += "</div>"
+        </div>"""
     
-    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-alpha='{item['alpha']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    if item['is_pro']:
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Macro Compass</button></div>"
+    
+    cards_html += "</div>"
+    scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in p-blur' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-calmar='"+str(item['calmar'])+"' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -121,9 +132,10 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Pro V188</title>
+    <title>Alpha HUB Sovereign V189</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); position:relative; }
@@ -134,7 +146,7 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .val-blur { filter: blur(12px); transition: 0.3s; }
+        .p-blur { filter: blur(15px); transition: 0.3s; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -144,47 +156,42 @@ final_template = """
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
-            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">资本效率排行榜 / Alpha Efficiency</div>
-                <div id="top-rank" class="fw-bold text-success" style="font-size:0.85rem;">正在扫描高性价比资产...</div>
-                <p class="x-small text-muted mt-2 mb-0">系统判定：REPLACE_TIME | Institutional Master</p>
-            </div>
+            <div class="row g-2 mt-3">REPLACE_SECTOR_HEAT</div>
+            <p class="x-small text-muted mt-3">全球资产板块轮动热力罗盘 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
-    <div id="tab-vision" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富压力预演</h2>
-        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="d-flex justify-content-between x-small text-secondary mb-3">
-                <span onclick="setStress(0.8)" style="cursor:pointer">📉 保守 (-20%)</span>
-                <span onclick="setStress(1.0)" style="cursor:pointer" class="text-info fw-bold">⚖️ 基准</span>
-                <span onclick="setStress(1.5)" style="cursor:pointer">🚀 激进 (+50%)</span>
+    <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
+        <h2 style="font-weight:800;">财富主权审计</h2>
+        <div id="audit-report">
+            <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
+                <div class="d-flex justify-content-between mb-3 text-start">
+                    <div><div class="text-secondary small">组合 Calmar 审计</div><div id="v-calmar" class="fs-4 fw-bold text-success">--</div></div>
+                    <div class="text-end"><div class="text-secondary small">配置评价</div><div id="v-rank" class="fs-5 fw-bold text-info">--</div></div>
+                </div>
+                <div class="text-secondary small">账户总价值 (折算USD)</div>
+                <div id="v-total" class="fs-1 fw-bold text-info p-blur">$0.00</div>
             </div>
-            <div style="height:160px; margin:10px 0;"><canvas id="stressChart"></canvas></div>
-            <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Compute</div>
+            <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportAudit()">💾 导出财富体检报告 (PNG)</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('vision', this)">🔮<br>愿景</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v188 | 敏感度压力引擎已激活')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v189 | 机构级 Calmar 引擎已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
-        let stressChart = null;
-        let currentStress = 1.0;
-
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'vision') calcVault();
+            if(id === 'portfolio') calcVault();
         }
         function toggleShadow() {
             let s = localStorage.getItem('s_mode') === '1' ? '0' : '1';
@@ -193,48 +200,31 @@ final_template = """
         }
         function applyShadow() {
             let isShadow = localStorage.getItem('s_mode') === '1';
-            document.querySelectorAll('.val-blur').forEach(el => {
-                if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
+            document.querySelectorAll('.p-blur').forEach(el => {
+                if(isShadow) el.classList.add('p-blur'); else el.classList.remove('p-blur');
             });
         }
-        function setStress(val) {
-            currentStress = val;
-            calcVault();
-        }
         function calcVault() {
-            let total = 0; let avgAlpha = 0; let avgVol = 0; let count = 0;
-            const h = {};
+            let total = 0; let weightedCalmar = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let cal = parseFloat(i.dataset.calmar);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                if(v > 0) {
-                    avgAlpha += parseFloat(i.dataset.alpha);
-                    avgVol += parseFloat(i.dataset.vol);
-                    count++;
-                }
+                weightedCalmar += (usd * cal);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            
             if(total > 0) {
-                renderStressChart(total, (avgAlpha/count), (avgVol/count));
+                let finalCal = (weightedCalmar / total).toFixed(2);
+                document.getElementById('v-calmar').innerText = finalCal;
+                document.getElementById('v-rank').innerText = finalCal > 3 ? '机构级卓越' : '稳健成长';
             }
         }
-        function renderStressChart(total, alpha, vol) {
-            const labels = ['Now', '1Y', '2Y', '3Y', '4Y', '5Y'];
-            let data = [total];
-            let rate = (alpha / 100 + 0.15) * currentStress; # 基准年化 15% + Alpha
-            for(let y=1; y<=5; y++) {
-                data.push(total * Math.pow(1 + rate, y));
-            }
-            const ctx = document.getElementById('stressChart').getContext('2d');
-            if(stressChart) stressChart.destroy();
-            stressChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: labels, datasets: [{ data: data, borderColor: '#0a84ff', borderWidth: 3, pointRadius: 2, fill: false }] },
-                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+        function exportAudit() {
+            html2canvas(document.getElementById('audit-report'), {backgroundColor:'#000', scale:2}).then(canvas => {
+                const a = document.createElement('a'); a.download = 'Alpha_Wealth_Audit.png'; a.href = canvas.toDataURL(); a.click();
             });
         }
         function renderChart(id, labels, data) {
@@ -247,7 +237,6 @@ final_template = """
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-            document.getElementById('top-rank').innerText = 'TOP 1: Bitcoin (效率 4.8) | TOP 2: NVDA (效率 3.5)';
             applyShadow();
             REPLACE_SCRIPTS
         }
@@ -257,6 +246,7 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_SECTOR_HEAT", sector_html) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
