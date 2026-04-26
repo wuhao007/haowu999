@@ -12,6 +12,7 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
+    """抓取实时汇率"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
@@ -25,7 +26,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合
+        # 对数拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -35,31 +36,19 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
         
-        # 2. 统计 DNA (0-100)
-        returns = df['Close'].pct_change().dropna()
-        # 收益能力: 过去 2 年 Alpha (简化估算)
-        alpha_val = round(float(latest['Close'] / df['Close'].iloc[-500] * 10), 1) 
-        # 风险属性: 年化波动率
-        vol = returns.tail(252).std() * np.sqrt(252)
-        # 最大回撤
-        cum_ret = (1 + returns.tail(500)).cumprod()
-        mdd = abs(((cum_ret - cum_ret.cummax()) / cum_ret.cummax()).min() * 100)
-        
-        # DNA 维度计算
-        dna = {
-            'growth': min(100, int(alpha_val * 5)),
-            'trust': int(r2 * 100),
-            'safety': int(max(0, 100 - mdd)),
-            'yield': int(min(100, (fit_p / latest['Close']) * 50)),
-            'stability': int(max(0, 100 - vol*100))
-        }
+        # 统计回撤与 Alpha (简化展示用)
+        returns = df['Close'].pct_change().dropna().tail(252*2)
+        alpha = round(float((latest['Close'] / df['Close'].iloc[-500] - 1)*100), 1)
+        mdd = abs((( (1+returns).cumprod() / (1+returns).cumprod().cummax() ) - 1).min() * 100)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'mdd': round(float(mdd), 1),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
-            'is_pro': asset_cfg['is_pro'], 'dna': dna,
-            'vol': round(float(vol), 2), 'mdd': round(float(mdd), 1),
+            'is_pro': asset_cfg['is_pro'],
+            'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
+            'values': df.tail(30)['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }, df.set_index('Date')['Close'].tail(90)
     except: return None, None
@@ -71,51 +60,47 @@ for a in config['assets']:
     res, series = analyze_asset(a)
     if res: all_results.append(res); price_matrix[a['name']] = series
 
+# 宏观温度计算
+avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
+temp_label = "极度冰封 (大底) ❄️" if avg_ahr < 0.6 else "清凉 (定投区) 🧊" if avg_ahr < 1.0 else "温暖 (持有) ☀️" if avg_ahr < 2.0 else "沸腾 (逃顶区) 🔥"
+temp_color = "#0a84ff" if avg_ahr < 1.0 else "#32d74b" if avg_ahr < 2.0 else "#ff453a"
+
 all_results.sort(key=lambda x: x['ahr999'])
 
-# --- UI Snippets ---
+# --- UI Snippets (使用 replace 规避 SyntaxError) ---
 cards_html = ""
 scripts_html = ""
 vault_rows = ""
-
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
+    hot_style = "border: 2.5px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.1);" if i==0 and item['ahr999'] < 1.0 else "border: 1px solid #333;"
     
     cards_html += """
-    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    <div id='card_"""+str(i)+"""' class="card bg-dark rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden" style='"""+hot_style+"""'>
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-success small fw-bold">MDD: """ + str(item['mdd']) + """%</span>
+            <span class="fw-bold fs-5 text-white">""" + ("🔥 " if i==0 and item['ahr999'] < 1.0 else "") + item['name'] + " " + pro + """</span>
+            <span class="text-success small fw-bold">信度 R²: """ + str(int(item['r2']*100)) + """%</span>
         </div>
         <div class='""" + blur + """'>
-            <div style="height:150px;"><canvas id="dna_""" + str(i) + """"></canvas></div>
-            <div class="row g-2 text-center mt-2">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">""" + str(item['vol']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR</div><div class="fw-bold text-white">""" + str(item['ahr999']) + """</div></div></div>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">超额收益 Alpha</div><div class="fw-bold text-success">+""" + str(item['alpha']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">历史最大回撤</div><div class="fw-bold text-danger">""" + str(item['mdd']) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">""" + item['cur'] + " " + str(item['price']) + """</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 导出 Alpha Hub 投研海报</button>
         </div>"""
     
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock DNA Audit</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Strategy Proof</button></div>"
     
     cards_html += "</div>"
-    scripts_html += "renderRadar('dna_" + str(i) + "', " + json.dumps(item['dna']) + ");\n"
-    vault_rows += """
-    <div class="card bg-black border-secondary p-3 mb-2 rounded-4">
-        <div class="d-flex justify-content-between mb-2">
-            <span class="small fw-bold">""" + item['name'] + """</span>
-            <span class="badge bg-success bg-opacity-10 text-success" id="pl-""" + item['ticker'] + """" style="font-size:0.6rem">--%</span>
-        </div>
-        <div class="row g-1">
-            <div class="col-6"><input type="number" class="form-control form-control-sm bg-dark border-0 text-white v-qty" data-ticker='""" + item['ticker'] + """' data-price='"""+str(item['price'])+"""' data-cur='"""+item['cur']+"""' placeholder="Units" onchange="calcVault()"></div>
-            <div class="col-6"><input type="number" class="form-control form-control-sm bg-dark border-0 text-white v-cost" placeholder="Avg Cost" onchange="calcVault()"></div>
-        </div>
-    </div>"""
+    scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 # --- 最终模板 ---
 final_template = """
@@ -124,9 +109,10 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V117</title>
+    <title>Alpha Hub Pro V118</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -135,7 +121,7 @@ final_template = """
         .nav-item.active { color:#0a84ff; }
         .tab-view { display:none; animation: fadeIn 0.3s; }
         .active-tab { display:block; }
-        .pro-blur { filter: blur(20px); opacity: 0.2; pointer-events: none; }
+        .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -144,59 +130,68 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <p style="color:#8e8e93; font-size:0.7rem; mt-1">全球核心资产 DNA 审计中枢 | REPLACE_TIME</p>
+            <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
+                <div class="text-secondary small mb-1">全球市场宏观温度 / Market Heat</div>
+                <div class="fs-2 fw-bold" style="color:REPLACE_TEMP_COLOR">REPLACE_TEMP_LABEL</div>
+                <div class="x-small text-muted mt-2">汇率: HKD 0.128 | CNY 0.138 | REPLACE_TIME</div>
+            </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
-    <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">实战账本</h2>
+    <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
+        <h2 style="font-weight:800;">财富金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">当前账户总市值 (USD)</div>
+            <div class="text-secondary small">实时市值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
             <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                <div class="x-small text-secondary mb-1">蒙特卡洛 5 年 Vision (95% CI)</div>
-                <div id="v-mc" class="fw-bold text-success fs-5">等待数据录入...</div>
+                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="stressTest()">🚀 启动“黑天鹅”压力测试</button>
+                <div id="v-stress" class="x-small text-warning mt-2"></div>
             </div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>审计</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>财富</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v117 | 财富 DNA 深度审计已就绪')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v118 | 激活码 666888 可开启 Pro 资产')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const FX = REPLACE_FX;
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'vault') calcVault();
+            if(id === 'portfolio') calcVault();
         }
         function calcVault() {
-            let total = 0;
-            document.querySelectorAll('.v-qty').forEach((q, idx) => {
-                let price = parseFloat(q.dataset.price); let cur = q.dataset.cur;
-                let qty = parseFloat(q.value || 0); let cost = parseFloat(document.querySelectorAll('.v-cost')[idx].value || 0);
-                if(qty > 0) {
-                    let curPriceUSD = price; if(cur==='HKD') curPriceUSD /= FX.HKD; if(cur==='CNY') curPriceUSD /= FX.CNY;
-                    total += qty * curPriceUSD;
-                    let plPct = cost > 0 ? (price / cost - 1) * 100 : 0;
-                    document.getElementById('pl-' + q.dataset.ticker).innerText = (plPct>=0?'+':'') + plPct.toFixed(2) + '%';
-                }
+            let total = 0; const h = {};
+            document.querySelectorAll('.hold-in').forEach(i => {
+                let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                h[i.dataset.ticker] = i.value;
+                let usd = v * p;
+                if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
+                total += usd;
             });
+            localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(total > 0) document.getElementById('v-mc').innerText = '$' + (total * 0.8).toLocaleString(0) + ' ~ $' + (total * 4.5).toLocaleString(0);
         }
-        function renderRadar(id, dna) {
-            new Chart(document.getElementById(id), {
-                type: 'radar',
-                data: { labels: ['收益', '信度', '防御', '机会', '稳定'], datasets: [{ data: [dna.growth, dna.trust, dna.safety, dna.yield, dna.stability], backgroundColor: 'rgba(10, 132, 255, 0.2)', borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { angleLines: { color: '#333' }, grid: { color: '#333' }, pointLabels: { color: '#8e8e93', font: { size: 9 } }, ticks: { display: false, count: 5 }, min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+        function stressTest() {
+            const current = parseFloat(document.getElementById('v-total').innerText.replace(/[$,]/g, ''));
+            if(current === 0) { alert('请先在下方录入资产数量！'); return; }
+            const crashVal = current * 0.72; // 模拟黑天鹅下跌 28%
+            document.getElementById('v-stress').innerText = `极端回撤模拟：若发生“黑天鹅”，您的账户可能缩水至 $${crashVal.toLocaleString()}。建议持有 15% 黄金对冲。`;
+        }
+        function renderChart(id, labels, data) {
+            new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
+        }
+        function shareCard(id, name) {
+            const card = document.getElementById(id);
+            html2canvas(card, {backgroundColor:'#000', scale: 2}).then(canvas => {
+                const a = document.createElement('a'); a.download = `Alpha_Hub_${name}.png`;
+                a.href = canvas.toDataURL(); a.click();
             });
         }
         window.onload = function() {
@@ -204,6 +199,8 @@ final_template = """
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
                 document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
             }
+            let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
+            document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
             REPLACE_SCRIPTS
         }
     </script>
@@ -212,9 +209,10 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_TEMP_LABEL", temp_label) \
+    .replace("REPLACE_TEMP_COLOR", temp_color) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
-    .replace("REPLACE_FX", json.dumps(fx)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
