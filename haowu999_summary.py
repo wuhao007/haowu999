@@ -27,13 +27,14 @@ def solve_target_price(target_ahr, ma200_sum_199, fit_p):
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
+    sector = asset_cfg.get('type', 'Stocks')
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 拟合与核心指标
+        # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -44,15 +45,18 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 2. 统计属性 (用于 RS 与 VaR)
-        rets = df['Close'].pct_change().dropna().tail(252)
+        # 2. 统计特征 (用于动量背离与尾部风险)
+        rets = df['Close'].pct_change().dropna().tail(252*2)
         vol = rets.std() * np.sqrt(252)
         m_gain = round(float((latest['Close'] / df['Close'].iloc[-21] - 1) * 100), 1) # 1M Momentum
+        kurt = round(float(rets.kurtosis()), 2) # 峰度: 衡量胖尾风险
+        
         alpha = round(float((latest['Close'] / df['Close'].tail(500).mean() - 1) * 100), 1)
 
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3), 'm_gain': m_gain,
+            'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3), 
+            'm_gain': m_gain, 'kurt': kurt,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
@@ -70,13 +74,14 @@ for a in config['assets']:
     res = analyze_asset(a)
     if res: all_results.append(res)
 
-# 3. 相对强度 (RS) 矩阵计算
-avg_m_gain = sum([x['m_gain'] for x in all_results]) / len(all_results)
-for x in all_results:
-    x['rs'] = int(50 + (x['m_gain'] - avg_m_gain) * 5)
-    x['rs'] = min(99, max(1, x['rs']))
-
 all_results.sort(key=lambda x: x['ahr999'])
+
+# 3. 动量背离计算 (Normalized Momentum - Normalized AHR Inv)
+avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
+avg_mom = sum([x['m_gain'] for x in all_results]) / len(all_results)
+for x in all_results:
+    x['divergence'] = round((x['m_gain'] - avg_mom) - (avg_ahr - x['ahr999']) * 10, 1)
+
 market_breadth = int(len([x for x in all_results if x['ahr999'] < 1.2]) / len(all_results) * 100)
 
 # --- UI Snippets ---
@@ -86,32 +91,32 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    rs_color = "#32d74b" if item['rs'] > 70 else "#ffd60a"
+    div_color = "text-info" if item['divergence'] > 0 else "text-warning"
     
     cards_html += f"""
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">{item['name']} {pro}</span>
-            <span style='color:{rs_color}; font-size:0.7rem; font-weight:900;'>相对强度 RS: {item['rs']}</span>
+            <span class='{div_color} small fw-bold'>背离度: {item['divergence']}</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">归因 Alpha</div><div class="fw-bold text-info">+{item['alpha']}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">胖尾风险 Kurt</div><div class="fw-bold text-danger">{item['kurt']}</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
+                <div class="text-secondary small">AHR: {item['ahr999']} | Alpha: +{item['alpha']}%</div>
                 <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
             </div>
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock RS Rank</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Divergence Radar</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-m='{item['m']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-kurt='{item['kurt']}' data-m='{item['m']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -119,7 +124,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Pro V192</title>
+    <title>Alpha HUB Master V193</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -132,8 +137,8 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Verified by Alpha HUB'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.2); font-size:0.5rem; font-weight:900; z-index:10; }
+        .val-blur { filter: blur(12px); transition: 0.3s; position:relative; }
+        .val-blur::after { content: 'PRO PROTECTED'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -144,8 +149,11 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0; text-align:center;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #222;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-2"><span>今日实战买单任务 / Daily Orders</span><span class="text-info">基准 $REPLACE_BASE</span></div>
-                <div id="task-list" class="text-success fw-bold" style="font-size:0.75rem;">正在扫描大底加仓指令...</div>
+                <div class="d-flex justify-content-between x-small text-secondary mb-2"><span>全市场‘机会广度’看板 / Breadth</span><span class="text-info">REPLACE_BREADTH%</span></div>
+                <div class="progress" style="height:6px; background:#222; border-radius:10px;">
+                    <div class="progress-bar bg-info" style="width:REPLACE_BREADTH%"></div>
+                </div>
+                <p class="x-small text-muted mt-2 mb-0">系统提醒：背离度过高时需谨防假突破。 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
@@ -155,20 +163,20 @@ final_template = """
         <h2 style="font-weight:800;">机构财富审计</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
             <div class="d-flex justify-content-between mb-3">
-                <div><div class="text-secondary small">风险价值 VaR (95%)</div><div id="v-var" class="fs-4 fw-bold text-danger">--</div></div>
-                <div class="text-end"><div class="text-secondary small">市场广度</div><div class="fs-4 fw-bold text-info">REPLACE_BREADTH%</div></div>
+                <div><div class="text-secondary small">组合‘胖尾’审计 / Kurtosis</div><div id="v-kurt" class="fs-4 fw-bold text-danger">--</div></div>
+                <div class="text-end"><div class="text-secondary small">今日买单任务</div><div id="v-mission" class="fs-5 fw-bold text-success">--</div></div>
             </div>
             <div class="text-secondary small">账户总价值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('同步护照已存至剪贴板')">📲 导出加密财富同步护照</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportSync()">📲 导出全加密‘财富护照’ 3.0</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v192 | 相对强度矩阵已并网')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v193 | 动量背离雷达已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -194,22 +202,27 @@ final_template = """
             });
         }
         function calcVault() {
-            let total = 0; let totalVol = 0; const h = {}; 
+            let total = 0; let weightedKurt = 0; const h = {}; 
+            let missions = [];
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let vol = parseFloat(i.dataset.vol);
+                let kurt = parseFloat(i.dataset.kurt); let m = parseFloat(i.dataset.m);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalVol += (usd * vol);
+                weightedKurt += (usd * kurt);
+                if(m > 0) missions.push(i.parentElement.innerText.split(' (')[0]);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             if(total > 0) {
-                // 1天 VaR 95% = 1.65 * weightedVol / sqrt(252)
-                let varDay = (totalVol / total * 1.65 / 15.8 * total).toFixed(0);
-                document.getElementById('v-var').innerText = '-$' + parseInt(varDay).toLocaleString();
+                document.getElementById('v-kurt').innerText = (weightedKurt / total).toFixed(2);
+                document.getElementById('v-mission').innerText = missions.length > 0 ? missions[0] + ' 优先补入' : '观望中';
             }
+        }
+        function exportSync() {
+            let data = { h: localStorage.getItem('alpha_h_v4'), b: BASE };
+            prompt('您的‘全加密财富护照 3.0’：', btoa(JSON.stringify(data)));
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -221,20 +234,6 @@ final_template = """
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-            
-            // 生成加仓任务
-            let taskHtml = "";
-            document.querySelectorAll('.hold-in').forEach(i => {
-                let m = parseFloat(i.dataset.m);
-                if(m > 0) {
-                    let buyVal = (m * BASE).toFixed(2);
-                    let cur = i.dataset.cur;
-                    let displayBuy = (cur==='HKD'?'HK$ '+(buyVal*7.8).toFixed(0) : cur==='CNY'?'¥'+(buyVal*7.2).toFixed(0) : '$'+buyVal);
-                    taskHtml += `• 买入 ${i.dataset.ticker.split('-')[0]}: ${displayBuy}<br>`;
-                }
-            });
-            document.getElementById('task-list').innerHTML = taskHtml || "今日无加仓任务，持仓观望。";
-
             applyShadow();
             REPLACE_SCRIPTS
         }
