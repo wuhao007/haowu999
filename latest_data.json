@@ -2,18 +2,14 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
+        "sector": "Crypto",
         "ahr999": 0.483,
         "r2": 0.6061,
         "alpha": -19.0,
-        "win_rate": 78,
-        "dna": [
-            213.4,
-            41.0,
-            60.6,
-            51.5
-        ],
+        "sharpe": -0.15,
+        "dev": -43.5,
         "p_buy": 2284.84,
-        "price": 2366.66,
+        "price": 2367.0,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -78,23 +74,19 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2366.659912109375
+            2367.0
         ],
         "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
+        "sector": "Stocks",
         "ahr999": 0.961,
         "r2": 0.0205,
         "alpha": 15.7,
-        "win_rate": 78,
-        "dna": [
-            8.3,
-            57.1,
-            2.0,
-            28.3
-        ],
+        "sharpe": 0.98,
+        "dev": 4.6,
         "p_buy": 92.87,
         "price": 135.82,
         "cur": "USD",
@@ -168,16 +160,12 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
+        "sector": "Stocks",
         "ahr999": 0.999,
         "r2": 0.7973,
         "alpha": 1.8,
-        "win_rate": 78,
-        "dna": [
-            44.5,
-            72.9,
-            79.7,
-            27.3
-        ],
+        "sharpe": 0.87,
+        "dev": 17.9,
         "p_buy": 330.88,
         "price": 493.4,
         "cur": "HKD",
@@ -251,16 +239,12 @@
     {
         "name": "Moutai",
         "ticker": "600519.SS",
+        "sector": "Stocks",
         "ahr999": 1.339,
         "r2": 0.6545,
         "alpha": 1.1,
-        "win_rate": 42,
-        "dna": [
-            47.1,
-            81.1,
-            65.4,
-            20.9
-        ],
+        "sharpe": -0.12,
+        "dev": 30.8,
         "p_buy": 844.71,
         "price": 1458.49,
         "cur": "CNY",
@@ -334,18 +318,14 @@
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.341,
+        "sector": "Crypto",
+        "ahr999": 1.342,
         "r2": 0.8177,
-        "alpha": -18.1,
-        "win_rate": 42,
-        "dna": [
-            84.8,
-            61.0,
-            81.8,
-            20.8
-        ],
-        "p_buy": 45286.88,
-        "price": 78263.9,
+        "alpha": -18.0,
+        "sharpe": -0.2,
+        "dev": 45.3,
+        "p_buy": 45286.9,
+        "price": 78275.95,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -410,23 +390,19 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78263.8984375
+            78275.953125
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
+        "sector": "Stocks",
         "ahr999": 1.755,
         "r2": 0.8245,
         "alpha": 14.9,
-        "win_rate": 42,
-        "dna": [
-            105.0,
-            51.7,
-            82.5,
-            16.2
-        ],
+        "sharpe": 1.03,
+        "dev": 87.1,
         "p_buy": 190.31,
         "price": 376.3,
         "cur": "USD",
@@ -500,16 +476,12 @@
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
+        "sector": "Stocks",
         "ahr999": 1.755,
         "r2": 0.0321,
         "alpha": 4.7,
-        "win_rate": 42,
-        "dna": [
-            8.3,
-            40.9,
-            3.2,
-            16.2
-        ],
+        "sharpe": 1.7,
+        "dev": 158.0,
         "p_buy": 79.19,
         "price": 156.5,
         "cur": "HKD",
@@ -583,16 +555,12 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
+        "sector": "Metals",
         "ahr999": 2.796,
         "r2": 0.2356,
         "alpha": 41.7,
-        "win_rate": 42,
-        "dna": [
-            7.9,
-            72.7,
-            23.6,
-            10.4
-        ],
+        "sharpe": 1.59,
+        "dev": 149.5,
         "p_buy": 1898.58,
         "price": 4740.9,
         "cur": "USD",
@@ -666,16 +634,12 @@
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
+        "sector": "Stocks",
         "ahr999": 11.937,
         "r2": 0.5944,
         "alpha": 40.7,
-        "win_rate": 42,
-        "dna": [
-            83.0,
-            66.3,
-            59.4,
-            2.5
-        ],
+        "sharpe": 1.24,
+        "dev": 949.2,
         "p_buy": 40.34,
         "price": 208.27,
         "cur": "USD",
