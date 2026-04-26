@@ -33,7 +33,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 对数回归
+        # 1. 对数回归
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -44,7 +44,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 统计特征 (DNA维度)
+        # 2. 统计特征
         rets = df['Close'].pct_change().dropna()
         vol = rets.tail(252).std() * np.sqrt(252)
         alpha = round(float((latest['Close'] / df['Close'].tail(500).mean() - 1) * 100), 1)
@@ -53,13 +53,13 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         df['Fit'] = 10 ** (model.coef_[0] * np.log10(df['Days']) + model.intercept_)
         mape = np.mean(np.abs((df['Close'].tail(30) - df['Fit'].tail(30)) / df['Close'].tail(30))) * 100
         
-        # 三重共振判定: 估值深(AHR<0.45) + 信度高(R2>0.9) + 误差小(MAPE<3)
-        convergence = (ahr < 0.45 and r2 > 0.9 and mape < 3)
+        # 三重共振判定 (显式转为原生 bool)
+        is_conv = bool(ahr < 0.45 and r2 > 0.9 and mape < 3)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'alpha': alpha, 'mape': round(float(mape), 1),
-            'convergence': convergence,
+            'convergence': is_conv,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
