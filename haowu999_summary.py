@@ -183,7 +183,9 @@ final_template = """
     </script>
 </body>
 </html>
-""".replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+"""
+
+final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_WECHAT", config.get('contact_wechat', 'haowu999_quant')) \
     .replace("REPLACE_SCRIPTS", scripts_html)
