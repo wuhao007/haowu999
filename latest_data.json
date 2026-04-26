@@ -4,11 +4,15 @@
         "ticker": "ETH-USD",
         "ahr999": 0.483,
         "r2": 0.6061,
-        "alpha": -19.2,
-        "percentile": 24.4,
+        "grade": "A",
+        "mape": 86.9,
         "p_buy": 2284.84,
-        "p_sell": 8798.23,
-        "price": 2368.45,
+        "tp_ladder": {
+            "step1": 5902.03,
+            "step2": 7054.28,
+            "step3": 8798.23
+        },
+        "price": 2368.18,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -73,7 +77,7 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2368.449951171875
+            2368.179931640625
         ],
         "signal": "\u2705INVEST"
     },
@@ -82,10 +86,14 @@
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "alpha": 16.1,
-        "percentile": 45.4,
+        "grade": "A",
+        "mape": 4.2,
         "p_buy": 92.87,
-        "p_sell": 357.81,
+        "tp_ladder": {
+            "step1": 240.03,
+            "step2": 286.88,
+            "step3": 357.81
+        },
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
@@ -160,10 +168,14 @@
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "alpha": 2.1,
-        "percentile": 46.5,
+        "grade": "A",
+        "mape": 18.3,
         "p_buy": 330.88,
-        "p_sell": 1274.95,
+        "tp_ladder": {
+            "step1": 855.26,
+            "step2": 1022.24,
+            "step3": 1274.95
+        },
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
@@ -238,10 +250,14 @@
         "ticker": "600519.SS",
         "ahr999": 1.339,
         "r2": 0.6545,
-        "alpha": 1.0,
-        "percentile": 59.4,
+        "grade": "A",
+        "mape": 22.7,
         "p_buy": 844.71,
-        "p_sell": 3254.62,
+        "tp_ladder": {
+            "step1": 2183.27,
+            "step2": 2609.5,
+            "step3": 3254.62
+        },
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
@@ -316,11 +332,15 @@
         "ticker": "BTC-USD",
         "ahr999": 1.341,
         "r2": 0.8177,
-        "alpha": -18.1,
-        "percentile": 61.4,
-        "p_buy": 45286.87,
-        "p_sell": 174512.64,
-        "price": 78257.53,
+        "grade": "A",
+        "mape": 25.8,
+        "p_buy": 45286.88,
+        "tp_ladder": {
+            "step1": 117066.67,
+            "step2": 139921.43,
+            "step3": 174512.68
+        },
+        "price": 78265.01,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -385,7 +405,7 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78257.53125
+            78265.0078125
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
@@ -394,10 +414,14 @@
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "alpha": 15.4,
-        "percentile": 69.5,
+        "grade": "A",
+        "mape": 46.6,
         "p_buy": 190.31,
-        "p_sell": 733.48,
+        "tp_ladder": {
+            "step1": 492.03,
+            "step2": 588.09,
+            "step3": 733.48
+        },
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
@@ -472,10 +496,14 @@
         "ticker": "9992.HK",
         "ahr999": 1.755,
         "r2": 0.0321,
-        "alpha": 5.4,
-        "percentile": 67.3,
+        "grade": "A",
+        "mape": 64.3,
         "p_buy": 79.19,
-        "p_sell": 305.29,
+        "tp_ladder": {
+            "step1": 204.79,
+            "step2": 244.77,
+            "step3": 305.29
+        },
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
@@ -550,10 +578,14 @@
         "ticker": "GC=F",
         "ahr999": 2.796,
         "r2": 0.2356,
-        "alpha": 42.0,
-        "percentile": 98.1,
+        "grade": "A",
+        "mape": 59.6,
         "p_buy": 1898.58,
-        "p_sell": 7317.73,
+        "tp_ladder": {
+            "step1": 4908.88,
+            "step2": 5867.24,
+            "step3": 7317.73
+        },
         "price": 4740.9,
         "cur": "USD",
         "is_pro": false,
@@ -628,10 +660,14 @@
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "alpha": 41.2,
-        "percentile": 97.2,
+        "grade": "A",
+        "mape": 89.3,
         "p_buy": 40.34,
-        "p_sell": 155.59,
+        "tp_ladder": {
+            "step1": 104.37,
+            "step2": 124.75,
+            "step3": 155.59
+        },
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,
