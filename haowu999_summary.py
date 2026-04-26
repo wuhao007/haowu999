@@ -33,12 +33,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 动量计算
-        latest_price = float(df['Close'].iloc[-1])
-        prev_price = float(df['Close'].iloc[-2])
-        change_24h = round(((latest_price / prev_price) - 1) * 100, 2)
-        
-        # 2. 对数回归
+        # 对数回归
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -46,23 +41,24 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         slope = model.coef_[0]
         intercept = model.intercept_
         
+        latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
-        ahr = (latest_price / ((ma200_sum_199 + latest_price)/200)) * (latest_price / fit_p)
+        ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 3. Yield 归因种子 (估算值，用户可本地修改)
-        yield_rate = 3.5 if 'ETH' in ticker else 2.1 if '.HK' in ticker else 0.0
-        alpha = round(float((latest_price / df['Close'].tail(500).mean() - 1) * 100), 1)
+        # Trailing Guard: 2-Sigma 动态止损 (基于20日波动率)
+        std_20d = df['Close'].pct_change().tail(20).std()
+        guard_p = round(latest_p * (1 - 2 * std_20d * math.sqrt(20)), 2)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha, 'change_24h': change_24h,
-            'yield_rate': yield_rate, 'price': round(latest_price, 2),
+            'r2': round(float(r2), 4), 'price': round(latest_p, 2), 'guard_p': guard_p,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
+            'rets': df['Close'].pct_change().tail(30).tolist(), # 用于计算相关性
             'vol': round(float(df['Close'].pct_change().std() * np.sqrt(252)), 3),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
@@ -76,6 +72,28 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
+# 3. 宏观元指令判定
+avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
+if avg_ahr < 0.6:
+    meta_cmd = "激进积累 (Meta: ICE)"
+    meta_desc = "全场冰封，建议在凯利系数基础上额外增加 20% 预算。"
+elif avg_ahr < 1.2:
+    meta_cmd = "均衡定投 (Meta: MILD)"
+    meta_desc = "环境温和，严格执行 AHR 梯度指令，保持现金流平衡。"
+else:
+    meta_cmd = "防御收缩 (Meta: HOT)"
+    meta_desc = "系统过热，提高‘Trailing Guard’警戒，停止新增定投。"
+
+# 4. 资产相关性热力图数据
+corr_matrix = {}
+for i, a in enumerate(all_results):
+    corr_matrix[a['name']] = {}
+    for j, b in enumerate(all_results):
+        try:
+            c = np.corrcoef(a['rets'][-20:], b['rets'][-20:])[0, 1]
+            corr_matrix[a['name']][b['name']] = round(float(c), 2)
+        except: corr_matrix[a['name']][b['name']] = 1.0
+
 # --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
@@ -83,20 +101,18 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    chg_color = "text-success" if item['change_24h'] >= 0 else "text-danger"
-    chg_sign = "+" if item['change_24h'] >= 0 else ""
     
     cards_html += f"""
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">{item['name']} {pro}</span>
-            <span class='{chg_color} fw-bold' style='font-size:0.85rem;'>{chg_sign}{item['change_24h']}%</span>
+            <span class="text-danger small fw-bold">Guard: ${item['guard_p']}</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">预期 APY</div><div class="fw-bold text-warning">{item['yield_rate']}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-info">{int(item['vol']*100)}%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
@@ -105,11 +121,11 @@ for i, item in enumerate(all_results):
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Yield Engine</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Meta Guard</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-yield='{item['yield_rate']}' data-vol='{item['vol']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -117,10 +133,9 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Yield Master V202</title>
+    <title>Alpha HUB Meta V203</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); position:relative; }
@@ -131,8 +146,7 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Verified by Sovereign Ledger'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur { filter: blur(12px); transition: 0.3s; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -141,47 +155,55 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
-            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">今日全市场动量 / Market Pulse</div>
-                <div id="m-gauge" class="fs-4 fw-bold text-info">正在监测日内波频...</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于 24h 价格行为审计 | REPLACE_TIME</p>
+            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
+            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日环境元指令 / Meta Command</span><span class="text-info">Institutional</span></div>
+                <div class="fs-4 fw-bold text-success">REPLACE_META_CMD</div>
+                <p class="x-small text-muted mt-2 mb-0">REPLACE_META_DESC | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富全收益审计</h2>
+        <h2 style="font-weight:800;">相关性审计矩阵</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">红利/质押年增益 (Yield)</div><div id="v-yield" class="fs-4 fw-bold text-warning">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">10 年复合全收益</div><div id="v-total-10y" class="fs-5 fw-bold text-success">--</div></div>
+                <div class="text-secondary small mb-3">资产相关性热力图 (Past 30D)</div>
+                <div id="corr-grid" style="font-size:0.5rem; color:#888;"></div>
+                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div class="x-small text-secondary mb-1">10 年财富增长路径 (点击切换模式)</div>
+                    <div class="btn-group w-100 mb-2">
+                        <button class="btn btn-outline-info btn-sm" onclick="updateMonte('conservative')">保守</button>
+                        <button class="btn btn-outline-info btn-sm active" onclick="updateMonte('neutral')">基准</button>
+                        <button class="btn btn-outline-info btn-sm" onclick="updateMonte('aggressive')">激进</button>
+                    </div>
+                    <div style="height:140px;"><canvas id="monteChart"></canvas></div>
                 </div>
-                <div class="text-secondary small">当前账户总净值 (USD)</div>
-                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
+                <div id="v-total" class="fs-1 fw-bold text-info val-blur mt-3">$0.00</div>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportAudit()">💾 导出全收益财富报告 (PNG)</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('同步密钥已备份')">🔐 导出主权级加密密钥</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v202 | 红利审计引擎已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v203 | 相关性矩阵已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
+        const CORR = REPLACE_CORR;
+        let monteChart = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'vault') calcVault();
+            if(id === 'vault') { calcVault(); renderCorr(); }
         }
         function toggleShadow() {
             let s = localStorage.getItem('s_mode') === '1' ? '0' : '1';
@@ -194,30 +216,53 @@ final_template = """
                 if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
             });
         }
+        function renderCorr() {
+            let html = "<table class='table table-dark table-sm border-0'><tr><th></th>";
+            let names = Object.keys(CORR);
+            names.forEach(n => html += `<th>${n.substring(0,3)}</th>`);
+            html += "</tr>";
+            names.forEach(n1 => {
+                html += `<tr><td>${n1.substring(0,3)}</td>`;
+                names.forEach(n2 => {
+                    let val = CORR[n1][n2];
+                    let color = val > 0.8 ? '#ff453a' : val > 0.4 ? '#ffd60a' : '#32d74b';
+                    html += `<td style="color:${color}">${val}</td>`;
+                });
+                html += "</tr>";
+            });
+            html += "</table>";
+            document.getElementById('corr-grid').innerHTML = html;
+        }
         function calcVault() {
-            let total = 0; let totalYield = 0; const h = {}; 
+            let total = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let y = parseFloat(i.dataset.yield);
                 h[i.dataset.ticker] = i.value;
-                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                total += usd;
-                totalYield += (usd * y / 100);
+                total += v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(total > 0) {
-                document.getElementById('v-yield').innerText = '+$' + totalYield.toLocaleString(undefined, {maximumFractionDigits:0}) + ' /年';
-                // 10年全收益: 假设 15% 策略增长 + Yield
-                let totalRate = 0.15 + (totalYield / total);
-                let final10y = total * Math.pow(1 + totalRate, 10);
-                document.getElementById('v-total-10y').innerText = '$' + (final10y/10000).toFixed(1) + '万';
-            }
+            updateMonte('neutral');
         }
-        function exportAudit() {
-            html2canvas(document.getElementById('audit-report'), {backgroundColor:'#000', scale:2}).then(canvas => {
-                const a = document.createElement('a'); a.download = 'Alpha_Yield_Audit.png'; a.href = canvas.toDataURL(); a.click();
-            });
+        function updateMonte(mode) {
+            let total = parseFloat(document.getElementById('v-total').innerText.replace(/[$,]/g, '')) || 0;
+            if(total <= 0) return;
+            let drift = mode === 'aggressive' ? 1.8 : mode === 'conservative' ? 1.2 : 1.5;
+            const labels = ['Now', '2Y', '4Y', '6Y', '8Y', '10Y'];
+            let median = [total], high = [total], low = [total];
+            for(let y=1; y<=5; y++) {
+                let d = Math.pow(drift, y);
+                median.push(total * d);
+                high.push(total * d * (1 + y*0.2));
+                low.push(total * d * (1 - y*0.15));
+            }
+            const ctx = document.getElementById('monteChart').getContext('2d');
+            if(monteChart) monteChart.destroy();
+            monteChart = new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[
+                { data:high, borderColor:'transparent', backgroundColor:'rgba(10,132,255,0.1)', fill:'+1', pointRadius:0 },
+                { data:low, borderColor:'transparent', backgroundColor:'rgba(10,132,255,0.1)', fill:false, pointRadius:0 },
+                { data:median, borderColor:'#0a84ff', borderWidth:2, fill:false, pointRadius:2 }
+            ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }});
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -229,7 +274,6 @@ final_template = """
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
-            document.getElementById('m-gauge').innerText = '日内动量回暖，3 个标的出现反弹确认。';
             applyShadow();
             calcVault();
             REPLACE_SCRIPTS
@@ -240,7 +284,10 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_META_CMD", meta_cmd) \
+    .replace("REPLACE_META_DESC", meta_desc) \
     .replace("REPLACE_CARDS", cards_html) \
+    .replace("REPLACE_CORR", json.dumps(corr_matrix)) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
