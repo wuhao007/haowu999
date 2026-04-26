@@ -2,109 +2,163 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "type": "Crypto",
         "ahr999": 0.482,
-        "r2": 0.6061,
-        "price": 2369.2,
-        "growth_5y": 5.5,
+        "price": 2368.5,
         "cur": "USD",
         "is_pro": false,
+        "dna": {
+            "growth": 30,
+            "trust": 60,
+            "safety": 36,
+            "yield": 88,
+            "stability": 41
+        },
+        "vol": 0.59,
+        "mdd": 63.1,
         "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
-        "type": "Stocks",
         "ahr999": 0.962,
-        "r2": 0.0205,
         "price": 135.82,
-        "growth_5y": 1.0,
         "cur": "USD",
         "is_pro": true,
+        "dna": {
+            "growth": 93,
+            "trust": 2,
+            "safety": 63,
+            "yield": 47,
+            "stability": 57
+        },
+        "vol": 0.43,
+        "mdd": 36.8,
         "signal": "\u2705INVEST"
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "type": "Stocks",
         "ahr999": 0.999,
-        "r2": 0.7973,
         "price": 493.4,
-        "growth_5y": 1.1,
         "cur": "HKD",
         "is_pro": true,
+        "dna": {
+            "growth": 79,
+            "trust": 79,
+            "safety": 71,
+            "yield": 42,
+            "stability": 72
+        },
+        "vol": 0.27,
+        "mdd": 28.9,
         "signal": "\u2705INVEST"
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "type": "Crypto",
         "ahr999": 1.338,
-        "r2": 0.8177,
-        "price": 78256.68,
-        "growth_5y": 1.3,
+        "price": 78254.01,
         "cur": "USD",
         "is_pro": false,
+        "dna": {
+            "growth": 38,
+            "trust": 81,
+            "safety": 50,
+            "yield": 34,
+            "stability": 60
+        },
+        "vol": 0.39,
+        "mdd": 49.7,
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "type": "Stocks",
         "ahr999": 1.339,
-        "r2": 0.6545,
         "price": 1458.49,
-        "growth_5y": 1.0,
         "cur": "CNY",
         "is_pro": true,
+        "dna": {
+            "growth": 45,
+            "trust": 65,
+            "safety": 72,
+            "yield": 38,
+            "stability": 81
+        },
+        "vol": 0.19,
+        "mdd": 27.3,
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "type": "Stocks",
         "ahr999": 1.751,
-        "r2": 0.0321,
         "price": 156.5,
-        "growth_5y": 0.4,
         "cur": "HKD",
         "is_pro": true,
+        "dna": {
+            "growth": 100,
+            "trust": 3,
+            "safety": 42,
+            "yield": 19,
+            "stability": 40
+        },
+        "vol": 0.59,
+        "mdd": 57.7,
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
-        "type": "Stocks",
         "ahr999": 1.757,
-        "r2": 0.8245,
         "price": 376.3,
-        "growth_5y": 0.9,
         "cur": "USD",
         "is_pro": true,
+        "dna": {
+            "growth": 100,
+            "trust": 82,
+            "safety": 46,
+            "yield": 26,
+            "stability": 51
+        },
+        "vol": 0.48,
+        "mdd": 53.8,
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "type": "Metals",
         "ahr999": 2.801,
-        "r2": 0.2356,
         "price": 4740.9,
-        "growth_5y": 0.4,
         "cur": "USD",
         "is_pro": false,
+        "dna": {
+            "growth": 100,
+            "trust": 23,
+            "safety": 82,
+            "yield": 20,
+            "stability": 72
+        },
+        "vol": 0.27,
+        "mdd": 17.7,
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
-        "type": "Stocks",
         "ahr999": 11.952,
-        "r2": 0.5944,
         "price": 208.27,
-        "growth_5y": 0.1,
         "cur": "USD",
         "is_pro": true,
+        "dna": {
+            "growth": 100,
+            "trust": 59,
+            "safety": 63,
+            "yield": 4,
+            "stability": 66
+        },
+        "vol": 0.34,
+        "mdd": 36.9,
         "signal": "\u2615\ufe0fWAIT"
     }
 ]
