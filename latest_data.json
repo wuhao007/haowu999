@@ -2,17 +2,12 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.483,
+        "ahr999": 0.484,
         "r2": 0.6061,
-        "grade": "A",
-        "mape": 86.9,
+        "alpha": -19.1,
+        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 2284.84,
-        "tp_ladder": {
-            "step1": 5902.03,
-            "step2": 7054.28,
-            "step3": 8798.23
-        },
-        "price": 2368.18,
+        "price": 2368.89,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -77,7 +72,7 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2368.179931640625
+            2368.889892578125
         ],
         "signal": "\u2705INVEST"
     },
@@ -86,14 +81,9 @@
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "grade": "A",
-        "mape": 4.2,
+        "alpha": 16.1,
+        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 92.87,
-        "tp_ladder": {
-            "step1": 240.03,
-            "step2": 286.88,
-            "step3": 357.81
-        },
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
@@ -168,14 +158,9 @@
         "ticker": "0700.HK",
         "ahr999": 0.999,
         "r2": 0.7973,
-        "grade": "A",
-        "mape": 18.3,
+        "alpha": 2.1,
+        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 330.88,
-        "tp_ladder": {
-            "step1": 855.26,
-            "step2": 1022.24,
-            "step3": 1274.95
-        },
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
@@ -250,14 +235,9 @@
         "ticker": "600519.SS",
         "ahr999": 1.339,
         "r2": 0.6545,
-        "grade": "A",
-        "mape": 22.7,
+        "alpha": 1.0,
+        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 844.71,
-        "tp_ladder": {
-            "step1": 2183.27,
-            "step2": 2609.5,
-            "step3": 3254.62
-        },
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
@@ -330,17 +310,12 @@
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.341,
+        "ahr999": 1.342,
         "r2": 0.8177,
-        "grade": "A",
-        "mape": 25.8,
-        "p_buy": 45286.88,
-        "tp_ladder": {
-            "step1": 117066.67,
-            "step2": 139921.43,
-            "step3": 174512.68
-        },
-        "price": 78265.01,
+        "alpha": -18.1,
+        "personality": "\ud83d\ude80 MOONSHOT",
+        "p_buy": 45286.9,
+        "price": 78273.93,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -405,7 +380,7 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78265.0078125
+            78273.9296875
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
@@ -414,14 +389,9 @@
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "grade": "A",
-        "mape": 46.6,
+        "alpha": 15.4,
+        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 190.31,
-        "tp_ladder": {
-            "step1": 492.03,
-            "step2": 588.09,
-            "step3": 733.48
-        },
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
@@ -496,14 +466,9 @@
         "ticker": "9992.HK",
         "ahr999": 1.755,
         "r2": 0.0321,
-        "grade": "A",
-        "mape": 64.3,
+        "alpha": 5.4,
+        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 79.19,
-        "tp_ladder": {
-            "step1": 204.79,
-            "step2": 244.77,
-            "step3": 305.29
-        },
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
@@ -578,14 +543,9 @@
         "ticker": "GC=F",
         "ahr999": 2.796,
         "r2": 0.2356,
-        "grade": "A",
-        "mape": 59.6,
+        "alpha": 42.0,
+        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 1898.58,
-        "tp_ladder": {
-            "step1": 4908.88,
-            "step2": 5867.24,
-            "step3": 7317.73
-        },
         "price": 4740.9,
         "cur": "USD",
         "is_pro": false,
@@ -660,14 +620,9 @@
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "grade": "A",
-        "mape": 89.3,
+        "alpha": 41.2,
+        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 40.34,
-        "tp_ladder": {
-            "step1": 104.37,
-            "step2": 124.75,
-            "step3": 155.59
-        },
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,

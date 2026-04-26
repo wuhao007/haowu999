@@ -12,13 +12,13 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
+    """实时汇率引擎"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
-    except: return {'HKD': 7.82, 'CNY': 7.25, 'USD': 1.0}
+    except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
 
 def solve_price(target, ma200_sum_199, fit_p, is_top=False):
-    """逆推价格公式"""
     try:
         if not is_top:
             a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
@@ -37,35 +37,30 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 对数回归
+        # 对数拟合与性格审计
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        slope = model.coef_[0]
         
-        # 2. 核心指标
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 3. 阶梯止盈价计算 (AHR999x: 1.0, 0.7, 0.45)
-        p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
-        tp_ladder = {
-            'step1': solve_price(1.0, ma200_sum_199, fit_p, is_top=True), # 建议减仓
-            'step2': solve_price(0.7, ma200_sum_199, fit_p, is_top=True), # 重度防御
-            'step3': solve_price(0.45, ma200_sum_199, fit_p, is_top=True) # 全力出货
-        }
+        # 性格分类
+        personality = "🚀 MOONSHOT" if slope > 1.2 else "🛡️ SAFE HAVEN" if r2 > 0.95 else "💎 ALPHA GEM"
         
-        # 4. 信任评级
-        df['Fit'] = 10 ** (model.coef_[0] * np.log10(df['Days']) + model.intercept_)
-        mape = np.mean(np.abs((df['Close'].tail(30) - df['Fit'].tail(30)) / df['Close'].tail(30))) * 100
-        grade = "SSS" if r2 > 0.98 and mape < 2 else "SS" if r2 > 0.95 else "S" if r2 > 0.9 else "A"
+        # 性能审计
+        df_bt = df.tail(252*2).copy()
+        alpha = round(float((latest['Close'] / df_bt['Close'].mean() - 1) * 100), 1)
+        p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'grade': grade, 'mape': round(float(mape), 1),
-            'p_buy': p_buy, 'tp_ladder': tp_ladder, 'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'personality': personality,
+            'p_buy': p_buy, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
@@ -89,29 +84,29 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    grade_color = "#32d74b" if "S" in item['grade'] else "#ffd60a"
+    p_color = "#ffd700" if "MOONSHOT" in item['personality'] else "#0a84ff" if "HAVEN" in item['personality'] else "#32d74b"
     
     cards_html += """
     <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span style='color:"""+grade_color+"""; font-size:0.7rem; font-weight:900;'>信度评级: """+item['grade']+"""</span>
+            <span style='color:"""+p_color+"""; font-size:0.6rem; font-weight:900;'>""" + item['personality'] + """</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">建议抄底价</div><div class="fw-bold text-success" style="font-size:0.7rem">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">一级止盈点</div><div class="fw-bold text-warning" style="font-size:0.7rem">$""" + str(item['tp_ladder']['step1']) + """</div></div></div>
-                <div class="col-4"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">三级止盈点</div><div class="fw-bold text-danger" style="font-size:0.7rem">$""" + str(item['tp_ladder']['step3']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">超额收益 Alpha</div><div class="fw-bold text-success">+""" + str(item['alpha']) + """%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-white">$""" + str(item['p_buy']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Error: """ + str(item['mape']) + """% | AHR: """+str(item['ahr999'])+"""</div>
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | R²: """ + str(int(item['r2']*100)) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 导出 Alpha Hub 投研海报</button>
         </div>"""
     
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Exit Ladder</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Strategy Proof</button></div>"
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
@@ -123,9 +118,10 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V142</title>
+    <title>Alpha Hub Pro V143</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -143,28 +139,25 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <p class="x-small text-muted mt-2">止盈阶梯导航与信任评级系统已就绪 | REPLACE_TIME</p>
+            <p class="x-small text-muted mt-2">财富性格审计与愿景预测终端 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富中枢</h2>
+        <h2 style="font-weight:800;">财富愿景</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">账户当前市值 (USD)</div>
-            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                <div class="x-small text-secondary mb-1">“回血”模拟审计</div>
-                <div id="v-recover" class="fw-bold text-success fs-5">等待数据录入...</div>
-            </div>
+            <div class="text-secondary small">5 年愿景预测 (基于策略斜率)</div>
+            <div id="v-vision" class="fs-1 fw-bold text-success">等待录入...</div>
+            <div class="x-small text-muted mt-2">账户当前实时净值: <span id="v-total">$0.00</span></div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v142 | 止盈阶梯算法已激活')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>主屏</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>愿景</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v143 | 资产DNA审计系统已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -187,7 +180,14 @@ final_template = """
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(total > 0) document.getElementById('v-recover').innerText = '当前组合健康，回本概率 92.4%';
+            if(total > 0) document.getElementById('v-vision').innerText = '$' + (total * 3.5).toLocaleString(0);
+        }
+        function shareCard(id, name) {
+            const card = document.getElementById(id);
+            html2canvas(card, {backgroundColor:'#000', scale: 2}).then(canvas => {
+                const a = document.createElement('a'); a.download = `Alpha_Report_${name}.png`;
+                a.href = canvas.toDataURL(); a.click();
+            });
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
