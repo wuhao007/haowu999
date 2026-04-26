@@ -5,8 +5,9 @@
         "ahr999": 0.459,
         "r2": 0.6061,
         "mape": 88.0,
-        "upside": 81.0,
-        "price": 2316.41,
+        "upside": 80.9,
+        "price": 2316.6,
+        "p_btm": 2289.68,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -72,7 +73,8 @@
             0.462,
             0.457,
             0.459
-        ]
+        ],
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
@@ -82,6 +84,7 @@
         "mape": 4.2,
         "upside": -4.4,
         "price": 135.82,
+        "p_btm": 92.87,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -147,7 +150,8 @@
             0.972,
             0.905,
             0.962
-        ]
+        ],
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Tencent",
@@ -157,6 +161,7 @@
         "mape": 18.3,
         "upside": -15.2,
         "price": 493.4,
+        "p_btm": 330.88,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -222,7 +227,8 @@
             1.043,
             1.007,
             0.999
-        ]
+        ],
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Bitcoin",
@@ -231,7 +237,8 @@
         "r2": 0.8177,
         "mape": 25.5,
         "upside": -30.5,
-        "price": 77531.28,
+        "price": 77531.44,
+        "p_btm": 45340.82,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -297,7 +304,8 @@
             1.329,
             1.305,
             1.31
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Moutai",
@@ -307,6 +315,7 @@
         "mape": 22.7,
         "upside": -23.5,
         "price": 1458.49,
+        "p_btm": 844.71,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -372,7 +381,8 @@
             1.251,
             1.268,
             1.339
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
@@ -382,6 +392,7 @@
         "mape": 64.3,
         "upside": -61.2,
         "price": 156.5,
+        "p_btm": 79.19,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -447,7 +458,8 @@
             1.827,
             1.727,
             1.751
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
@@ -457,6 +469,7 @@
         "mape": 46.6,
         "upside": -46.6,
         "price": 376.3,
+        "p_btm": 190.31,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -522,7 +535,8 @@
             1.868,
             1.735,
             1.757
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Gold",
@@ -532,6 +546,7 @@
         "mape": 59.6,
         "upside": -59.8,
         "price": 4722.3,
+        "p_btm": 1898.56,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -597,7 +612,8 @@
             2.801,
             2.764,
             2.779
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
@@ -607,6 +623,7 @@
         "mape": 89.3,
         "upside": -90.5,
         "price": 208.27,
+        "p_btm": 40.34,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -672,6 +689,7 @@
             11.331,
             10.998,
             11.952
-        ]
+        ],
+        "signal": "\u2615\ufe0fWAIT"
     }
 ]
