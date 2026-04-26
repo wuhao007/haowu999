@@ -5,13 +5,11 @@
         "ahr999": 0.484,
         "r2": 0.6061,
         "alpha": -19.1,
-        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 2284.85,
-        "price": 2369.31,
+        "p_sell": 8798.25,
+        "price": 2370.7,
         "cur": "USD",
         "is_pro": false,
-        "sharpe": -0.78,
-        "vol": 0.59,
         "labels": [
             "03-28",
             "03-29",
@@ -74,10 +72,9 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2369.31005859375
+            2370.699951171875
         ],
-        "signal": "\u2705INVEST",
-        "opt_weight": 2.9
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
@@ -85,13 +82,11 @@
         "ahr999": 0.961,
         "r2": 0.0205,
         "alpha": 16.1,
-        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 92.87,
+        "p_sell": 357.81,
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
-        "sharpe": 0.56,
-        "vol": 0.429,
         "labels": [
             "03-13",
             "03-16",
@@ -156,8 +151,7 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST",
-        "opt_weight": 2.9
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Tencent",
@@ -165,13 +159,11 @@
         "ahr999": 0.999,
         "r2": 0.7973,
         "alpha": 2.1,
-        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 330.88,
+        "p_sell": 1274.95,
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
-        "sharpe": 0.47,
-        "vol": 0.271,
         "labels": [
             "03-11",
             "03-12",
@@ -236,8 +228,7 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "signal": "\u2705INVEST",
-        "opt_weight": 10.9
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Moutai",
@@ -245,13 +236,11 @@
         "ahr999": 1.339,
         "r2": 0.6545,
         "alpha": 1.0,
-        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 844.71,
+        "p_sell": 3254.62,
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
-        "sharpe": -0.03,
-        "vol": 0.189,
         "labels": [
             "03-13",
             "03-16",
@@ -316,8 +305,7 @@
             1419.0,
             1458.489990234375
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 2.9
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Bitcoin",
@@ -325,13 +313,11 @@
         "ahr999": 1.343,
         "r2": 0.8177,
         "alpha": -18.0,
-        "personality": "\ud83d\ude80 MOONSHOT",
-        "p_buy": 45286.95,
-        "price": 78307.76,
+        "p_buy": 45286.94,
+        "p_sell": 174512.9,
+        "price": 78303.45,
         "cur": "USD",
         "is_pro": false,
-        "sharpe": -0.84,
-        "vol": 0.39,
         "labels": [
             "03-28",
             "03-29",
@@ -394,10 +380,9 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78307.7578125
+            78303.453125
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 2.9
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
@@ -405,13 +390,11 @@
         "ahr999": 1.755,
         "r2": 0.8245,
         "alpha": 15.4,
-        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 190.31,
+        "p_sell": 733.48,
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
-        "sharpe": 1.08,
-        "vol": 0.483,
         "labels": [
             "03-13",
             "03-16",
@@ -476,8 +459,7 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 25.8
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
@@ -485,13 +467,11 @@
         "ahr999": 1.755,
         "r2": 0.0321,
         "alpha": 5.4,
-        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 79.19,
+        "p_sell": 305.29,
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
-        "sharpe": 0.28,
-        "vol": 0.591,
         "labels": [
             "03-11",
             "03-12",
@@ -556,8 +536,7 @@
             155.60000610351562,
             156.5
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 2.9
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Gold",
@@ -565,13 +544,11 @@
         "ahr999": 2.796,
         "r2": 0.2356,
         "alpha": 42.0,
-        "personality": "\ud83d\udc8e ALPHA GEM",
         "p_buy": 1898.58,
+        "p_sell": 7317.73,
         "price": 4740.9,
         "cur": "USD",
         "is_pro": false,
-        "sharpe": 1.43,
-        "vol": 0.273,
         "labels": [
             "03-13",
             "03-16",
@@ -636,8 +613,7 @@
             4705.10009765625,
             4740.89990234375
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 9.8
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
@@ -645,13 +621,11 @@
         "ahr999": 11.937,
         "r2": 0.5944,
         "alpha": 41.2,
-        "personality": "\ud83d\ude80 MOONSHOT",
         "p_buy": 40.34,
+        "p_sell": 155.59,
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,
-        "sharpe": 2.27,
-        "vol": 0.337,
         "labels": [
             "03-13",
             "03-16",
@@ -716,7 +690,6 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "opt_weight": 39.1
+        "signal": "\u2615\ufe0fWAIT"
     }
 ]
