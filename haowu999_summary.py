@@ -4,6 +4,7 @@ import numpy as np
 import math
 import json
 import os
+import requests
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
@@ -16,6 +17,14 @@ def get_fx_rates():
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
     except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
+
+def send_push_alert(signals):
+    """Optional Webhook for automated alerts"""
+    url = os.environ.get('SIGNAL_WEBHOOK')
+    if not url or not signals: return
+    msg = f"🚀 Alpha Hub Alert ({datetime.now().strftime('%Y-%m-%d')}):\n" + "\n".join(signals)
+    try: requests.post(url, json={"text": msg}, timeout=5)
+    except: pass
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
@@ -35,36 +44,32 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
+        # 3-year performance for "Alpha Proof"
+        df_bt = df.tail(252*3).copy()
+        ahr_roi = (latest['Close'] / df_bt['Close'].mean() - 1) * 100
+        
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
+            'r2': round(float(r2), 4), 'alpha_roi': round(float(ahr_roi), 1),
+            'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
-            'type': asset_cfg.get('type', 'Stocks'),
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
-        }, df.set_index('Date')['Close'].tail(90)
-    except: return None, None
+        }
+    except: return None
 
 fx = get_fx_rates()
 all_results = []
-price_matrix = {}
+alerts = []
 for a in config['assets']:
-    res, series = analyze_asset(a)
+    res = analyze_asset(a)
     if res: 
-        all_results.append(res); price_matrix[a['name']] = series
+        all_results.append(res)
+        if res['ahr999'] < 0.45: alerts.append(f"• {res['name']} ({res['ahr999']})")
 
-# Correlation Matrix
-corr_df = pd.DataFrame(price_matrix).pct_change().dropna(how='all').corr().round(2)
-corr_matrix = corr_df.to_dict()
-
-# Sector Analysis
-sector_data = {}
-for x in all_results:
-    sector_data[x['type']] = sector_data.get(x['type'], []) + [x['ahr999']]
-sector_heat = {k: round(sum(v)/len(v), 2) for k, v in sector_data.items()}
-
+send_push_alert(alerts)
 all_results.sort(key=lambda x: x['ahr999'])
 
 # --- UI Snippets ---
@@ -74,16 +79,21 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
+    hot = "border: 2px solid #ffd700;" if item['ahr999'] < 0.45 else "border: 1px solid #333;"
     
     cards_html += """
-    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+    <div class="card bg-dark rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden" style='"""+hot+"""'>
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-success small fw-bold">信度 R²: """ + str(int(item['r2']*100)) + """%</span>
+            <span class="text-success small fw-bold">Alpha +""" + str(item['alpha_roi']) + """%</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">AHR999 指数</div><div class="fw-bold text-white">""" + str(item['ahr999']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">拟合信度 R²</div><div class="fw-bold text-success">""" + str(int(item['r2']*100)) + """%</div></div></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
                 <div class="text-secondary small">""" + item['cur'] + " " + str(item['price']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
@@ -96,26 +106,13 @@ for i, item in enumerate(all_results):
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
     vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-heat_rows = "".join([f"<div class='col-4'><div class='p-2 rounded bg-black border border-secondary text-center'><div class='x-small text-secondary'>{k}</div><div class='fw-bold text-info'>{v}</div></div></div>" for k, v in sector_heat.items()])
-
-# --- Risk Table ---
-risk_table = '<table class="table table-dark table-sm mt-3" style="font-size:0.5rem;"><thead><tr><th></th>' + "".join([f'<th>{k[:3]}</th>' for k in corr_matrix.keys()]) + '</tr></thead><tbody>'
-for a in corr_matrix.keys():
-    risk_table += f'<tr><td>{a[:3]}</td>'
-    for b in corr_matrix[a].keys():
-        val = corr_matrix[a][b]
-        bg = f"rgba(255, 69, 58, {val})" if val > 0.7 else "rgba(10, 132, 255, 0.2)" if val < 0.2 else "transparent"
-        risk_table += f'<td style="background:{bg}">{val}</td>'
-    risk_table += '</tr>'
-risk_table += '</tbody></table>'
-
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V136</title>
+    <title>Alpha Hub Pro V137</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -135,33 +132,25 @@ final_template = """
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="row g-2 mt-3">REPLACE_HEAT</div>
-            <p class="x-small text-muted mt-3">机构级全周期审计终端 | REPLACE_TIME</p>
+            <p class="x-small text-muted mt-3">财富自动化警报终端 | REPLACE_TIME</p>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富金库</h2>
+        <h2 style="font-weight:800;">我的金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
             <div class="text-secondary small">账户总价值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
-            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Ledger</div>
+            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Compute</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-    </div>
-
-    <div id="tab-pro" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">机构风控</h2>
-        <div class="card bg-dark border-secondary p-2 rounded-4 overflow-auto shadow">REPLACE_RISK</div>
-        <p class="x-small text-secondary mt-3"><b>压力测试审计</b>：红色代表资产同步涨跌，风险较高。建议通过低相关性组合实现“Alpha”超额回报。</p>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="switchTab('pro', this)">🛡<br>风控</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v136 | 板块热力矩阵已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v137 | 全自动 Webhook 推送已就绪')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -203,10 +192,8 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_HEAT", heat_rows) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
-    .replace("REPLACE_RISK", risk_table) \
     .replace("REPLACE_FX", json.dumps(fx)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
