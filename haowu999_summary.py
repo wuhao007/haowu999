@@ -4,7 +4,6 @@ import numpy as np
 import math
 import json
 import os
-import requests
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
@@ -12,18 +11,46 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-def calculate_diversification_score(price_matrix):
-    """基于相关性矩阵计算组合分散度分数 (0-100)"""
+def solve_price(target, ma200_sum_199, fit_p, is_top=False):
+    """
+    逆推价格: 
+    is_top=False (AHR999): (P / ((sum199+P)/200)) * (P / fit) = target
+    is_top=True (AHR999x): (MA200 * Fit * 3) / P^2 = target
+    """
     try:
-        if not price_matrix: return 0
-        df = pd.DataFrame(price_matrix).pct_change().dropna(how='all')
-        if df.empty: return 0
-        corr = df.corr().values
-        avg_corr = (corr.sum() - len(corr)) / (len(corr)**2 - len(corr)) if len(corr) > 1 else 1.0
-        score = int(max(0, (1 - avg_corr) * 100))
-        grade = "S" if score > 80 else "A" if score > 60 else "B" if score > 40 else "C"
-        return score, grade
-    except: return 0, "N/A"
+        if not is_top:
+            a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
+            delta = b**2 - 4*a*c
+            return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
+        else:
+            ma200_approx = ma200_sum_199 / 199
+            return round(math.sqrt((ma200_approx * fit_p * 3) / target), 2)
+    except: return 0.0
+
+def run_backtest_stats(df_hist, w, b, start_date):
+    """回测审计：WinRate, Alpha, MDD, Calmar"""
+    try:
+        df = df_hist.copy()
+        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
+        df['Fit'] = 10 ** (w * np.log10(df['Days'].clip(lower=1)) + b)
+        df['MA200'] = df['Close'].rolling(200).mean()
+        df['AHR'] = (df['Close'] / df['MA200']) * (df['Close'] / df['Fit'])
+        df = df.dropna().tail(252 * 2)
+        
+        df['Invest'] = 1.0
+        df.loc[df['AHR'] < 0.45, 'Invest'] = 3.0
+        df.loc[df['AHR'] > 1.2, 'Invest'] = 0.0
+        
+        df['Equity'] = (df['Invest'] / df['Close']).cumsum() * df['Close']
+        df['Spent'] = df['Invest'].cumsum()
+        roi = (df['Equity'].iloc[-1] / df['Spent'].iloc[-1] - 1) * 100
+        mdd = abs(((df['Equity'] - df['Equity'].cummax()) / df['Equity'].cummax()).min() * 100)
+        dca_roi = (((1.0/df['Close']).sum() * df['Close'].iloc[-1]) / len(df) - 1) * 100
+        alpha = roi - dca_roi
+        calmar = round(alpha / mdd, 2) if mdd != 0 else 0
+        
+        return round(float(alpha), 1), round(float(mdd), 1), calmar
+    except: return 0, 0, 0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
@@ -36,26 +63,28 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
         latest = df.iloc[-1]
-        ma200 = df['Close'].tail(200).mean()
+        ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ma200) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # 3年 Alpha 模拟 (假如投入 $1)
-        df_bt = df.tail(252*3).copy()
-        dca_val = (1.0 / df_bt['Close']).sum() * latest['Close'] / len(df_bt)
-        ahr_invest = np.where(ahr < 0.45, 3.0, 1.0) # 简化逻辑用于演示
-        whatif = round(float(latest['Close'] / df_bt['Close'].mean() * 1.2), 2) # 演示估算值
+        # AHR999x 逃顶指标
+        ahr_x = (((ma200_sum_199 + latest['Close'])/200) * fit_p * 3) / (latest['Close']**2)
+        
+        # 逆推目标
+        p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
+        p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True)
+        
+        alpha, mdd, calmar = run_backtest_stats(df, model.coef_[0], model.intercept_, start_date)
 
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'whatif': whatif,
-            'price': round(float(latest['Close']), 2),
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3), 'ahr999x': round(float(ahr_x), 3),
+            'alpha': alpha, 'mdd': mdd, 'calmar': calmar,
+            'p_buy': p_buy, 'p_sell': p_sell, 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
-            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT",
+            'signal': "💎BOTTOM" if ahr < 0.45 else "🔥SELL/RISK" if ahr_x < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT",
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist()
         }, df.set_index('Date')['Close'].tail(90)
@@ -65,16 +94,9 @@ all_results = []
 price_matrix = {}
 for a in config['assets']:
     res, series = analyze_asset(a)
-    if res: 
-        all_results.append(res); price_matrix[a['name']] = series
+    if res: all_results.append(res); price_matrix[a['name']] = series
 
-# 组合审计
-div_score, div_grade = calculate_diversification_score(price_matrix)
 all_results.sort(key=lambda x: x['ahr999'])
-
-# 抽取今日“抄底简报”
-hot_signals = [x['name'] for x in all_results if x['ahr999'] < 0.45]
-dca_signals = [x['name'] for x in all_results if 0.45 <= x['ahr999'] < 1.2]
 
 # --- UI Snippets ---
 cards_html = ""
@@ -83,40 +105,45 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
+    efficiency = "S" if item['calmar'] > 2 else "A" if item['calmar'] > 1 else "B"
     
     cards_html += """
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-success small fw-bold">R²: """ + str(int(item['r2']*100)) + """%</span>
+            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">效率等级: """ + efficiency + """</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">3年前投入 $1 变</div><div class="fw-bold text-info">$""" + str(item['whatif']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">""" + str(item['ahr999']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标价</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">""" + item['cur'] + " " + str(item['price']) + """</div>
+                <div class="text-secondary small">Alpha: +""" + str(item['alpha']) + """% | MDD: """ + str(item['mdd']) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
+            </div>
+            <div class="d-flex gap-1 mt-3">
+                <button class="btn btn-outline-success btn-sm flex-fill rounded-pill" style="font-size:0.5rem" onclick="copyOrd('Buy', '"""+item['name']+"""', '"""+str(item['p_buy'])+"""')">📋 抄底指令</button>
+                <button class="btn btn-outline-warning btn-sm flex-fill rounded-pill" style="font-size:0.5rem" onclick="copyOrd('Sell', '"""+item['name']+"""', '"""+str(item['p_sell'])+"""')">📋 止盈指令</button>
             </div>
         </div>"""
     
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Strategy Proof</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Targets</button></div>"
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
     vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# --- 最终 HTML 模板 ---
+# --- 最终模板 ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V113</title>
+    <title>Alpha Hub Pro V114</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -134,34 +161,24 @@ final_template = """
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header text-center">
-            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">今日抄底清单 / Active Signals</div>
-                <div class="fw-bold" style="color:#32d74b;">REPLACE_HOT_LIST</div>
-                <div class="x-small text-muted mt-2">系统运行时间: REPLACE_TIME</div>
-            </div>
-        </div>
+        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富全周期决策中枢 | REPLACE_TIME</p></div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
-    <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">我的金库</h2>
+    <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
+        <h2 style="font-weight:800;">财富金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="text-start"><div class="text-secondary small">分散度等级</div><div class="fs-2 fw-bold text-info">REPLACE_DIV_GRADE</div></div>
-                <div class="text-end"><div class="text-secondary small">健康分</div><div class="fs-2 fw-bold text-success">REPLACE_DIV_SCORE</div></div>
-            </div>
-            <div class="text-secondary small">实时市值 (折算USD)</div>
+            <div class="text-secondary small">实时持仓市值 (折算USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Computation</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v113 | 组合分散度审计系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v114 | 全周期止盈系统已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -170,7 +187,7 @@ final_template = """
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'vault') calcVault();
+            if(id === 'portfolio') calcVault();
         }
         function calcVault() {
             let total = 0; const h = {};
@@ -187,6 +204,10 @@ final_template = """
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
         }
+        function copyOrd(type, name, price) {
+            const txt = `${type} Instruction: ${name} @ $${price} (Alpha Hub AHR Signal)`;
+            navigator.clipboard.writeText(txt).then(() => alert('指令已复制！'));
+        }
         window.onload = function() {
             if(localStorage.getItem('p') === '1') {
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
@@ -202,9 +223,6 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_HOT_LIST", ", ".join(hot_signals + dca_signals) if (hot_signals + dca_signals) else "等待信号中...") \
-    .replace("REPLACE_DIV_GRADE", div_grade) \
-    .replace("REPLACE_DIV_SCORE", str(div_score)) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_SCRIPTS", scripts_html)
