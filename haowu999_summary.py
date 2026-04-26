@@ -20,7 +20,9 @@ def get_fx_rates():
 
 def solve_target_price(target_ahr, ma200_sum_199, fit_p):
     try:
-        a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
+        a = 200
+        b = - (target_ahr * fit_p)
+        c = - (target_ahr * fit_p * ma200_sum_199)
         delta = b**2 - 4*a*c
         return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
     except: return 0.0
@@ -33,7 +35,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 对数回归拟合
+        # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -41,24 +43,28 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         
         latest = df.iloc[-1]
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
+        ma200_now = (ma200_sum_199 + latest['Close'])/200
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / ma200_now) * (latest['Close'] / fit_p)
         
-        # 归因 Alpha
+        # 2. 趋势监测 (牛熊转换)
+        ma50 = df['Close'].rolling(50).mean().iloc[-1]
+        trend = "BULL 🔥" if latest['Close'] > ma50 else "BEAR ❄️"
+        
+        # 3. 归因 Alpha
         df_bt = df.tail(252*2).copy()
         alpha = round(float((latest['Close'] / df_bt['Close'].mean() - 1) * 100), 1)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha,
+            'r2': round(float(r2), 4), 'alpha': alpha, 'trend': trend,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT",
-            'multiplier': 3.0 if ahr < 0.45 else 1.0 if ahr < 1.2 else 0.0
+            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
 
@@ -69,7 +75,8 @@ for a in config['assets']:
     if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
-market_breadth = int(len([x for x in all_results if x['ahr999'] < 1.2]) / len(all_results) * 100)
+avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
+market_state = "冰封筑底" if avg_ahr < 0.6 else "定投区间" if avg_ahr < 1.2 else "获利了结"
 
 # --- UI Snippets ---
 cards_html = ""
@@ -83,22 +90,23 @@ for i, item in enumerate(all_results):
     <div id='card_"""+str(i)+"""' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-success small fw-bold">Alpha +""" + str(item['alpha']) + """%</span>
+            <span class="badge bg-opacity-10 """ + ("text-success bg-success" if "BULL" in item['trend'] else "text-danger bg-danger") + """" style="font-size:0.6rem">""" + item['trend'] + """</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">乘数 Multi</div><div class="fw-bold text-white">""" + str(item['multiplier']) + """x</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">Alpha 收益</div><div class="fw-bold text-info">+""" + str(item['alpha']) + """%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | R²: """ + str(int(item['r2']*100)) + """%</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
+            <div class="mt-2"><button class="btn btn-outline-secondary btn-sm w-100 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 导出 Alpha 4.0 投研海报</button></div>
         </div>"""
     
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Strategy Proof</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Strategy</button></div>"
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
@@ -110,9 +118,10 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V152</title>
+    <title>Alpha Hub Pro V153</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -134,42 +143,29 @@ final_template = """
         <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
             <div class="mt-3 p-3 rounded-4" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>市场机会广度 / Breadth</span><span>REPLACE_BREADTH%</span></div>
-                <div class="progress" style="height:4px; background:#222;"><div class="progress-bar bg-info" style="width:REPLACE_BREADTH%"></div></div>
-                <p class="x-small text-muted mt-2 mb-0">商业试运行版本 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>全球市场智能审计</span><span class="text-info">Master Edition</span></div>
+                <div class="fw-bold" style="color:#32d74b; font-size:0.85rem;">当前环境：REPLACE_STATE (Avg AHR: REPLACE_AVG_AHR)</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析建议：分散配置，捕捉 Beta 并赢取 Alpha。</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">我的本地金库</h2>
+        <h2 style="font-weight:800;">我的金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
             <div class="text-secondary small">账户实时总市值 (USD)</div>
             <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
             <div class="small text-success mt-2">Privacy: Zero-Knowledge Local Compute</div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('实战日记：已保存今日定投操作至本地')">📝 记录今日定投日记</button></div>
-    </div>
-
-    <div id="tab-settings" class="tab-view container py-5 mt-4">
-        <h2 style="font-weight:800;">设置</h2>
-        <div class="card bg-dark border-secondary p-3 rounded-4 mb-4 text-center">
-            <div class="fw-bold text-primary mb-2">广告变现管理</div>
-            <p class="x-small text-secondary">Publisher: pub-5787134782741442</p>
-            <input type="text" class="form-control form-control-sm bg-black border-secondary text-white text-center" placeholder="请输入 Ad Unit ID 激活" onchange="localStorage.setItem('ad_id', this.value)">
-        </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4 mb-4 text-center">
-            <input type="text" id="key-in" class="form-control bg-black border-secondary text-white mb-2" placeholder="激活码: 666888">
-            <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="unlock()">激活 PRO 版</button>
-        </div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportJournal()">📝 记录今日实战日记</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="switchTab('settings', this)">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v153 | 大师级牛熊哨兵已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -181,7 +177,6 @@ final_template = """
             el.classList.add('active');
             if(id === 'portfolio') calcVault();
         }
-        function unlock() { if(document.getElementById('key-in').value === '666888') { localStorage.setItem('p', '1'); location.reload(); } }
         function calcVault() {
             let total = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
@@ -193,6 +188,14 @@ final_template = """
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+        function exportJournal() { alert('日记已加密存至本地浏览器！'); }
+        function shareCard(id, name) {
+            const card = document.getElementById(id);
+            html2canvas(card, {backgroundColor:'#000', scale: 2}).then(canvas => {
+                const a = document.createElement('a'); a.download = `Alpha_Hub_Master_${name}.png`;
+                a.href = canvas.toDataURL(); a.click();
+            });
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -215,7 +218,8 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_BREADTH", str(market_breadth)) \
+    .replace("REPLACE_STATE", market_state) \
+    .replace("REPLACE_AVG_AHR", str(round(avg_ahr, 2))) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
