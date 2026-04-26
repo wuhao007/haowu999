@@ -2,15 +2,18 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.487,
+        "ahr999": 0.486,
         "r2": 0.6061,
-        "alpha": -18.6,
+        "alpha": -18.7,
         "vol": 0.617,
-        "slope": 4.2681,
-        "intercept": -12.4906,
-        "days_passed": 5959,
-        "p_buy": 2284.87,
-        "price": 2377.87,
+        "dna": [
+            213.4,
+            38.3,
+            60.6,
+            51.2
+        ],
+        "p_buy": 2284.86,
+        "price": 2375.91,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -75,10 +78,12 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2377.8701171875
+            2375.909912109375
         ],
-        "signal": "\u2705INVEST",
-        "m": 1.0
+        "slope": 4.2681,
+        "intercept": -12.4906,
+        "days_passed": 5959,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
@@ -87,9 +92,12 @@
         "r2": 0.0205,
         "alpha": 15.7,
         "vol": 0.446,
-        "slope": 0.1663,
-        "intercept": 1.4856,
-        "days_passed": 5957,
+        "dna": [
+            8.3,
+            55.4,
+            2.0,
+            28.3
+        ],
         "p_buy": 92.87,
         "price": 135.82,
         "cur": "USD",
@@ -158,8 +166,10 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST",
-        "m": 1.0
+        "slope": 0.1663,
+        "intercept": 1.4856,
+        "days_passed": 5957,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Tencent",
@@ -168,9 +178,12 @@
         "r2": 0.7973,
         "alpha": 1.8,
         "vol": 0.314,
-        "slope": 0.8909,
-        "intercept": -0.7415,
-        "days_passed": 5957,
+        "dna": [
+            44.5,
+            68.6,
+            79.7,
+            27.3
+        ],
         "p_buy": 330.88,
         "price": 493.4,
         "cur": "HKD",
@@ -239,8 +252,10 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "signal": "\u2705INVEST",
-        "m": 1.0
+        "slope": 0.8909,
+        "intercept": -0.7415,
+        "days_passed": 5957,
+        "signal": "\u2705INVEST"
     },
     {
         "name": "Moutai",
@@ -249,9 +264,12 @@
         "r2": 0.6545,
         "alpha": 1.1,
         "vol": 0.24,
-        "slope": 0.9415,
-        "intercept": -0.5067,
-        "days_passed": 5957,
+        "dna": [
+            47.1,
+            76.0,
+            65.4,
+            20.9
+        ],
         "p_buy": 844.71,
         "price": 1458.49,
         "cur": "CNY",
@@ -320,21 +338,26 @@
             1419.0,
             1458.489990234375
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 0.9415,
+        "intercept": -0.5067,
+        "days_passed": 5957,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.358,
+        "ahr999": 1.356,
         "r2": 0.8177,
-        "alpha": -17.5,
+        "alpha": -17.6,
         "vol": 0.379,
-        "slope": 1.6956,
-        "intercept": -1.4002,
-        "days_passed": 4133,
-        "p_buy": 45287.61,
-        "price": 78752.8,
+        "dna": [
+            84.8,
+            62.1,
+            81.8,
+            20.6
+        ],
+        "p_buy": 45287.5,
+        "price": 78681.0,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -399,10 +422,12 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78752.796875
+            78681.0
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 1.6956,
+        "intercept": -1.4002,
+        "days_passed": 4133,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
@@ -411,9 +436,12 @@
         "r2": 0.8245,
         "alpha": 14.9,
         "vol": 0.624,
-        "slope": 2.101,
-        "intercept": -5.6279,
-        "days_passed": 5957,
+        "dna": [
+            105.0,
+            37.6,
+            82.5,
+            16.2
+        ],
         "p_buy": 190.31,
         "price": 376.3,
         "cur": "USD",
@@ -482,8 +510,10 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 2.101,
+        "intercept": -5.6279,
+        "days_passed": 5957,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
@@ -492,9 +522,12 @@
         "r2": 0.0321,
         "alpha": 4.7,
         "vol": 0.584,
-        "slope": 0.1658,
-        "intercept": 1.2371,
-        "days_passed": 1960,
+        "dna": [
+            8.3,
+            41.6,
+            3.2,
+            16.2
+        ],
         "p_buy": 79.19,
         "price": 156.5,
         "cur": "HKD",
@@ -563,8 +596,10 @@
             155.60000610351562,
             156.5
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 0.1658,
+        "intercept": 1.2371,
+        "days_passed": 1960,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Gold",
@@ -573,9 +608,12 @@
         "r2": 0.2357,
         "alpha": 41.5,
         "vol": 0.228,
-        "slope": 0.1588,
-        "intercept": 2.6795,
-        "days_passed": 5959,
+        "dna": [
+            7.9,
+            77.2,
+            23.6,
+            10.4
+        ],
         "p_buy": 1900.6,
         "price": 4740.9,
         "cur": "USD",
@@ -644,8 +682,10 @@
             4722.2998046875,
             4740.89990234375
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 0.1588,
+        "intercept": 2.6795,
+        "days_passed": 5959,
+        "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
@@ -654,9 +694,12 @@
         "r2": 0.5944,
         "alpha": 40.7,
         "vol": 0.487,
-        "slope": 1.6609,
-        "intercept": -4.9721,
-        "days_passed": 5957,
+        "dna": [
+            83.0,
+            51.3,
+            59.4,
+            2.5
+        ],
         "p_buy": 40.34,
         "price": 208.27,
         "cur": "USD",
@@ -725,7 +768,9 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\u2615\ufe0fWAIT",
-        "m": 0.0
+        "slope": 1.6609,
+        "intercept": -4.9721,
+        "days_passed": 5957,
+        "signal": "\u2615\ufe0fWAIT"
     }
 ]
