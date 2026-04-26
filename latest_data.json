@@ -2,20 +2,13 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "sector": "Crypto",
         "ahr999": 0.483,
         "r2": 0.6061,
         "alpha": -19.0,
-        "vol": 0.59,
-        "dna": [
-            60.6,
-            41.0,
-            62.4,
-            68.6
-        ],
+        "skew": 0.2,
+        "m_gain": 12.4,
         "p_buy": 2284.84,
-        "p_guard": 1704.8,
-        "price": 2368.44,
+        "price": 2368.46,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -80,27 +73,20 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2368.43994140625
+            2368.4599609375
         ],
-        "slope": 4.2681,
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "rs": 91
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
-        "sector": "Stocks",
         "ahr999": 0.961,
         "r2": 0.0205,
         "alpha": 15.7,
-        "vol": 0.429,
-        "dna": [
-            2.0,
-            57.1,
-            58.3,
-            37.7
-        ],
+        "skew": 0.81,
+        "m_gain": 8.3,
         "p_buy": 92.87,
-        "p_guard": 107.14,
         "price": 135.82,
         "cur": "USD",
         "is_pro": true,
@@ -168,25 +154,18 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "slope": 0.1663,
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "rs": 70
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "sector": "Stocks",
         "ahr999": 0.999,
         "r2": 0.7973,
         "alpha": 1.8,
-        "vol": 0.271,
-        "dna": [
-            79.7,
-            72.9,
-            46.0,
-            36.4
-        ],
+        "skew": 0.34,
+        "m_gain": -4.0,
         "p_buy": 330.88,
-        "p_guard": 403.63,
         "price": 493.4,
         "cur": "HKD",
         "is_pro": true,
@@ -254,25 +233,18 @@
             495.20001220703125,
             493.3999938964844
         ],
-        "slope": 0.8909,
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "rs": 9
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "sector": "Stocks",
         "ahr999": 1.339,
         "r2": 0.6545,
         "alpha": 1.1,
-        "vol": 0.189,
-        "dna": [
-            65.4,
-            81.1,
-            54.1,
-            27.8
-        ],
+        "skew": 1.74,
+        "m_gain": 4.1,
         "p_buy": 844.71,
-        "p_guard": 1279.25,
         "price": 1458.49,
         "cur": "CNY",
         "is_pro": true,
@@ -340,26 +312,19 @@
             1419.0,
             1458.489990234375
         ],
-        "slope": 0.9415,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 49
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "sector": "Crypto",
-        "ahr999": 1.343,
+        "ahr999": 1.342,
         "r2": 0.8177,
         "alpha": -18.0,
-        "vol": 0.39,
-        "dna": [
-            81.8,
-            61.0,
-            63.7,
-            27.7
-        ],
-        "p_buy": 45286.95,
-        "p_guard": 63330.42,
-        "price": 78307.8,
+        "skew": -0.19,
+        "m_gain": 13.7,
+        "p_buy": 45286.92,
+        "price": 78287.58,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -424,27 +389,20 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            78307.796875
+            78287.578125
         ],
-        "slope": 1.6956,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 97
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
-        "sector": "Stocks",
         "ahr999": 1.755,
         "r2": 0.8245,
         "alpha": 14.9,
-        "vol": 0.483,
-        "dna": [
-            82.5,
-            51.7,
-            51.1,
-            21.6
-        ],
+        "skew": -0.18,
+        "m_gain": 1.1,
         "p_buy": 190.31,
-        "p_guard": 273.33,
         "price": 376.3,
         "cur": "USD",
         "is_pro": true,
@@ -512,25 +470,18 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "slope": 2.101,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 34
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "sector": "Stocks",
         "ahr999": 1.755,
         "r2": 0.0321,
         "alpha": 4.7,
-        "vol": 0.591,
-        "dna": [
-            3.2,
-            40.9,
-            22.1,
-            21.6
-        ],
+        "skew": -0.66,
+        "m_gain": -27.9,
         "p_buy": 79.19,
-        "p_guard": 69.54,
         "price": 156.5,
         "cur": "HKD",
         "is_pro": true,
@@ -598,25 +549,18 @@
             155.60000610351562,
             156.5
         ],
-        "slope": 0.1658,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 0
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "sector": "Metals",
         "ahr999": 2.796,
         "r2": 0.2356,
         "alpha": 41.7,
-        "vol": 0.273,
-        "dna": [
-            23.6,
-            72.7,
-            58.4,
-            13.8
-        ],
+        "skew": -1.43,
+        "m_gain": 8.4,
         "p_buy": 1898.58,
-        "p_guard": 4079.93,
         "price": 4740.9,
         "cur": "USD",
         "is_pro": false,
@@ -684,25 +628,18 @@
             4705.10009765625,
             4740.89990234375
         ],
-        "slope": 0.1586,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 71
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
-        "sector": "Stocks",
         "ahr999": 11.937,
         "r2": 0.5944,
         "alpha": 40.7,
-        "vol": 0.337,
-        "dna": [
-            59.4,
-            66.3,
-            71.6,
-            3.3
-        ],
+        "skew": 0.12,
+        "m_gain": 21.6,
         "p_buy": 40.34,
-        "p_guard": 171.38,
         "price": 208.27,
         "cur": "USD",
         "is_pro": true,
@@ -770,7 +707,7 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "slope": 1.6609,
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "rs": 100
     }
 ]
