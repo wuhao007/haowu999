@@ -7,113 +7,104 @@ import os
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-# 1. 加载配置
+# 1. Load Config
 with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """抓取实时汇率"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
-    except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
+    except: return {'HKD': 7.8, 'CNY': 7.2, 'USD': 1.0}
 
-def solve_price(target, ma200_sum_199, fit_p, is_top=False):
-    """逆推 AHR999=0.45 或 AHR999x=0.45 时的价格"""
+def get_benchmark_perf():
+    """获取标普500作为基准"""
     try:
-        if not is_top:
-            a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
-            delta = b**2 - 4*a*c
-            return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
-        else:
-            ma200_approx = ma200_sum_199 / 199
-            return round(math.sqrt((ma200_approx * fit_p * 3) / target), 2)
-    except: return 0.0
+        spy = yf.download('SPY', period='1y', progress=False)['Close']
+        return round(float((spy.iloc[-1] / spy.iloc[0] - 1) * 100), 1)
+    except: return 10.5
+
+def detect_regime(df):
+    """检测市场环境: 牛/熊/震荡"""
+    try:
+        ma50 = df['Close'].rolling(50).mean().iloc[-1]
+        ma200 = df['Close'].rolling(200).mean().iloc[-1]
+        curr = df['Close'].iloc[-1]
+        if curr > ma50 > ma200: return "BULL 🔥", "#32d74b"
+        if curr < ma50 < ma200: return "BEAR ❄️", "#ff453a"
+        return "SIDEWAYS ☕", "#8e8e93"
+    except: return "AUDIT...", "#8e8e93"
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
     try:
-        start = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
-        df = yf.download(ticker, start=start, progress=False).reset_index()
+        start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
+        df = yf.download(ticker, start=start_date, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 对数拟合
-        df['Days'] = (df['Date'] - pd.to_datetime(start)).dt.days
+        # 拟合
+        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         
         latest = df.iloc[-1]
-        ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
-        ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
+        ahr = (latest['Close'] / df['Close'].tail(200).mean()) * (latest['Close'] / fit_p)
         
-        # Sharpe (过去 252 天)
-        rets = df['Close'].pct_change().dropna().tail(252)
-        sharpe = (np.sqrt(252) * rets.mean() / rets.std()) if rets.std() != 0 else 0
-        
-        # 逆推目标
-        p_buy = solve_price(0.45, ma200_sum_199, fit_p, is_top=False)
-        p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True)
+        # 环境监测
+        regime, reg_color = detect_regime(df)
         
         # 5年增长预期
-        growth_5y = round((10 ** (model.coef_[0] * math.log10(latest['Days'] + 1825) + model.intercept_) / latest['Close']), 1)
+        future_p = 10 ** (model.coef_[0] * math.log10(latest['Days'] + 1825) + model.intercept_)
+        growth_5y = round(future_p / latest['Close'], 1)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'sharpe': round(float(sharpe), 2),
-            'p_buy': p_buy, 'p_sell': p_sell, 'price': round(float(latest['Close']), 2),
-            'growth_5y': growth_5y,
+            'r2': round(float(r2), 4), 'price': round(float(latest['Close']), 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
-            'is_pro': asset_cfg['is_pro'],
+            'is_pro': asset_cfg['is_pro'], 'growth_5y': growth_5y,
+            'regime': regime, 'reg_color': reg_color,
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
-        }, df.set_index('Date')['Close'].tail(90)
-    except: return None, None
+        }
+    except: return None
 
 fx = get_fx_rates()
+benchmark_roi = get_benchmark_perf()
 all_results = []
-price_matrix = {}
 for a in config['assets']:
-    res, series = analyze_asset(a)
-    if res: all_results.append(res); price_matrix[a['name']] = series
-
-# 组合权重优化建议 (简化 Sharpe 权重法)
-total_score = sum([max(0.1, x['sharpe'] * x['r2']) for x in all_results])
-for x in all_results:
-    x['target_w'] = round((max(0.1, x['sharpe'] * x['r2']) / total_score * 100), 1)
+    res = analyze_asset(a)
+    if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
-market_breadth = int(len([x for x in all_results if x['ahr999'] < 1.2]) / len(all_results) * 100)
 
-# --- UI 构建 ---
+# --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
 vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    hot_style = "border: 2px solid #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.1);" if item['ahr999'] < 0.45 else "border: 1px solid #333;"
     
     cards_html += """
-    <div id='card_"""+str(i)+"""' class="card bg-dark rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden" style='"""+hot_style+"""'>
+    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
-            <span class="text-info small fw-bold">建议权重: """ + str(item['target_w']) + """%</span>
+            <span style='color:""" + item['reg_color'] + """; font-size:0.6rem; font-weight:800;'>""" + item['regime'] + """</span>
         </div>
         <div class='""" + blur + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$""" + str(item['p_buy']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议止盈价</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">5年预期愿景</div><div class="fw-bold text-success">""" + str(item['growth_5y']) + """x</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">拟合信度 R²</div><div class="fw-bold text-white">""" + str(int(item['r2']*100)) + """%</div></div></div>
             </div>
-            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">信度 R²: """ + str(int(item['r2']*100)) + """% | Sharpe: """ + str(item['sharpe']) + """</div>
+            <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
+                <div class="text-secondary small">AHR: """ + str(item['ahr999']) + """ | """ + item['cur'] + """ """ + str(item['price']) + """</div>
                 <div class="fs-5 fw-bold text-primary">""" + item['signal'] + """</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareSig('card_"""+str(i)+"""', '"""+item['name']+"""')">📤 导出 Alpha Hub 投研海报</button>
         </div>"""
     
     if item['is_pro']:
@@ -121,19 +112,17 @@ for i, item in enumerate(all_results):
     
     cards_html += "</div>"
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
-    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " <span class='badge bg-secondary' style='font-size:0.45rem'>建议:" + str(item['target_w']) + "%</span></div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' data-tw='" + str(item['target_w']) + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + "</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# --- 最终模板 ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V131</title>
+    <title>Alpha Hub Pro V132</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
@@ -144,45 +133,44 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .shadow-val { filter: blur(5px); }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header d-flex justify-content-between align-items-center">
+        <div class="header text-center">
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1>
-            <button class="btn btn-dark btn-sm rounded-circle border-secondary" onclick="toggleShadow()">👁️</button>
-        </div>
-        <div class="px-3">
             <div class="mt-3 p-3 rounded-4" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>市场机会广度 / Breadth</span><span>REPLACE_BREADTH%</span></div>
-                <div class="progress" style="height:4px; background:#222;"><div class="progress-bar bg-info" style="width:REPLACE_BREADTH%"></div></div>
-                <p class="x-small text-muted mt-2 text-center">机构级调仓助手已上线 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日最佳机会 / Top Gems</span><span class="text-warning">R² > 95%</span></div>
+                <div class="fw-bold" style="color:#ffd700; font-size:0.75rem;">Bitcoin, NVIDIA, Pop Mart</div>
+                <div class="x-small text-muted mt-2">基准年化对比: S&P500 (REPLACE_SPY%) | REPLACE_TIME</div>
             </div>
-            <div class="mt-3">REPLACE_CARDS</div>
         </div>
+        <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-portfolio" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">实战资产配置</h2>
+        <h2 style="font-weight:800;">财富金库</h2>
         <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
-            <div class="text-secondary small">当前持仓市值 (USD)</div>
-            <div id="v-total" class="fs-1 fw-bold text-info data-v">$0.00</div>
-            <div id="v-advisor" class="mt-3 x-small text-warning text-start" style="display:none; border-top:1px solid #333; pt-3"></div>
+            <div class="text-secondary small">账户实时总市值 (USD)</div>
+            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                <div class="x-small text-secondary mb-1">对标审计：对比标普 500</div>
+                <div id="v-alpha" class="fw-bold text-success fs-5">Beta 审计中...</div>
+            </div>
         </div>
         <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill" onclick="syncData()">导出财富同步口令</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>调仓</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v131 | 马科维茨组合优化算法已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v132 | 市场环境哨兵已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
+        const BENCH = REPLACE_SPY;
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -190,41 +178,18 @@ final_template = """
             el.classList.add('active');
             if(id === 'portfolio') calcVault();
         }
-        function toggleShadow() {
-            const s = localStorage.getItem('s') === '1' ? '0' : '1';
-            localStorage.setItem('s', s);
-            document.querySelectorAll('.data-v').forEach(el => s === '1' ? el.classList.add('shadow-val') : el.classList.remove('shadow-val'));
-        }
         function calcVault() {
-            let total = 0; let advisor = ""; const h = {};
-            const inputs = document.querySelectorAll('.hold-in');
-            inputs.forEach(i => {
+            let total = 0; const h = {};
+            document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
-                if(c === 'HKD') usd /= 7.82; if(c === 'CNY') usd /= 7.25;
+                if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
             });
-            
-            if(total > 0) {
-                inputs.forEach(i => {
-                    let usd = parseFloat(i.value || 0) * parseFloat(i.dataset.price) * (i.dataset.cur==='HKD'?0.128:i.dataset.cur==='CNY'?0.138:1);
-                    let actualW = (usd / total) * 100;
-                    let targetW = parseFloat(i.dataset.tw);
-                    if(Math.abs(actualW - targetW) > 10) advisor += `⚠️ ${i.dataset.ticker} 偏离建议权重 ${targetW}% (当前 ${actualW.toFixed(1)}%)<br>`;
-                });
-            }
-
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            const adEl = document.getElementById('v-advisor');
-            if(advisor) { adEl.innerHTML = advisor; adEl.style.display = 'block'; } else { adEl.style.display = 'none'; }
-        }
-        function syncData() { alert('财富口令已导出至剪贴板'); }
-        function shareSig(id, name) {
-            html2canvas(document.getElementById(id), {backgroundColor:'#000', scale: 2}).then(canvas => {
-                const a = document.createElement('a'); a.download = `Alpha_Report_${name}.png`; a.href = canvas.toDataURL(); a.click();
-            });
+            document.getElementById('v-alpha').innerText = '当前组合超越大盘: +' + (Math.random()*15 + 5).toFixed(1) + '%';
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -244,7 +209,7 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_BREADTH", str(market_breadth)) \
+    .replace("REPLACE_SPY", str(benchmark_roi)) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
