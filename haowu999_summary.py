@@ -11,19 +11,20 @@ from datetime import datetime
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+def get_exchange_rates():
+    """抓取实时汇率"""
+    try:
+        data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
+        return {'HKD': float(data['HKDUSD=X']), 'CNY': float(data['CNYUSD=X'])}
+    except: return {'HKD': 0.128, 'CNY': 0.138}
+
 def solve_price(target, ma200_sum_199, fit_p, is_top=False):
-    """
-    逆推价格: 
-    is_top=False (AHR999): 200*P^2 - target*fit*P - target*fit*sum199 = 0
-    is_top=True (AHR999x): P^2 - (3*ma200_now*fit/target) = 0
-    """
     try:
         if not is_top:
             a, b, c = 200, -(target * fit_p), -(target * fit_p * ma200_sum_199)
             delta = b**2 - 4*a*c
             return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
         else:
-            # 简化 AHR999x 逆推: P = sqrt(MA200 * Fit * 3 / Target)
             ma200_approx = ma200_sum_199 / 199
             return round(math.sqrt(ma200_approx * fit_p * 3 / target), 2)
     except: return 0.0
@@ -46,11 +47,9 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(latest['Days']) + model.intercept_)
         ahr = (latest['Close'] / ((ma200_sum_199 + latest['Close'])/200)) * (latest['Close'] / fit_p)
         
-        # Targets
         p_btm = solve_price(0.45, ma200_sum_199, fit_p)
-        p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True) # AHR999x < 0.45 is sell
+        p_sell = solve_price(0.45, ma200_sum_199, fit_p, is_top=True) 
         
-        # Sparkline
         hist = df.tail(30).copy()
         
         return {
@@ -65,15 +64,12 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         }, df.set_index('Date')['Close'].tail(90)
     except: return None, None
 
+rates_data = get_exchange_rates()
 all_results = []
 price_matrix = {}
 for a in config['assets']:
     res, series = analyze_asset(a)
     if res: all_results.append(res); price_matrix[a['name']] = series
-
-# Correlation for Risk Alert
-corr_df = pd.DataFrame(price_matrix).pct_change().dropna(how='all').corr().round(2)
-corr_json = corr_df.to_dict()
 
 all_results.sort(key=lambda x: x['ahr999'])
 
@@ -83,8 +79,8 @@ scripts_html = ""
 vault_inputs = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
-    cards_html += """
-    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow position-relative overflow-hidden">
+    cards_html += f"""
+    <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">""" + item['name'] + " " + pro + """</span>
             <span class="text-success small fw-bold">信度 """ + str(int(item['r2']*100)) + """%</span>
@@ -92,8 +88,8 @@ for i, item in enumerate(all_results):
         <div class='""" + ("pro-blur" if item['is_pro'] else "") + """'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_""" + str(i) + """"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.5rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_btm']) + """</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.5rem">逃顶目标价</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.6rem">抄底目标价</div><div class="fw-bold text-success">$""" + str(item['p_btm']) + """</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.6rem">逃顶目标价</div><div class="fw-bold text-warning">$""" + str(item['p_sell']) + """</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
                 <div><div class="text-secondary small">AHR999</div><div class="fw-bold text-white">""" + str(item['ahr999']) + """</div></div>
@@ -106,7 +102,6 @@ for i, item in enumerate(all_results):
     scripts_html += "renderChart('c_" + str(i) + "', " + json.dumps(item['labels']) + ", " + json.dumps(item['values']) + ");\n"
     vault_inputs += "<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>" + item['name'] + " (" + item['cur'] + ")</div><input type='number' class='hold-in' data-ticker='" + item['ticker'] + "' data-price='" + str(item['price']) + "' data-cur='" + item['cur'] + "' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-# --- Main Template ---
 final_template = """
 <!DOCTYPE html>
 <html lang="zh">
@@ -124,7 +119,7 @@ final_template = """
         .nav-item.active { color:#0a84ff; }
         .tab-view { display:none; animation: fadeIn 0.3s; }
         .active-tab { display:block; }
-        .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
+        .pro-blur { filter: blur(12px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -132,7 +127,7 @@ final_template = """
 <body>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">多资产全周期审计中心 | REPLACE_TIME</p></div>
-        <div class="px-3 mt-3">REPLACE_CARDS</div>
+        <div class="px-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4">
@@ -192,6 +187,10 @@ final_template = """
         }
 
         window.onload = function() {
+            if(localStorage.getItem('p') === '1') {
+                document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
+                document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
+            }
             let h = JSON.parse(localStorage.getItem('alpha_h_v3') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
             REPLACE_SCRIPTS
@@ -204,7 +203,7 @@ final_template = """
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_inputs) \
-    .replace("REPLACE_RATES", json.dumps(rates)) \
+    .replace("REPLACE_RATES", json.dumps(rates_data)) \
     .replace("REPLACE_SCRIPTS", scripts_html)
 
 with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
