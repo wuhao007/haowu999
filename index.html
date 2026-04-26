@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha Hub Pro V103</title>
+    <title>Alpha Hub Pro V104</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
-        .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); }
+        .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); border-bottom:1px solid #222; }
         .nav-bar { position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }
         .nav-item { color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }
         .nav-item.active { color:#0a84ff; }
@@ -21,7 +22,7 @@
 </head>
 <body>
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富机遇实时审计终端 | 04-25 18:29</p></div>
+        <div class="header"><h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">Hub</span></h1><p style="color:#8e8e93; font-size:0.8rem;">财富全周期审计中枢 | 04-25 18:30</p></div>
         <div class="px-3 mt-3">
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -29,209 +30,202 @@
             <span class="text-success small fw-bold">拟合信度 60%</span>
         </div>
         <div class=''>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_0"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$2289.68</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">0.46</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$2289.68</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$8816.9</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 2316.16 USD</div>
-                <div class="fs-5 fw-bold text-primary">✅DCA</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">0.461 / 6.513</div></div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
-        </div>
-        
-    </div>
-    
+        </div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 2%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_1"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$92.87</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">0.961</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$92.87</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$357.81</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 135.82 USD</div>
-                <div class="fs-5 fw-bold text-primary">✅DCA</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">0.961 / 3.122</div></div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 79%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_2"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$330.88</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">0.999</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$330.88</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$1274.95</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 493.4 HKD</div>
-                <div class="fs-5 fw-bold text-primary">✅DCA</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">0.999 / 3.002</div></div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Bitcoin </span>
             <span class="text-success small fw-bold">拟合信度 81%</span>
         </div>
         <div class=''>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_3"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$45340.81</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">1.313</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$45340.81</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$174720.83</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 77529.87 USD</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">1.313 / 2.284</div></div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-        </div>
-        
-    </div>
-    
+        </div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 65%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_4"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$844.71</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">1.339</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$844.71</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$3254.62</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 1458.49 CNY</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">1.339 / 2.241</div></div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 82%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_5"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$190.31</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">1.755</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$190.31</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$733.48</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 376.3 USD</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">1.755 / 1.709</div></div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 3%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_6"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$79.19</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">1.755</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$79.19</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$305.29</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 156.5 HKD</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">1.755 / 1.71</div></div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">Gold </span>
             <span class="text-success small fw-bold">拟合信度 23%</span>
         </div>
         <div class=''>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_7"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$1898.56</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">2.775</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$1898.56</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$7317.64</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 4722.3 USD</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">2.775 / 1.081</div></div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-        </div>
-        
-    </div>
-    
+        </div></div>
     <div class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white">NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
             <span class="text-success small fw-bold">拟合信度 59%</span>
         </div>
         <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_8"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底挂单价</div><div class="fw-bold text-success">$40.34</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">当前 AHR999</div><div class="fw-bold text-white">11.937</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底参考价</div><div class="fw-bold text-success">$40.34</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">逃顶参考价</div><div class="fw-bold text-warning">$155.59</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary">
-                <div class="text-secondary small">Price: 208.27 USD</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+                <div><div class="text-secondary small">AHR999 (抄/顶)</div><div class="fw-bold text-white small">11.937 / 0.251</div></div>
+                <div class="fs-5 fw-bold text-primary">🔥SELL/RISK</div>
             </div>
-        </div>
-        <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Price Targets</button></div>
-    </div>
-    </div>
+        </div><div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock targets</button></div></div></div>
     </div>
 
-    <div id="tab-portfolio" class="tab-view container py-5 mt-4">
+    <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
         <h2 style="font-weight:800;">我的金库</h2>
-        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-center">
-            <div class="text-secondary small">组合分散健康分</div>
-            <div class="fs-1 fw-bold text-info">81</div>
-            <div class="small text-success mt-2">实时持仓市值: <span id="v-total">$0.00</span></div>
+        <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4">
+            <div class="text-secondary small">实时市值 (折算USD)</div>
+            <div id="v-total" class="fs-1 fw-bold text-info">$0.00</div>
+            <div class="small text-success mt-2">Privacy: Local-Only Computation</div>
         </div>
-        <div class="card bg-dark border-secondary p-3 rounded-4"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Ethereum (USD)</div><input type='number' class='hold-in' data-ticker='ETH-USD' data-price='2316.16' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Alibaba (USD)</div><input type='number' class='hold-in' data-ticker='BABA' data-price='135.82' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tencent (HKD)</div><input type='number' class='hold-in' data-ticker='0700.HK' data-price='493.4' data-cur='HKD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Bitcoin (USD)</div><input type='number' class='hold-in' data-ticker='BTC-USD' data-price='77529.87' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Moutai (CNY)</div><input type='number' class='hold-in' data-ticker='600519.SS' data-price='1458.49' data-cur='CNY' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tesla (USD)</div><input type='number' class='hold-in' data-ticker='TSLA' data-price='376.3' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Pop Mart (HKD)</div><input type='number' class='hold-in' data-ticker='9992.HK' data-price='156.5' data-cur='HKD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Gold (USD)</div><input type='number' class='hold-in' data-ticker='GC=F' data-price='4722.3' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>NVIDIA (USD)</div><input type='number' class='hold-in' data-ticker='NVDA' data-price='208.27' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
+        <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Ethereum (USD)</div><input type='number' class='hold-in' data-ticker='ETH-USD' data-price='2316.51' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Alibaba (USD)</div><input type='number' class='hold-in' data-ticker='BABA' data-price='135.82' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tencent (HKD)</div><input type='number' class='hold-in' data-ticker='0700.HK' data-price='493.4' data-cur='HKD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Bitcoin (USD)</div><input type='number' class='hold-in' data-ticker='BTC-USD' data-price='77529.88' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Moutai (CNY)</div><input type='number' class='hold-in' data-ticker='600519.SS' data-price='1458.49' data-cur='CNY' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tesla (USD)</div><input type='number' class='hold-in' data-ticker='TSLA' data-price='376.3' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Pop Mart (HKD)</div><input type='number' class='hold-in' data-ticker='9992.HK' data-price='156.5' data-cur='HKD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Gold (USD)</div><input type='number' class='hold-in' data-ticker='GC=F' data-price='4722.3' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>NVIDIA (USD)</div><input type='number' class='hold-in' data-ticker='NVDA' data-price='208.27' data-cur='USD' placeholder='0.00' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('portfolio', this)">💰<br>资产</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v103 | 实时汇率折算系统已启用')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>资产</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v104 | AHR999x 逃顶导航已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const RATES = {"HKD": 0.12763729691505432, "CNY": 0.14629721641540527};
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
-            if(id === 'portfolio') calcVault();
+            if(id === 'vault') calcVault();
         }
-        function unlock() { if(localStorage.getItem('p')==='1') return; if(prompt('激活码')==='666888') { localStorage.setItem('p','1'); location.reload(); } }
         function calcVault() {
             let total = 0; const h = {};
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p;
-                if(c === 'HKD') usd *= RATES.HKD; if(c === 'CNY') usd *= RATES.CNY;
+                if(c === 'HKD') usd *= 0.128; if(c === 'CNY') usd *= 0.138;
                 total += usd;
             });
-            localStorage.setItem('alpha_h_v2', JSON.stringify(h));
+            localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+        function renderChart(id, labels, data) {
+            new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
         }
         window.onload = function() {
             if(localStorage.getItem('p') === '1') {
                 document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
                 document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
             }
-            let h = JSON.parse(localStorage.getItem('alpha_h_v2') || '{}');
+            let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
+            renderChart('c_0', ["03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [1991.27197265625, 1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2316.510009765625]);
+renderChart('c_1', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
+renderChart('c_2', ["03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [552.0, 546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844]);
+renderChart('c_3', ["03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [66338.375, 66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77529.8828125]);
+renderChart('c_4', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [1413.6400146484375, 1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375]);
+renderChart('c_5', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
+renderChart('c_6', ["03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [204.8000030517578, 205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5]);
+renderChart('c_7', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [5052.5, 4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875]);
+renderChart('c_8', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
+
         }
     </script>
 </body>
