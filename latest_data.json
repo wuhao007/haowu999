@@ -2,12 +2,11 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.492,
+        "ahr999": 0.493,
         "r2": 0.6061,
-        "alpha": -18.2,
-        "vol": 0.617,
-        "macro_sens": 0.8,
-        "price": 2390.52,
+        "liq_score": 72,
+        "slip_coeff": 0.008,
+        "price": 2391.56,
         "p_buy": 2285.72,
         "cur": "USD",
         "is_pro": false,
@@ -73,7 +72,7 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2390.52001953125
+            2391.56005859375
         ],
         "signal": "\u2705INVEST"
     },
@@ -82,9 +81,8 @@
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "alpha": 15.7,
-        "vol": 0.446,
-        "macro_sens": 0.8,
+        "liq_score": 50,
+        "slip_coeff": 0.008,
         "price": 135.82,
         "p_buy": 92.87,
         "cur": "USD",
@@ -158,12 +156,11 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "ahr999": 0.97,
+        "ahr999": 0.969,
         "r2": 0.7973,
-        "alpha": 0.2,
-        "vol": 0.314,
-        "macro_sens": 0.8,
-        "price": 486.2,
+        "liq_score": 55,
+        "slip_coeff": 0.008,
+        "price": 486.0,
         "p_buy": 330.96,
         "cur": "HKD",
         "is_pro": true,
@@ -229,20 +226,19 @@
             504.0,
             495.20001220703125,
             493.3999938964844,
-            486.20001220703125
+            486.0
         ],
         "signal": "\u2705INVEST"
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "ahr999": 1.248,
+        "ahr999": 1.249,
         "r2": 0.6546,
-        "alpha": -2.3,
-        "vol": 0.241,
-        "macro_sens": 0.8,
-        "price": 1408.54,
-        "p_buy": 845.0,
+        "liq_score": 53,
+        "slip_coeff": 0.008,
+        "price": 1409.27,
+        "p_buy": 845.01,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -307,20 +303,19 @@
             1409.5,
             1419.0,
             1458.489990234375,
-            1408.5400390625
+            1409.27001953125
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.37,
+        "ahr999": 1.369,
         "r2": 0.8177,
-        "alpha": -17.2,
-        "vol": 0.379,
-        "macro_sens": 1.8,
-        "price": 79110.32,
-        "p_buy": 45297.43,
+        "liq_score": 82,
+        "slip_coeff": 0.005,
+        "price": 79100.48,
+        "p_buy": 45297.42,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -385,19 +380,18 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            79110.3203125
+            79100.4765625
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "ahr999": 1.74,
+        "ahr999": 1.742,
         "r2": 0.0323,
-        "alpha": 4.1,
-        "vol": 0.584,
-        "macro_sens": 0.8,
-        "price": 155.8,
+        "liq_score": 52,
+        "slip_coeff": 0.015,
+        "price": 155.9,
         "p_buy": 79.17,
         "cur": "HKD",
         "is_pro": true,
@@ -463,7 +457,7 @@
             160.1999969482422,
             155.60000610351562,
             156.5,
-            155.8000030517578
+            155.89999389648438
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
@@ -472,9 +466,8 @@
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "alpha": 14.9,
-        "vol": 0.624,
-        "macro_sens": 0.8,
+        "liq_score": 56,
+        "slip_coeff": 0.008,
         "price": 376.3,
         "p_buy": 190.31,
         "cur": "USD",
@@ -548,13 +541,12 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "ahr999": 2.76,
+        "ahr999": 2.763,
         "r2": 0.2357,
-        "alpha": 40.7,
-        "vol": 0.228,
-        "macro_sens": -0.5,
-        "price": 4714.3,
-        "p_buy": 1900.56,
+        "liq_score": 40,
+        "slip_coeff": 0.008,
+        "price": 4717.1,
+        "p_buy": 1900.57,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -619,7 +611,7 @@
             4732.5,
             4705.10009765625,
             4722.2998046875,
-            4714.2998046875
+            4717.10009765625
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
@@ -628,9 +620,8 @@
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "alpha": 40.7,
-        "vol": 0.487,
-        "macro_sens": 1.2,
+        "liq_score": 57,
+        "slip_coeff": 0.008,
         "price": 208.27,
         "p_buy": 40.34,
         "cur": "USD",
