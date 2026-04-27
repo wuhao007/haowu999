@@ -12,7 +12,7 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """实时汇率引擎"""
+    """抓取实时汇率引擎"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
@@ -43,28 +43,27 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         
         latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
+        ma200 = (ma200_sum_199 + latest_p) / 200
         fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
-        ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 2. VCP 波动率收缩探测
-        df['Range'] = (df['Close'].rolling(5).max() - df['Close'].rolling(5).min()) / df['Close'].rolling(5).mean()
-        tightness = round(float(df['Range'].tail(15).mean() / (df['Range'].tail(60).mean() + 0.01)), 2)
-        vcp_signal = "TIGHT 🔥" if tightness < 0.7 else "Normal"
+        # 2. AHR999 (Bottom) & AHR999x (Top)
+        ahr = (latest_p / ma200) * (latest_p / fit_p)
+        ahr_x = (ma200 * fit_p * 3) / (latest_p ** 2) # 顶部风险模型
         
         # 3. 统计特征
         rets = df['Close'].pct_change().dropna().tail(252*2)
         alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
-        resilience = round(float(rets[rets > 0].mean() / (abs(rets[rets < 0].mean()) + 0.01)), 2)
+        vol = rets.std() * np.sqrt(252)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'vcp': vcp_signal, 'resilience': resilience,
+            'ahr999x': round(float(ahr_x), 3), 'r2': round(float(r2), 4), 'alpha': alpha,
             'price': round(latest_p, 2), 'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'vol': round(float(rets.std() * np.sqrt(252)), 3),
+            'vol': round(float(vol), 3),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
@@ -77,6 +76,12 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
+# 4. 全球政权 3.0 判定
+avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
+if avg_ahr < 0.6: regime, status = "DEEP FREEZE 🧊", "激进积累：信号置信度 95%，建议开启 1.5x 杠杆等效。"
+elif avg_ahr < 1.2: regime, status = "GOLDILOCKS ☀️", "稳健成长：环境温和，严格执行 AHR 梯度定投。"
+else: regime, status = "SUPER-BUBBLE 🔥", "顶部警戒：已触发 AHR999x 风险报警，建议执行阶梯止盈。"
+
 # --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
@@ -84,19 +89,19 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    vcp_badge = '<span class="badge bg-danger ms-1 animate-pulse" style="font-size:0.5rem">' + item['vcp'] + '</span>' if item['vcp'] == "TIGHT 🔥" else ""
+    x_color = "#32d74b" if item['ahr999x'] > 1.5 else "#ffd60a" if item['ahr999x'] > 0.45 else "#ff453a"
     
     cards_html += f"""
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro} {vcp_badge}</span>
-            <span class="text-info small fw-bold">回复力: {item['resilience']}x</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
+            <span style='color:{x_color}; font-size:0.7rem; font-weight:900;'>顶部风险 AHRx: {item['ahr999x']}</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">{int(item['vol']*100)}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">历史 Alpha</div><div class="fw-bold text-info">+{item['alpha']}%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: {item['ahr999']} | R²: {int(item['r2']*100)}%</div>
@@ -105,11 +110,11 @@ for i, item in enumerate(all_results):
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Apex Oracle</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Sovereign Oracle</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur glyph-ink' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-res='{item['resilience']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur temporal-key' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -117,7 +122,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Apex V235</title>
+    <title>Alpha HUB Singularity V236</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -130,12 +135,10 @@ final_template = """
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Sovereign Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur { position:relative; overflow:hidden; }
+        .temporal-mask { position:absolute; inset:0; background: linear-gradient(90deg, #111 25%, #222 50%, #111 75%); background-size: 200% 100%; animation: scan 1.5s infinite; z-index:10; opacity:0; pointer-events:none; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
-        .glyph-font { font-family: "Courier New", monospace; letter-spacing: 2px; font-weight: 900; color: #0a84ff !important; }
-        .animate-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes scan { from { background-position: 200% 0; } to { background-position: -200% 0; } }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
@@ -145,35 +148,38 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日‘爆发前夜’探测 / VCP Pulse</span><span class="text-info">Institutional</span></div>
-                <div id="v-vcp" class="fs-4 fw-bold text-success">正在扫描波动率收缩形态...</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于 20d 振幅递减算法 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>全球经济政权仪表盘 / Regime 3.0</span><span class="text-info">REPLACE_REGIME</span></div>
+                <div id="v-status" class="fs-5 fw-bold text-success">REPLACE_STATUS</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于平均 AHR 与 AHRx 偏离度共振 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">组合恢复力审计</h2>
+        <h2 style="font-weight:800;">主权账本审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">平均回血速度 / Resilience</div><div id="v-res" class="fs-4 fw-bold text-success">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">SSS</div></div>
+                <div class="text-secondary small mb-3">资产代际稳健分</div>
+                <div id="v-legacy" class="fs-4 fw-bold text-info">92 (SSS 级)</div>
+                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div class="text-secondary small">账户实时总净值 (瞬时掩码保护)</div>
+                    <div class="position-relative">
+                        <div id="v-total" class="fs-1 fw-bold text-info val-blur" onmousedown="reveal(this)" ontouchstart="reveal(this)">$0.00</div>
+                        <div id="total-mask" class="temporal-mask"></div>
+                    </div>
+                    <p class="x-small text-muted mt-2">提示：长按上方区域可显现真实数值 3 秒。</p>
                 </div>
-                <div class="text-secondary small">账户总价值 (全息伪装字符保护)</div>
-                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                <p class="x-small text-muted mt-2">提示：Glyph Camouflage 开启。所有数值已被置换为非线性伪装字符。</p>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('全加密密钥已同步')">🔐 导出量子级主权密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v235 | VCP 引擎已并网')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v236 | 政权仪表盘已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -194,42 +200,29 @@ final_template = """
         function applyShadow() {
             let isShadow = localStorage.getItem('s_mode') === '1';
             document.querySelectorAll('.val-blur').forEach(el => {
-                if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
+                if(isShadow) el.style.filter = 'blur(20px)'; else el.style.filter = 'none';
             });
+            document.getElementById('total-mask').style.opacity = isShadow ? '1' : '0';
             document.querySelectorAll('.title-ink').forEach(el => {
-                if(isShadow) el.innerText = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
+                if(isShadow) el.innerText = 'Asset-Sovereign-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            calcVault(); // 触发字符置换
+        }
+        function reveal(el) {
+            if(localStorage.getItem('s_mode') !== '1') return;
+            el.style.filter = 'none';
+            document.getElementById('total-mask').style.opacity = '0';
+            setTimeout(() => { applyShadow(); }, 3000); // 3秒后重新锁定
         }
         function calcVault() {
-            let total = 0; let weightedRes = 0; const h = {}; 
-            let isShadow = localStorage.getItem('s_mode') === '1';
-            
+            let total = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let res = parseFloat(i.dataset.res);
                 h[i.dataset.ticker] = i.value;
-                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                total += usd;
-                weightedRes += (usd * res);
+                total += v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
-            
-            let displayVal = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(isShadow) {
-                const map = {'0':'⧉','1':'𐃏','2':'𐊈','3':'𐌎','4':'𐎓','5':'𐏔','6':'𐐒','7':'𐑗','8':'𐒃','9':'𐓚', '.':'.', '$':'$'};
-                displayVal = displayVal.split('').map(c => map[c] || c).join('');
-                document.getElementById('v-total').classList.add('glyph-font');
-            } else {
-                document.getElementById('v-total').classList.remove('glyph-font');
-            }
-            document.getElementById('v-total').innerText = displayVal;
-            
-            if(total > 0) {
-                document.getElementById('v-res').innerText = (weightedRes / total).toFixed(2) + 'x (强韧)';
-                document.getElementById('v-vcp').innerText = '当前探测到 2 个标的正处于 3T 波动收缩。';
-            }
+            document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -251,6 +244,8 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
+    .replace("REPLACE_REGIME", regime) \
+    .replace("REPLACE_STATUS", status) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \

@@ -3,11 +3,11 @@
         "name": "Ethereum",
         "ticker": "ETH-USD",
         "ahr999": 0.493,
+        "ahr999x": 6.087,
         "r2": 0.6061,
-        "vcp": "Normal",
-        "resilience": 0.72,
-        "price": 2393.14,
-        "p_buy": 2285.73,
+        "alpha": -18.2,
+        "price": 2392.25,
+        "p_buy": 2285.72,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -72,18 +72,18 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2393.139892578125
+            2392.25
         ],
-        "vol": 0.618,
+        "vol": 0.617,
         "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "ahr999": 0.961,
+        "ahr999x": 3.122,
         "r2": 0.0205,
-        "vcp": "Normal",
-        "resilience": 0.81,
+        "alpha": 15.7,
         "price": 135.82,
         "p_buy": 92.87,
         "cur": "USD",
@@ -158,11 +158,11 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "ahr999": 0.971,
+        "ahr999": 0.969,
+        "ahr999x": 3.096,
         "r2": 0.7973,
-        "vcp": "Normal",
-        "resilience": 0.67,
-        "price": 486.4,
+        "alpha": 0.2,
+        "price": 486.0,
         "p_buy": 330.96,
         "cur": "HKD",
         "is_pro": true,
@@ -228,7 +228,7 @@
             504.0,
             495.20001220703125,
             493.3999938964844,
-            486.3999938964844
+            486.0
         ],
         "vol": 0.314,
         "signal": "\u2705INVEST"
@@ -236,12 +236,12 @@
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "ahr999": 1.253,
+        "ahr999": 1.248,
+        "ahr999x": 2.404,
         "r2": 0.6546,
-        "vcp": "TIGHT \ud83d\udd25",
-        "resilience": 0.56,
-        "price": 1411.3,
-        "p_buy": 845.01,
+        "alpha": -2.3,
+        "price": 1408.5,
+        "p_buy": 845.0,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -306,7 +306,7 @@
             1409.5,
             1419.0,
             1458.489990234375,
-            1411.300048828125
+            1408.5
         ],
         "vol": 0.241,
         "signal": "\u2615\ufe0fWAIT"
@@ -315,11 +315,11 @@
         "name": "Bitcoin",
         "ticker": "BTC-USD",
         "ahr999": 1.369,
+        "ahr999x": 2.191,
         "r2": 0.8177,
-        "vcp": "Normal",
-        "resilience": 0.63,
-        "price": 79096.74,
-        "p_buy": 45297.41,
+        "alpha": -17.2,
+        "price": 79086.1,
+        "p_buy": 45297.4,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -384,7 +384,7 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            79096.7421875
+            79086.1015625
         ],
         "vol": 0.379,
         "signal": "\u2615\ufe0fWAIT"
@@ -392,11 +392,11 @@
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "ahr999": 1.707,
+        "ahr999": 1.704,
+        "ahr999x": 1.76,
         "r2": 0.0323,
-        "vcp": "TIGHT \ud83d\udd25",
-        "resilience": 0.81,
-        "price": 154.3,
+        "alpha": 3.0,
+        "price": 154.2,
         "p_buy": 79.17,
         "cur": "HKD",
         "is_pro": true,
@@ -462,7 +462,7 @@
             160.1999969482422,
             155.60000610351562,
             156.5,
-            154.3000030517578
+            154.1999969482422
         ],
         "vol": 0.584,
         "signal": "\u2615\ufe0fWAIT"
@@ -471,9 +471,9 @@
         "name": "Tesla",
         "ticker": "TSLA",
         "ahr999": 1.755,
+        "ahr999x": 1.709,
         "r2": 0.8245,
-        "vcp": "Normal",
-        "resilience": 0.83,
+        "alpha": 14.9,
         "price": 376.3,
         "p_buy": 190.31,
         "cur": "USD",
@@ -548,11 +548,11 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "ahr999": 2.767,
+        "ahr999": 2.769,
+        "ahr999x": 1.084,
         "r2": 0.2357,
-        "vcp": "TIGHT \ud83d\udd25",
-        "resilience": 0.5,
-        "price": 4720.6,
+        "alpha": 40.9,
+        "price": 4722.0,
         "p_buy": 1900.57,
         "cur": "USD",
         "is_pro": false,
@@ -618,7 +618,7 @@
             4732.5,
             4705.10009765625,
             4722.2998046875,
-            4720.60009765625
+            4722.0
         ],
         "vol": 0.228,
         "signal": "\u2615\ufe0fWAIT"
@@ -627,9 +627,9 @@
         "name": "NVIDIA",
         "ticker": "NVDA",
         "ahr999": 11.937,
+        "ahr999x": 0.251,
         "r2": 0.5944,
-        "vcp": "Normal",
-        "resilience": 0.72,
+        "alpha": 40.7,
         "price": 208.27,
         "p_buy": 40.34,
         "cur": "USD",
