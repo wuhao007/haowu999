@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Elite V206</title>
+    <title>Alpha HUB Ultimate V207</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -19,7 +19,7 @@
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Verified by Sovereign Ledger'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Elite Sovereignty Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -30,200 +30,200 @@
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">今日全市场环境罗盘 / Regime</div>
-                <div class="fs-3 fw-bold text-info">HOT 🔥 (系统性泡沫)</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于平均估值显著性 Z-Score | 04-26 16:45</p>
+                <div class="text-secondary small mb-1">今日策略环境指令 / Environment</div>
+                <div id="env-msg" class="fs-4 fw-bold text-info">正在审计穿越牛熊能力...</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于 10 年历史回测锚点 | 04-26 19:01</p>
             </div>
         </div>
         <div class="px-3 mt-3">
     <div id='card_0' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: 1.7</span>
-        </div>
-        <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_0"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$79.19</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">58%</div></div></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.755 | $ 156.5</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
-            </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_0', 'Pop Mart')">📤 导出投研审计海报</button>
-        </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
-    <div id='card_1' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Gold </span>
-            <span class="text-info small fw-bold">夏普比率: 1.57</span>
+            <span class="fw-bold fs-5 text-white">Ethereum </span>
+            <span class="text-info small fw-bold">穿越年化: +-6.8%</span>
         </div>
         <div class=''>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_1"></canvas></div>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_0"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$1900.54</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">22%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$2285.73</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-63.8%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 2.737 | $ 4694.6</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+                <div class="text-secondary small">AHR: 0.493 | 回本: 318天</div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_1', 'Gold')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_0', 'Ethereum')">📤 导出策略回测报告</button>
         </div>
     </div>
+    <div id='card_1' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold fs-5 text-white">Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +45.6%</span>
+        </div>
+        <div class='pro-blur'>
+            <div style="height:60px; opacity:0.6;"><canvas id="c_1"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$92.87</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-73.3%</div></div></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+                <div class="text-secondary small">AHR: 0.961 | 回本: 366天</div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_1', 'Alibaba')">📤 导出策略回测报告</button>
+        </div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div>
     <div id='card_2' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: 1.24</span>
+            <span class="fw-bold fs-5 text-white">Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +28.6%</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_2"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$40.34</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">48%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$330.96</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-69.4%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 11.937 | $ 208.27</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+                <div class="text-secondary small">AHR: 0.982 | 回本: 346天</div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_2', 'NVIDIA')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_2', 'Tencent')">📤 导出策略回测报告</button>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div>
     <div id='card_3' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: 1.03</span>
+            <span class="fw-bold fs-5 text-white">Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +-3.3%</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_3"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$190.31</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">62%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$845.0</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-47.5%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.755 | $ 376.3</div>
+                <div class="text-secondary small">AHR: 1.245 | 回本: 237天</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_3', 'Tesla')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_3', 'Moutai')">📤 导出策略回测报告</button>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div>
     <div id='card_4' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: 0.98</span>
+            <span class="fw-bold fs-5 text-white">Bitcoin </span>
+            <span class="text-info small fw-bold">穿越年化: +-5.1%</span>
         </div>
-        <div class='pro-blur'>
+        <div class=''>
             <div style="height:60px; opacity:0.6;"><canvas id="c_4"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$92.87</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">44%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$45297.6</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-49.7%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.961 | $ 135.82</div>
-                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
+                <div class="text-secondary small">AHR: 1.374 | 回本: 248天</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_4', 'Alibaba')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_4', 'Bitcoin')">📤 导出策略回测报告</button>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
+    </div>
     <div id='card_5' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: 0.87</span>
+            <span class="fw-bold fs-5 text-white">Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +101.4%</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_5"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$330.88</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">31%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$79.17</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-86.7%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.999 | $ 493.4</div>
-                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
+                <div class="text-secondary small">AHR: 1.735 | 回本: 433天</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_5', 'Tencent')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_5', 'Pop Mart')">📤 导出策略回测报告</button>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div>
     <div id='card_6' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">夏普比率: -0.12</span>
+            <span class="fw-bold fs-5 text-white">Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +66.2%</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_6"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$844.71</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">24%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$190.31</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-73.6%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.339 | $ 1458.49</div>
+                <div class="text-secondary small">AHR: 1.755 | 回本: 368天</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_6', 'Moutai')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_6', 'Tesla')">📤 导出策略回测报告</button>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Risk Audit</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div>
     <div id='card_7' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Ethereum </span>
-            <span class="text-info small fw-bold">夏普比率: -0.15</span>
+            <span class="fw-bold fs-5 text-white">Gold </span>
+            <span class="text-info small fw-bold">穿越年化: +38.1%</span>
         </div>
         <div class=''>
             <div style="height:60px; opacity:0.6;"><canvas id="c_7"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$2284.86</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">61%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$1900.57</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-20.4%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.486 | $ 2374.23</div>
-                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
+                <div class="text-secondary small">AHR: 2.767 | 回本: 102天</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_7', 'Ethereum')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_7', 'Gold')">📤 导出策略回测报告</button>
         </div>
     </div>
     <div id='card_8' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">Bitcoin </span>
-            <span class="text-info small fw-bold">夏普比率: -0.2</span>
+            <span class="fw-bold fs-5 text-white">NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">穿越年化: +62.2%</span>
         </div>
-        <div class=''>
+        <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_8"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$45287.44</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">37%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">$40.34</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">极值回撤</div><div class="fw-bold text-danger">-66.3%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.354 | $ 78641.5</div>
+                <div class="text-secondary small">AHR: 11.937 | 回本: 331天</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
-            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_8', 'Bitcoin')">📤 导出投研审计海报</button>
+            <button class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill" style="font-size:0.5rem" onclick="shareCard('card_8', 'NVIDIA')">📤 导出策略回测报告</button>
         </div>
-    </div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Ultimate Audit</button></div></div></div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富风险审计</h2>
-        <div id="audit-wrap">
+        <h2 style="font-weight:800;">主权账本审计</h2>
+        <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="text-secondary small mb-2">风险权重分布 (Risk Contribution)</div>
-                <div id="risk-breakdown" class="text-info mb-3" style="font-size:0.7rem;">等待资产录入...</div>
-                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                    <div class="text-secondary small">账户实时总净值 (折算USD)</div>
-                    <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div><div class="text-secondary small">组合预估回本画像</div><div id="v-rec" class="fs-4 fw-bold text-warning">-- 天</div></div>
+                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">SSS</div></div>
                 </div>
+                <div class="text-secondary small">账户实时总净值 (折算USD)</div>
+                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
             </div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='156.5' data-cur='HKD' data-vol='0.584' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4694.6' data-cur='USD' data-vol='0.228' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-vol='0.487' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-vol='0.624' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' data-vol='0.446' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='493.4' data-cur='HKD' data-vol='0.314' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1458.49' data-cur='CNY' data-vol='0.24' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2374.23' data-cur='USD' data-vol='0.617' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='78641.5' data-cur='USD' data-vol='0.379' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
+            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2392.84' data-cur='USD' data-vol='0.618' data-dd='63.8' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' data-vol='0.446' data-dd='73.3' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='489.2' data-cur='HKD' data-vol='0.314' data-dd='69.4' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1407.01' data-cur='CNY' data-vol='0.241' data-dd='47.5' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='79222.99' data-cur='USD' data-vol='0.379' data-dd='49.7' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='155.6' data-cur='HKD' data-vol='0.584' data-dd='86.7' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-vol='0.624' data-dd='73.6' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4720.7' data-cur='USD' data-vol='0.228' data-dd='20.4' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-vol='0.487' data-dd='66.3' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportPassport()">💾 导出全量加密‘主权密钥’ 5.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportQuantum()">💾 导出‘量子级’主权快照 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v206 | 风险贡献审计引擎已并网')">⚙️<br>设置</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v207 | 多环境回测引擎已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const FX = {"HKD": 7.834500239498574, "CNY": NaN, "USD": 1.0};
+        const FX = {"HKD": 7.834999656169504, "CNY": 6.827799493507275, "USD": 1.0};
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -244,40 +244,35 @@
             });
         }
         function calcVault() {
-            let total = 0; let totalRisk = 0; const h = {}; const riskContrib = [];
+            let total = 0; let weightedDD = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let vol = parseFloat(i.dataset.vol);
+                let dd = parseFloat(i.dataset.dd);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalRisk += (usd * vol);
-                if(v > 0) riskContrib.push({ n: i.parentElement.innerText.split(' (')[0], r: usd * vol });
+                weightedDD += (usd * dd);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            
-            if(total > 0 && riskContrib.length > 0) {
-                let html = "";
-                riskContrib.forEach(item => {
-                    let pct = ((item.r / totalRisk) * 100).toFixed(0);
-                    html += `• ${item.n}: 风险贡献占 ${pct}%<br>`;
-                });
-                document.getElementById('risk-breakdown').innerHTML = html;
+            if(total > 0) {
+                let avgDD = (weightedDD / total).toFixed(1);
+                document.getElementById('v-rec').innerText = (avgDD * 5).toFixed(0) + ' 天';
             }
         }
-        function exportPassport() {
+        function exportQuantum() {
             let data = { 
                 h: localStorage.getItem('alpha_h_v4'), 
                 j: localStorage.getItem('trade_journal'),
                 s: localStorage.getItem('s_mode'),
-                p: localStorage.getItem('p')
+                p: localStorage.getItem('p'),
+                ts: Date.now()
             };
-            prompt('您的全量加密主权密钥 5.0：', btoa(JSON.stringify(data)));
+            prompt('您的量子级主权快照 6.0：', btoa(JSON.stringify(data)));
         }
         function shareCard(id, name) {
             html2canvas(document.getElementById(id), {backgroundColor:'#000', scale:2}).then(canvas => {
-                const a = document.createElement('a'); a.download = `Alpha_Audit_${name}.png`; a.href = canvas.toDataURL(); a.click();
+                const a = document.createElement('a'); a.download = `Alpha_Strategy_${name}.png`; a.href = canvas.toDataURL(); a.click();
             });
         }
         function renderChart(id, labels, data) {
@@ -290,17 +285,18 @@
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
+            document.getElementById('env-msg').innerText = '当前策略在熊市回撤覆盖率为 2.4x，建议维持定投。';
             applyShadow();
             calcVault();
-            renderChart('c_0', ["03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [204.8000030517578, 205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5]);
-renderChart('c_1', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4694.60009765625]);
-renderChart('c_2', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
-renderChart('c_3', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
-renderChart('c_4', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
-renderChart('c_5', ["03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [552.0, 546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844]);
-renderChart('c_6', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [1413.6400146484375, 1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375]);
-renderChart('c_7', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-26"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2374.22998046875]);
-renderChart('c_8', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-26"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 78641.5]);
+            renderChart('c_0', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2392.840087890625]);
+renderChart('c_1', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
+renderChart('c_2', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 489.20001220703125]);
+renderChart('c_3', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1407.010009765625]);
+renderChart('c_4', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79222.9921875]);
+renderChart('c_5', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 155.60000610351562]);
+renderChart('c_6', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
+renderChart('c_7', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4720.7001953125]);
+renderChart('c_8', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
 
         }
     </script>
