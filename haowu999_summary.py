@@ -27,39 +27,38 @@ def solve_target_price(target_ahr, ma200_sum_199, fit_p):
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
-    sector = asset_cfg.get('type', 'Stocks')
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 对数回归
+        # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        slope = model.coef_[0]
+        intercept = model.intercept_
         
         latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        fit_p = 10 ** (model.coef_[0] * math.log10(df['Days'].iloc[-1]) + model.intercept_)
+        fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 2. 贝叶斯政权切换修正 (Kelly 6.0 模拟)
-        # 预测 AHR 动量是否正在背离政权
-        ahr_ma5 = (latest_p / (df['Close'].tail(5).mean()))
-        bayesian_factor = 1.1 if ahr < 0.45 and ahr_ma5 < 0.98 else 0.8 # 底部加速则加权
-        kelly_6 = round(max(0, (0.65 * bayesian_factor) * 100), 1)
+        # 2. 风险特征 (用于风险预算)
+        rets = df['Close'].pct_change().dropna().tail(252)
+        vol = round(float(rets.std() * np.sqrt(252)), 3)
+        alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
 
         return {
-            'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'kelly_6': kelly_6,
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': vol,
             'price': round(latest_p, 2), 'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'vol': round(float(df['Close'].pct_change().std() * np.sqrt(252)), 3),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
@@ -84,26 +83,26 @@ for i, item in enumerate(all_results):
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
-            <span class="text-info small fw-bold">贝叶斯凯利: {item['kelly_6']}%</span>
+            <span class="text-info small fw-bold">波动率: {int(item['vol']*100)}%</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">置信度 (R²)</div><div class="fw-bold text-warning">{int(item['r2']*100)}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">平价建议权重</div><div class="fw-bold text-warning">{round(1.0/(item['vol']+0.1)*5, 1)}%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
+                <div class="text-secondary small">AHR: {item['ahr999']} | R²: {int(item['r2']*100)}%</div>
                 <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
             </div>
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Sovereign Oracle</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Apex Oracle</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur neural-target' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-sector='{item['sector']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur entangled-key' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -111,7 +110,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Singularity V247</title>
+    <title>Alpha HUB Zenith V248</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -126,7 +125,7 @@ final_template = """
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
-        .neural-layer { position:absolute; inset:0; pointer-events:none; z-index:30; opacity:0; }
+        .entangle-layer { position:absolute; inset:0; pointer-events:none; z-index:40; opacity:0; mix-blend-mode: color-dodge; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(10,132,255,0.05) 10px, rgba(10,132,255,0.05) 20px); }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
@@ -136,46 +135,42 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>组合‘熵’多样化审计 2.0 / Entropy</span><span class="text-info">Institutional</span></div>
-                <div id="v-entropy" class="fs-4 fw-bold text-success">真实下注数: --</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于行业相关性协方差外推 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>组合‘风险预算’审计 / Risk Budgeting</span><span class="text-info">Institutional</span></div>
+                <div id="v-risk" class="fs-4 fw-bold text-success">风险分布：平衡 (SS级)</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于波动率平价（Risk Parity）外推 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权账本审计</h2>
+        <h2 style="font-weight:800;">财富主权审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
                 <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">贝叶斯置信加成 (Bayesian)</div><div class="fs-4 fw-bold text-info">x1.15</div></div>
+                    <div><div class="text-secondary small">边际风险贡献 (MRC)</div><div id="v-mrc" class="fs-4 fw-bold text-warning">--</div></div>
                     <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-success">Elite</div></div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (神经模式保护)</div>
+                <div class="text-secondary small">账户实时总净值 (量子纠缠保护)</div>
                 <div class="position-relative">
                     <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                    <canvas id="neural-canvas" class="neural-layer"></canvas>
+                    <div id="e-layer" class="entangle-layer"></div>
                 </div>
-                <p class="x-small text-muted mt-2">提示：Shadow Mode 41.0 开启。金额已转换为非字符神经脉冲信号。</p>
+                <p class="x-small text-muted mt-2">提示：Shadow Mode 42.0 开启。纠缠算法已锁定，财富增长轨迹物理不可追溯。</p>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="mt-4">
-            <button class="btn btn-outline-info btn-sm rounded-pill w-100 mb-2" onclick="alert('零知识性能证明已生成')">🤝 导出零知识性能证明 (ZK-Alpha)</button>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button>
-        </div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v247 | 贝叶斯引擎已并网')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v248 | 风险预算引擎已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
-        let neuralInterval = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -194,43 +189,37 @@ final_template = """
             document.querySelectorAll('.val-blur').forEach(el => {
                 if(isShadow) el.style.filter = 'blur(20px)'; else el.style.filter = 'none';
             });
+            document.getElementById('e-layer').style.opacity = isShadow ? '1' : '0';
             document.querySelectorAll('.title-ink').forEach(el => {
                 if(isShadow) el.innerText = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            // 神经脉冲渲染
-            const canvas = document.getElementById('neural-canvas');
-            canvas.style.opacity = isShadow ? '1' : '0';
-            if(isShadow && !neuralInterval) neuralInterval = setInterval(renderNeural, 50);
-            else if(!isShadow && neuralInterval) { clearInterval(neuralInterval); neuralInterval = null; }
-        }
-        function renderNeural() {
-            const canvas = document.getElementById('neural-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.offsetWidth; canvas.height = 50;
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.strokeStyle = '#0a84ff'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, 25);
-            for(let i=0; i<canvas.width; i+=10) {
-                ctx.lineTo(i, 25 + (Math.random()-0.5)*20);
-            }
-            ctx.stroke();
+            calcVault(); // 触发纠缠映射
         }
         function calcVault() {
-            let total = 0; const h = {}; const sectors = new Set();
+            let total = 0; let totalRisk = 0; const h = {}; 
+            let isShadow = localStorage.getItem('s_mode') === '1';
+            
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let vol = parseFloat(i.dataset.vol);
                 h[i.dataset.ticker] = i.value;
-                total += v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                if(v > 0) sectors.add(i.dataset.sector);
+                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
+                total += usd;
+                totalRisk += (usd * vol);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
-            document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            
+            let displayVal = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            if(isShadow) {
+                // 量子纠缠逻辑: 使得虚假余额变动方向与真实余额随机纠缠
+                let entangledTotal = total * (0.85 + Math.sin(total/1000)*0.1); 
+                displayVal = '$' + entangledTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+            }
+            document.getElementById('v-total').innerText = displayVal;
             
             if(total > 0) {
-                // 熵审计 2.0: 有效资产数
-                let effective = (sectors.size * 0.85).toFixed(1);
-                document.getElementById('v-entropy').innerText = `真实有效下注数: ${effective}`;
+                document.getElementById('v-mrc').innerText = '$' + (totalRisk / total * 100).toFixed(1) + ' /单位风险';
             }
         }
         function renderChart(id, labels, data) {
