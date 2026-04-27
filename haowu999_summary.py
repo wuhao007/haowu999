@@ -53,26 +53,26 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         
         # 3. 统计特征 (用于尾部风险)
         rets = df['Close'].pct_change().dropna().tail(120)
-        tail_rets = rets.sort_values()[:20] # 取最差 20 天作为尾部样本
+        tail_rets = rets.sort_values()[:20]
         
-        # 4. 自适应止盈步频: f(AHR, RSI)
+        # 4. 自适应止盈步频
         rsi_val = float(df['RSI'].iloc[-1])
         exit_pacing = 0.0
         if ahr > 1.2:
-            exit_pacing = 0.1 # 基础减仓
-            if rsi_val > 70: exit_pacing = 0.4 # 超买加速
-            if rsi_val > 85: exit_pacing = 0.7 # 极限加速
+            exit_pacing = 0.1
+            if rsi_val > 70: exit_pacing = 0.4
+            if rsi_val > 85: exit_pacing = 0.7
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'rsi': round(rsi_val, 1), 'exit_pacing': exit_ pacing,
+            'r2': round(float(r2), 4), 'rsi': round(rsi_val, 1), 'exit_pacing': exit_pacing,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(latest_p, 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'tail_rets': tail_rets.tolist(), # 用于计算尾部相关性
+            'tail_rets': tail_rets.tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
@@ -85,7 +85,6 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# 4. 尾部相关性矩阵生成 (针对 top 4 资产)
 tail_corr = 0.0
 if len(all_results) > 1:
     try:
@@ -214,7 +213,6 @@ final_template = """
                 if(isShadow) el.innerText = 'Asset-Alpha-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            // 量子抖动逻辑
             if(isShadow && !jitterInterval) {
                 jitterInterval = setInterval(calcVault, 100);
             } else if(!isShadow && jitterInterval) {
@@ -230,7 +228,6 @@ final_template = """
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                // 量子抖动: 每 100ms 注入 ±0.2% 随机偏离
                 if(isShadow) usd *= (1 + (Math.random()-0.5)*0.004);
                 total += usd;
             });
@@ -240,7 +237,6 @@ final_template = """
             if(total > 0) {
                 let tCorr = parseFloat(TAIL_CORR);
                 document.getElementById('v-tail').innerText = `尾部相关性: ${(tCorr*100).toFixed(1)}% (${tCorr > 0.8 ? '极高风险' : '对冲良好'})`;
-                if(tCorr > 0.8) document.getElementById('v-tail').classList.replace('text-success', 'text-danger');
             }
         }
         function renderChart(id, labels, data) {
