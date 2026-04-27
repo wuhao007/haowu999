@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Elite V214</title>
+    <title>Alpha HUB Zenith V215</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -17,8 +17,8 @@
         .active-tab { display:block; }
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
-        .h-curtain { filter: brightness(0); transition: 0.3s; cursor: pointer; }
-        .h-curtain:hover, .h-curtain:active { filter: brightness(1); }
+        .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
+        .val-blur::after { content: 'Sovereign Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -29,191 +29,191 @@
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>组合资本效率 / Capital Efficiency</span><span class="text-info">Elite</span></div>
-                <div id="v-eff" class="fs-4 fw-bold text-success">等待数据录入...</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于 Alpha/Vol 风险资本产出比 | 04-26 19:10</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>宏观先行指标 / Macro Oracle</span><span class="text-info">Risk-On</span></div>
+                <div class="fs-4 fw-bold text-success">美债变动: nan bps</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于金/股比率动态修正策略系数 | 04-26 19:11</p>
             </div>
         </div>
         <div class="px-3 mt-3">
     <div id='card_0' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Gold'>Gold </span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Defensive</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Ethereum'>Ethereum </span>
+            <span class="text-info small fw-bold">P/L 预期: 34.5x</span>
         </div>
         <div class=''>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_0"></canvas></div>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_0"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$1900.6</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">1.78</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$5921.02</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$2285.71</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 2.766 | Alpha: +40.8%</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+                <div class="text-secondary small">AHR: 0.491 | $ 2388.04</div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
         </div>
     </div>
     <div id='card_1' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='NVIDIA'>NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Value</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Alibaba'>Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: 2.4x</span>
         </div>
         <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_1"></canvas></div>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_1"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$40.34</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">0.83</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$240.4</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$92.87</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 11.937 | Alpha: +40.7%</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+                <div class="text-secondary small">AHR: 0.961 | $ 135.82</div>
+                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div>
     <div id='card_2' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Alibaba'>Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Value</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Tencent'>Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: 2.3x</span>
         </div>
         <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_2"></canvas></div>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_2"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$92.87</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">0.35</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$856.46</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$330.96</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.961 | Alpha: +15.7%</div>
+                <div class="text-secondary small">AHR: 0.977 | $ 488.0</div>
                 <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div>
     <div id='card_3' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Tesla'>Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#ff453a; font-size:0.75rem; font-weight:900;'>因子: Aggressive</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Moutai'>Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: 1.4x</span>
         </div>
         <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_3"></canvas></div>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_3"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$190.31</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">0.24</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$2186.92</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$845.0</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.755 | Alpha: +14.9%</div>
+                <div class="text-secondary small">AHR: 1.242 | $ 1405.3</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div>
     <div id='card_4' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Pop Mart'>Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Value</span>
-        </div>
-        <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_4"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$79.17</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">0.07</div></div></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.733 | Alpha: +3.9%</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
-            </div>
-        </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
-    <div id='card_5' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Tencent'>Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Value</span>
-        </div>
-        <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_5"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$330.96</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">0.03</div></div></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.98 | Alpha: +0.8%</div>
-                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
-            </div>
-        </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
-    <div id='card_6' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Moutai'>Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span style='color:#32d74b; font-size:0.75rem; font-weight:900;'>因子: Value</span>
-        </div>
-        <div class='pro-blur'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_6"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$845.0</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">-0.1</div></div></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.243 | Alpha: +-2.5%</div>
-                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
-            </div>
-        </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Efficiency Pro</button></div></div>
-    <div id='card_7' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Ethereum'>Ethereum </span>
-            <span style='color:#ff453a; font-size:0.75rem; font-weight:900;'>因子: Aggressive</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Bitcoin'>Bitcoin </span>
+            <span class="text-info small fw-bold">P/L 预期: 1.1x</span>
         </div>
         <div class=''>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_7"></canvas></div>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_4"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$2285.72</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">-0.29</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$117205.7</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$45297.42</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.492 | Alpha: +-18.2%</div>
-                <div class="fs-5 fw-bold text-primary">✅INVEST</div>
+                <div class="text-secondary small">AHR: 1.37 | $ 79103.77</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+            </div>
+        </div>
+    </div>
+    <div id='card_5' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Tesla'>Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: 0.6x</span>
+        </div>
+        <div class='pro-blur'>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_5"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$492.31</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$190.31</div></div></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+                <div class="text-secondary small">AHR: 1.755 | $ 376.3</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+            </div>
+        </div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div>
+    <div id='card_6' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Pop Mart'>Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: 0.6x</span>
+        </div>
+        <div class='pro-blur'>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_6"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$204.7</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$79.17</div></div></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+                <div class="text-secondary small">AHR: 1.767 | $ 157.0</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
+            </div>
+        </div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div>
+    <div id='card_7' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='Gold'>Gold </span>
+            <span class="text-info small fw-bold">P/L 预期: 0.1x</span>
+        </div>
+        <div class=''>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_7"></canvas></div>
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$4916.01</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$1900.57</div></div></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
+                <div class="text-secondary small">AHR: 2.766 | $ 4720.1</div>
+                <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
     </div>
     <div id='card_8' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='Bitcoin'>Bitcoin </span>
-            <span style='color:#0a84ff; font-size:0.75rem; font-weight:900;'>因子: Growth</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='NVIDIA'>NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
+            <span class="text-info small fw-bold">P/L 预期: -0.6x</span>
         </div>
-        <div class=''>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_8"></canvas></div>
+        <div class='pro-blur'>
+            <div style="height:80px; opacity:0.8;"><canvas id="c_8"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success">$45297.47</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">资本效率</div><div class="fw-bold text-info">-0.45</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">止盈目标 (Exit)</div><div class="fw-bold text-info">$104.26</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底价格 (Entry)</div><div class="fw-bold text-success">$40.34</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.371 | Alpha: +-17.1%</div>
+                <div class="text-secondary small">AHR: 11.937 | $ 208.27</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    </div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Sovereign Oracle</button></div></div></div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">因子归因矩阵</h2>
+        <h2 style="font-weight:800;">主权账本审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="text-secondary small mb-2">持仓因子构成 (Factor Exposure)</div>
-                <div id="factor-grid" class="d-flex flex-wrap gap-2 mb-3"></div>
+                <div class="text-secondary small">账户实时总净值 (折算USD)</div>
+                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
                 <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
-                    <div class="text-secondary small">账户总价值 (触控可见)</div>
-                    <div id="v-total" class="fs-1 fw-bold text-info h-curtain">$0.00</div>
+                    <div class="x-small text-secondary mb-1">Scale Obfuscation: Shadow Mode 10.0 Active</div>
                 </div>
             </div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='GC=F' data-price='4719.6' data-cur='USD' data-eff='1.78' data-factor='Defensive' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-eff='0.83' data-factor='Value' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='BABA' data-price='135.82' data-cur='USD' data-eff='0.35' data-factor='Value' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-eff='0.24' data-factor='Aggressive' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in h-curtain' data-ticker='9992.HK' data-price='155.5' data-cur='HKD' data-eff='0.07' data-factor='Value' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in h-curtain' data-ticker='0700.HK' data-price='488.8' data-cur='HKD' data-eff='0.03' data-factor='Value' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in h-curtain' data-ticker='600519.SS' data-price='1405.5' data-cur='CNY' data-eff='-0.1' data-factor='Value' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='ETH-USD' data-price='2390.12' data-cur='USD' data-eff='-0.29' data-factor='Aggressive' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in h-curtain' data-ticker='BTC-USD' data-price='79137.85' data-cur='USD' data-eff='-0.45' data-factor='Growth' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
+            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2388.04' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='488.0' data-cur='HKD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1405.3' data-cur='CNY' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='79103.77' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='157.0' data-cur='HKD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4720.1' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步至本地')">🔐 导出量子级加密密钥 6.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('同步密钥已备份')">🔐 导出量子级主权密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v214 | 资本效率引擎已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v215 | 盈亏比逆推引擎已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const FX = {"HKD": 7.835360080645679, "CNY": 6.828199649721978, "USD": 1.0};
+        const FX = {"HKD": 7.83539026998753, "CNY": 6.828000260467539, "MACRO": "Risk-On", "YIELD_CHG": NaN, "USD": 1.0};
+        const charts = {};
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -229,40 +229,49 @@
         }
         function applyShadow() {
             let isShadow = localStorage.getItem('s_mode') === '1';
-            document.querySelectorAll('.h-curtain').forEach(el => {
-                if(isShadow) el.classList.add('h-curtain'); else el.classList.remove('h-curtain');
+            document.querySelectorAll('.val-blur').forEach(el => {
+                if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
             });
             document.querySelectorAll('.title-ink').forEach(el => {
                 if(isShadow) el.innerText = 'Alpha-Asset-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
+            // 轴线隐匿模式: 销毁并重建图表以切换 Y 轴显示
+            for(let id in charts) {
+                let chart = charts[id];
+                chart.options.scales.y.ticks.display = !isShadow;
+                chart.options.scales.y.title.text = isShadow ? "Relative %" : "Price";
+                chart.update();
+            }
         }
         function calcVault() {
-            let total = 0; let weightedEff = 0; const h = {}; const factors = {};
+            let total = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let eff = parseFloat(i.dataset.eff); let f = i.dataset.factor;
                 h[i.dataset.ticker] = i.value;
-                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                total += usd;
-                weightedEff += (usd * eff);
-                if(v > 0) factors[f] = (factors[f] || 0) + usd;
+                total += v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            
-            if(total > 0) {
-                document.getElementById('v-eff').innerText = `大师级 (${(weightedEff / total).toFixed(2)})`;
-                let fHtml = "";
-                for(let k in factors) {
-                    let pct = (factors[k]/total*100).toFixed(0);
-                    fHtml += `<span class="badge border border-secondary text-secondary" style="font-size:0.6rem">${k}: ${pct}%</span>`;
-                }
-                document.getElementById('factor-grid').innerHTML = fHtml;
-            }
         }
-        function renderChart(id, labels, data) {
-            new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
+        function renderSmartChart(id, labels, data) {
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ data: data, borderColor: '#0a84ff', borderWidth: 2, pointRadius: 0, fill: false }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            ticks: { display: true, color: '#666', font: { size: 8 } },
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            title: { display: true, text: 'Price', color: '#666', font: { size: 8 } }
+                        }
+                    }
+                }
+            });
         }
         window.onload = function() {
             if(localStorage.getItem('p') === '1') {
@@ -271,18 +280,18 @@
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
+            renderSmartChart('c_0', ["02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [2026.7926025390625, 1930.7618408203125, 1965.050537109375, 1939.066650390625, 2027.2689208984375, 1982.7689208984375, 2126.50537109375, 2071.60546875, 1978.751220703125, 1969.4554443359375, 1936.604736328125, 1992.938232421875, 2037.1204833984375, 2051.5732421875, 2073.13623046875, 2092.5634765625, 2097.086669921875, 2177.476318359375, 2351.176025390625, 2318.053466796875, 2203.671630859375, 2137.423828125, 2146.4970703125, 2076.68994140625, 2053.04833984375, 2152.14599609375, 2155.704345703125, 2168.021484375, 2059.578369140625, 1991.27197265625, 1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2388.0400390625]);
+renderSmartChart('c_1', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [174.25, 169.55999755859375, 168.38999938964844, 163.64999389648438, 159.13999938964844, 157.75999450683594, 162.50999450683594, 163.0, 166.50999450683594, 164.32000732421875, 158.72999572753906, 155.72999572753906, 155.42999267578125, 155.77000427246094, 154.27000427246094, 154.4499969482422, 152.77999877929688, 153.11000061035156, 152.27999877929688, 148.0500030517578, 144.11000061035156, 142.55999755859375, 135.58999633789062, 133.27000427246094, 130.35000610351562, 130.7899932861328, 132.63999938964844, 136.85000610351562, 136.2899932861328, 134.1999969482422, 135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
+renderSmartChart('c_2', ["01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-16", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [599.5, 607.0, 621.0, 622.0, 606.0, 598.5, 581.0, 558.0, 558.5, 547.5, 560.0, 551.0, 548.0, 535.5, 532.0, 534.5, 522.0, 538.0, 520.0, 522.5, 512.0, 518.0, 514.0, 510.5, 506.0, 502.0, 519.0, 516.0, 553.5, 552.0, 546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 488.0]);
+renderSmartChart('c_3', ["01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1337.0, 1342.0, 1343.010009765625, 1323.68994140625, 1437.719970703125, 1401.0, 1427.0, 1474.9200439453125, 1525.0, 1555.0, 1515.010009765625, 1524.9599609375, 1504.800048828125, 1504.3299560546875, 1486.5999755859375, 1485.300048828125, 1466.800048828125, 1491.6600341796875, 1466.2099609375, 1455.02001953125, 1440.1099853515625, 1426.18994140625, 1401.1800537109375, 1399.0400390625, 1402.0, 1397.0, 1401.8800048828125, 1400.0, 1392.0, 1413.6400146484375, 1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1405.300048828125]);
+renderSmartChart('c_4', ["02-26", "02-27", "02-28", "03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [67453.7734375, 65881.796875, 66995.859375, 65738.1015625, 68775.8515625, 68293.6484375, 72710.578125, 70841.125, 68136.4921875, 67272.59375, 65969.78125, 68402.3828125, 69926.921875, 70204.8828125, 70493.4609375, 70968.265625, 71214.625, 72789.9140625, 74861.0859375, 73922.4765625, 71245.578125, 69912.7890625, 70522.5859375, 68711.5234375, 67845.2109375, 70914.859375, 70517.859375, 71309.8828125, 68791.625, 66338.375, 66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79103.7734375]);
+renderSmartChart('c_5', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [416.55999755859375, 430.4100036621094, 421.80999755859375, 421.9599914550781, 406.010009765625, 397.2099914550781, 411.1099853515625, 417.32000732421875, 425.2099914550781, 428.2699890136719, 417.07000732421875, 417.44000244140625, 410.6300048828125, 411.32000732421875, 411.7099914550781, 411.82000732421875, 399.8299865722656, 409.3800048828125, 417.3999938964844, 408.5799865722656, 402.510009765625, 403.32000732421875, 392.42999267578125, 405.94000244140625, 405.54998779296875, 396.7300109863281, 398.67999267578125, 399.239990234375, 407.82000732421875, 395.010009765625, 391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
+renderSmartChart('c_6', ["01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-16", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [217.60000610351562, 216.1999969482422, 231.39999389648438, 231.1999969482422, 223.60000610351562, 226.39999389648438, 231.60000610351562, 237.1999969482422, 242.39999389648438, 243.1999969482422, 257.20001220703125, 269.79998779296875, 255.0, 252.1999969482422, 247.39999389648438, 251.1999969482422, 244.39999389648438, 248.39999389648438, 233.8000030517578, 232.8000030517578, 225.1999969482422, 229.8000030517578, 225.0, 212.60000610351562, 207.0, 206.1999969482422, 207.39999389648438, 206.1999969482422, 206.0, 204.8000030517578, 205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 157.0]);
+renderSmartChart('c_7', ["01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4713.89990234375, 4622.5, 4903.7001953125, 4920.39990234375, 4861.39990234375, 4951.2001953125, 5050.89990234375, 5003.7998046875, 5071.60009765625, 4923.7001953125, 5022.0, 4882.89990234375, 4986.5, 4975.89990234375, 5059.2998046875, 5204.7001953125, 5155.7998046875, 5206.39990234375, 5176.5, 5230.5, 5294.39990234375, 5107.39990234375, 5120.2001953125, 5065.2998046875, 5146.10009765625, 5091.5, 5229.7001953125, 5167.39990234375, 5115.7998046875, 5052.5, 4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4720.10009765625]);
+renderSmartChart('c_8', ["01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-17", "02-18", "02-19", "02-20", "02-23", "02-24", "02-25", "02-26", "02-27", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [192.49957275390625, 191.11965942382812, 185.59996032714844, 180.33023071289062, 174.18057250976562, 171.87069702148438, 185.39996337890625, 190.0297088623047, 188.52978515625, 190.0397186279297, 186.9298858642578, 182.80010986328125, 184.95999145507812, 187.96981811523438, 187.88983154296875, 189.8097381591797, 191.53964233398438, 192.83956909179688, 195.54940795898438, 184.87998962402344, 177.180419921875, 182.47012329101562, 180.04025268554688, 183.03009033203125, 183.330078125, 177.8103790283203, 182.64010620117188, 184.760009765625, 186.02999877929688, 183.13999938964844, 180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
+
             applyShadow();
             calcVault();
-            renderChart('c_0', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4719.60009765625]);
-renderChart('c_1', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
-renderChart('c_2', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
-renderChart('c_3', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
-renderChart('c_4', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 155.5]);
-renderChart('c_5', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 488.79998779296875]);
-renderChart('c_6', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1405.5]);
-renderChart('c_7', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2390.1201171875]);
-renderChart('c_8', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79137.8515625]);
-
         }
     </script>
 </body>
