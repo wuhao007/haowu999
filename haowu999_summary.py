@@ -12,11 +12,16 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """实时汇率引擎"""
+    """抓取实时汇率与宏观种子"""
     try:
-        data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
-        return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
-    except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
+        data = yf.download(['HKDUSD=X', 'CNYUSD=X', '^TNX'], period='1d', progress=False)['Close'].iloc[-1]
+        return {
+            'HKD': 1.0/float(data['HKDUSD=X']), 
+            'CNY': 1.0/float(data['CNYUSD=X']), 
+            'TEN_YEAR': float(data['^TNX']),
+            'USD': 1.0
+        }
+    except: return {'HKD': 7.82, 'CNY': 7.26, 'TEN_YEAR': 4.25, 'USD': 1.0}
 
 def solve_target_price(target_ahr, ma200_sum_199, fit_p):
     try:
@@ -33,14 +38,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. RSI 计算 (14d)
-        delta = df['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss
-        df['RSI'] = 100 - (100 / (1 + rs))
-        
-        # 2. 对数回归拟合
+        # 对数回归
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -51,28 +49,23 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (model.coef_[0] * math.log10(df['Days'].iloc[-1]) + model.intercept_)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 3. 统计特征 (用于尾部风险)
-        rets = df['Close'].pct_change().dropna().tail(120)
-        tail_rets = rets.sort_values()[:20]
+        # 统计特征 (用于宏观模拟)
+        rets = df['Close'].pct_change().dropna().tail(252*2)
+        vol = rets.std() * np.sqrt(252)
+        alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
         
-        # 4. 自适应止盈步频
-        rsi_val = float(df['RSI'].iloc[-1])
-        exit_pacing = 0.0
-        if ahr > 1.2:
-            exit_pacing = 0.1
-            if rsi_val > 70: exit_pacing = 0.4
-            if rsi_val > 85: exit_pacing = 0.7
+        # 宏观敏感度 (模拟种子)
+        macro_sens = 1.8 if 'BTC' in ticker else -0.5 if 'GC=F' in ticker else 1.2 if 'NVDA' in ticker else 0.8
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'rsi': round(rsi_val, 1), 'exit_pacing': exit_pacing,
+            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3),
+            'macro_sens': macro_sens, 'price': round(latest_p, 2),
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
-            'price': round(latest_p, 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'tail_rets': tail_rets.tolist(),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
@@ -85,12 +78,6 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-tail_corr = 0.0
-if len(all_results) > 1:
-    try:
-        tail_corr = np.corrcoef(all_results[0]['tail_rets'], all_results[1]['tail_rets'])[0, 1]
-    except: pass
-
 # --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
@@ -98,19 +85,18 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    pace_msg = f"分批减仓 {int(item['exit_pacing']*100)}%" if item['exit_pacing'] > 0 else "持仓博弈"
     
     cards_html += f"""
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
-            <span class="text-info small fw-bold">自适应步频: {pace_msg}</span>
+            <span class="text-info small fw-bold">R²: {int(item['r2']*100)}%</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">日内 RSI</div><div class="fw-bold text-warning">{item['rsi']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">${item['p_buy']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">宏观敏感度</div><div class="fw-bold text-info">{item['macro_sens']}</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
@@ -119,11 +105,11 @@ for i, item in enumerate(all_results):
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Catalyst Pro</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Infinity Oracle</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur jitter-val' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-sens='{item['macro_sens']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -131,7 +117,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Catalyst V224</title>
+    <title>Alpha HUB Infinity V225</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -145,8 +131,9 @@ final_template = """
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Sovereign Secure'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Geometric Fog Active'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
+        .geo-cam { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); background:rgba(10,132,255,0.2) !important; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
@@ -156,25 +143,29 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>组合‘尾部相关性’审计 / Tail Risk</span><span class="text-info">Institutional</span></div>
-                <div id="v-tail" class="fs-4 fw-bold text-success">等待资产录入...</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于历史 3-Sigma 跳空崩盘拟合 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>组合‘杠杆等效’审计 / Stress-Delta</span><span class="text-info">Institutional</span></div>
+                <div id="v-delta" class="fs-4 fw-bold text-success">风险敞口倍数: --</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于波动率偏离度审计 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权金库审计</h2>
+        <h2 style="font-weight:800;">‘经济机器’模拟</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">量子隐私等级</div><div class="fs-4 fw-bold text-info">Pulse-18</div></div>
-                    <div class="text-end"><div class="text-secondary small">实战一致性</div><div class="fs-4 fw-bold text-success">SSS</div></div>
+                <div class="text-secondary small mb-2">情景模拟剧本 (Macro Scenarios)</div>
+                <div class="btn-group btn-group-sm w-100 mb-3">
+                    <button class="btn btn-outline-info active" onclick="setMacro('neutral', this)">基准均衡</button>
+                    <button class="btn btn-outline-info" onclick="setMacro('inflation', this)">大放水 🌊</button>
+                    <button class="btn btn-outline-info" onclick="setMacro('recession', this)">流动性枯竭 🧊</button>
                 </div>
-                <div class="text-secondary small">账户总价值 (量子抖动保护中)</div>
-                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                <p class="x-small text-muted mt-2">抖动防御开启：有效防止录屏帧叠加还原数值</p>
+                <div style="height:140px;"><canvas id="macroChart"></canvas></div>
+                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div class="text-secondary small">账户实时总净值 (全息几何保护)</div>
+                    <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
+                </div>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
@@ -184,13 +175,12 @@ final_template = """
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v224 | 量子隐私系统已并网')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v225 | 几何伪装系统已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
-        const TAIL_CORR = REPLACE_TAIL;
-        let jitterInterval = null;
+        let macroChart = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -210,34 +200,53 @@ final_template = """
                 if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
             });
             document.querySelectorAll('.title-ink').forEach(el => {
-                if(isShadow) el.innerText = 'Asset-Alpha-' + Math.random().toString(36).substring(7).toUpperCase();
+                if(isShadow) el.innerText = 'Alpha-Asset-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            if(isShadow && !jitterInterval) {
-                jitterInterval = setInterval(calcVault, 100);
-            } else if(!isShadow && jitterInterval) {
-                clearInterval(jitterInterval); jitterInterval = null;
-                calcVault();
-            }
+            // 几何伪装: 将卡片背景变为晶体结构
+            document.querySelectorAll('.card').forEach(c => {
+                if(isShadow) c.classList.add('geo-cam'); else c.classList.remove('geo-cam');
+            });
+        }
+        function setMacro(type, el) {
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            localStorage.setItem('m_script', type);
+            calcVault();
         }
         function calcVault() {
-            let total = 0; const h = {}; 
-            let isShadow = localStorage.getItem('s_mode') === '1';
+            let total = 0; let totalDelta = 0; const h = {}; 
+            let mScript = localStorage.getItem('m_script') || 'neutral';
             
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let sens = parseFloat(i.dataset.sens); let vol = parseFloat(i.dataset.vol);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                if(isShadow) usd *= (1 + (Math.random()-0.5)*0.004);
                 total += usd;
+                // Stress-Delta: 波动剧增时的风险暴露倍数
+                totalDelta += (usd * (1 + vol * 2.58));
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            
             if(total > 0) {
-                let tCorr = parseFloat(TAIL_CORR);
-                document.getElementById('v-tail').innerText = `尾部相关性: ${(tCorr*100).toFixed(1)}% (${tCorr > 0.8 ? '极高风险' : '对冲良好'})`;
+                document.getElementById('v-delta').innerText = (totalDelta / total).toFixed(2) + 'x';
+                updateMacroChart(total, mScript);
             }
+        }
+        function updateMacroChart(total, type) {
+            const labels = ['Now', '2Y', '4Y', '6Y', '8Y', '10Y'];
+            let drift = type === 'inflation' ? 1.4 : type === 'recession' ? 1.1 : 1.25;
+            let path = [total];
+            for(let y=1; y<=5; y++) { path.push(total * Math.pow(drift, y*2)); }
+            
+            const ctx = document.getElementById('macroChart').getContext('2d');
+            if(macroChart) macroChart.destroy();
+            macroChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ data: path, borderColor: '#0a84ff', borderWidth: 2, fill: true, backgroundColor: 'rgba(10,132,255,0.05)', pointRadius: 2 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+            });
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -259,7 +268,6 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_TAIL", str(round(float(tail_corr), 3))) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
