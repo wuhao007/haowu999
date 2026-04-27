@@ -4,12 +4,11 @@
         "ticker": "ETH-USD",
         "ahr999": 0.493,
         "r2": 0.6061,
-        "alpha": -6.8,
-        "vol": 0.618,
-        "max_dd": 63.8,
-        "recovery_days": 318,
-        "p_buy": 2285.73,
-        "price": 2392.84,
+        "alpha": -18.2,
+        "vol": 0.617,
+        "atr_pct": 0.1416,
+        "price": 2391.88,
+        "p_buy": 2285.72,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -74,21 +73,21 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2392.840087890625
+            2391.8798828125
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "m": 1.0
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "alpha": 45.6,
+        "alpha": 15.7,
         "vol": 0.446,
-        "max_dd": 73.3,
-        "recovery_days": 366,
-        "p_buy": 92.87,
+        "atr_pct": 0.1056,
         "price": 135.82,
+        "p_buy": 92.87,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -155,19 +154,19 @@
             131.6999969482422,
             135.82000732421875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "m": 1.0
     },
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "ahr999": 0.982,
+        "ahr999": 0.984,
         "r2": 0.7973,
-        "alpha": 28.6,
+        "alpha": 1.0,
         "vol": 0.314,
-        "max_dd": 69.4,
-        "recovery_days": 346,
+        "atr_pct": 0.0899,
+        "price": 489.8,
         "p_buy": 330.96,
-        "price": 489.2,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -232,21 +231,21 @@
             504.0,
             495.20001220703125,
             493.3999938964844,
-            489.20001220703125
+            489.79998779296875
         ],
-        "signal": "\u2705INVEST"
+        "signal": "\u2705INVEST",
+        "m": 1.0
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "ahr999": 1.245,
+        "ahr999": 1.246,
         "r2": 0.6546,
-        "alpha": -3.3,
+        "alpha": -2.4,
         "vol": 0.241,
-        "max_dd": 47.5,
-        "recovery_days": 237,
+        "atr_pct": 0.0709,
+        "price": 1407.64,
         "p_buy": 845.0,
-        "price": 1407.01,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -311,21 +310,21 @@
             1409.5,
             1419.0,
             1458.489990234375,
-            1407.010009765625
+            1407.6400146484375
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "ahr999": 1.374,
+        "ahr999": 1.373,
         "r2": 0.8177,
-        "alpha": -5.1,
+        "alpha": -17.1,
         "vol": 0.379,
-        "max_dd": 49.7,
-        "recovery_days": 248,
-        "p_buy": 45297.6,
-        "price": 79222.99,
+        "atr_pct": 0.0966,
+        "price": 79203.22,
+        "p_buy": 45297.57,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -390,21 +389,21 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            79222.9921875
+            79203.21875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "ahr999": 1.735,
+        "ahr999": 1.742,
         "r2": 0.0323,
-        "alpha": 101.4,
+        "alpha": 4.2,
         "vol": 0.584,
-        "max_dd": 86.7,
-        "recovery_days": 433,
+        "atr_pct": 0.167,
+        "price": 155.9,
         "p_buy": 79.17,
-        "price": 155.6,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -469,21 +468,21 @@
             160.1999969482422,
             155.60000610351562,
             156.5,
-            155.60000610351562
+            155.89999389648438
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "alpha": 66.2,
+        "alpha": 14.9,
         "vol": 0.624,
-        "max_dd": 73.6,
-        "recovery_days": 368,
-        "p_buy": 190.31,
+        "atr_pct": 0.1368,
         "price": 376.3,
+        "p_buy": 190.31,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -550,19 +549,19 @@
             373.7200012207031,
             376.29998779296875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     },
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "ahr999": 2.767,
+        "ahr999": 2.766,
         "r2": 0.2357,
-        "alpha": 38.1,
+        "alpha": 40.8,
         "vol": 0.228,
-        "max_dd": 20.4,
-        "recovery_days": 102,
+        "atr_pct": 0.0655,
+        "price": 4719.8,
         "p_buy": 1900.57,
-        "price": 4720.7,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -627,21 +626,21 @@
             4732.5,
             4705.10009765625,
             4722.2998046875,
-            4720.7001953125
+            4719.7998046875
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "alpha": 62.2,
+        "alpha": 40.7,
         "vol": 0.487,
-        "max_dd": 66.3,
-        "recovery_days": 331,
-        "p_buy": 40.34,
+        "atr_pct": 0.0886,
         "price": 208.27,
+        "p_buy": 40.34,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -708,6 +707,7 @@
             199.63999938964844,
             208.27000427246094
         ],
-        "signal": "\u2615\ufe0fWAIT"
+        "signal": "\u2615\ufe0fWAIT",
+        "m": 0.0
     }
 ]
