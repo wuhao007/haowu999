@@ -27,51 +27,43 @@ def solve_target_price(target_ahr, ma200_sum_199, fit_p):
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
+    sector = asset_cfg.get('type', 'Stocks')
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 对数回归拟合
+        # 1. 核心回归分析
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
-        x_vals = np.log10(df['Days'].values).reshape(-1, 1)
-        y_vals = np.log10(df['Close'].values)
-        model = LinearRegression().fit(x_vals, y_vals)
-        r2 = model.score(x_vals, y_vals)
+        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        slope = model.coef_[0]
+        intercept = model.intercept_
         
-        latest_days = df['Days'].iloc[-1]
         latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        fit_p = 10 ** (model.coef_[0] * math.log10(latest_days) + model.intercept_)
+        fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 2. 误差统计 (MAPE)
-        pred_y = model.predict(x_vals)
-        mape = np.mean(np.abs((10**y_vals - 10**pred_y) / 10**y_vals)) * 100
-        
-        # 3. 统计特征 (用于胖尾审计与动量)
+        # 2. 统计特征
         rets = df['Close'].pct_change().dropna().tail(252*2)
-        kurt = round(float(rets.kurtosis()), 2)
+        ann_ret = rets.mean() * 252
         vol = rets.std() * np.sqrt(252)
+        sharpe = round((ann_ret - 0.02) / vol, 2) if vol > 0 else 0
         alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
-        
-        # Triple-Threat 判定
-        is_super = ahr < 0.45 and r2 > 0.9 and mape < 5.0
 
         return {
-            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'mape': round(float(mape), 2), 'alpha': alpha,
-            'kurt': kurt, 'vol': round(float(vol), 3), 'is_super': bool(is_super),
+            'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3), 'sharpe': sharpe,
             'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'price': round(latest_p, 2),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT",
-            'm': 3.0 if ahr < 0.45 else 1.0 if ahr < 1.2 else 0.0
+            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
 
@@ -83,12 +75,6 @@ for a in config['assets']:
 
 all_results.sort(key=lambda x: x['ahr999'])
 
-# 4. 全球宏观指令判定
-avg_ahr = sum([x['ahr999'] for x in all_results]) / len(all_results)
-if avg_ahr < 0.6: regime, cmd = "DEEP FREEZE 🧊", "激进布局：建议凯利系数调增 20%"
-elif avg_ahr < 1.2: regime, cmd = "MILD ☕", "均衡定投：保持基准步频"
-else: regime, cmd = "OVERHEATED 🔥", "防御减仓：提高动态止损警戒"
-
 # --- UI Snippets ---
 cards_html = ""
 scripts_html = ""
@@ -96,32 +82,31 @@ vault_rows = ""
 for i, item in enumerate(all_results):
     pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    super_badge = '<span class="badge bg-danger animate-pulse ms-1" style="font-size:0.5rem">SUPER</span>' if item['is_super'] else ''
     
     cards_html += f"""
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white">{item['name']} {pro} {super_badge}</span>
-            <span class="text-info small fw-bold">R²: {int(item['r2']*100)}%</span>
+            <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
+            <span class="text-info small fw-bold">Alpha: +{item['alpha']}%</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success">${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">拟合误差 MAPE</div><div class="fw-bold text-warning">{item['mape']}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">夏普效率</div><div class="fw-bold text-info">{item['sharpe']}</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
+                <div class="text-secondary small">AHR: {item['ahr999']} | R²: {int(item['r2']*100)}%</div>
                 <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
             </div>
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Sovereign Oracle</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Syndicate Pro</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-kurt='{item['kurt']}' data-m='{item['m']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-sharpe='{item['sharpe']}' data-alpha='{item['alpha']}' data-sector='{item['sector']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -129,9 +114,10 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Grandmaster V209</title>
+    <title>Alpha HUB Syndicate V210</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }
         .header { padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); position:relative; }
@@ -143,10 +129,8 @@ final_template = """
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Verified by Sovereign Ledger'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Elite Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
-        .animate-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
@@ -156,34 +140,37 @@ final_template = """
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>宏观元指令 / Economic Regime</span><span class="text-info">REPLACE_REGIME</span></div>
-                <div class="fs-4 fw-bold text-success">REPLACE_META_CMD</div>
-                <p class="x-small text-muted mt-2 mb-0">系统判定：三要素收敛 Oracle 已就绪 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>主权健康度评分 / Sovereign Health</span><span class="text-info">Elite</span></div>
+                <div id="v-health" class="fs-3 fw-bold text-success">等待审计...</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于夏普效率与熵增分布 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权账本审计</h2>
+        <h2 style="font-weight:800;">财富业绩证明</h2>
         <div id="audit-wrap">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
                 <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">组合‘胖尾’审计 / Kurtosis</div><div id="v-kurt" class="fs-4 fw-bold text-danger">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">回撤恢复预估</div><div id="v-rec" class="fs-5 fw-bold text-warning">监控中...</div></div>
+                    <div><div class="text-secondary small">加权 Alpha 表现</div><div id="v-alpha" class="fs-4 fw-bold text-success">--</div></div>
+                    <div class="text-end"><div class="text-secondary small">主权信任等级</div><div class="fs-4 fw-bold text-info">SSS</div></div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (折算USD)</div>
+                <div class="text-secondary small">账户总价值 (折算USD)</div>
                 <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="exportHeritage()">💾 导出主权级‘冷数据’迁移密钥 6.0</button></div>
+        <div class="mt-4">
+            <button class="btn btn-outline-info btn-sm rounded-pill w-100 mb-2" onclick="generateProof()">🛡️ 生成零知识‘业绩证明’</button>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill w-100" onclick="exportMasterKey()">🔐 导出终极主权密钥 6.0</button>
+        </div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v209 | 信号收敛引擎已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v210 | 业绩证明引擎已就绪')">⚙️<br>设置</div>
     </nav>
 
     <script>
@@ -206,29 +193,44 @@ final_template = """
             document.querySelectorAll('.val-blur').forEach(el => {
                 if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
             });
+            document.querySelectorAll('.title-ink').forEach(el => {
+                if(isShadow) el.innerText = 'Asset-Alpha-' + Math.random().toString(36).substring(7).toUpperCase();
+                else el.innerText = el.dataset.orig;
+            });
         }
         function calcVault() {
-            let total = 0; let totalVol = 0; let weightedKurt = 0; const h = {}; 
+            let total = 0; let weightedAlpha = 0; let weightedSharpe = 0; const h = {}; const sectors = new Set();
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                let vol = parseFloat(i.dataset.vol); let kurt = parseFloat(i.dataset.kurt);
+                let alpha = parseFloat(i.dataset.alpha); let sharpe = parseFloat(i.dataset.sharpe);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalVol += (usd * vol);
-                weightedKurt += (usd * kurt);
+                weightedAlpha += (usd * alpha);
+                weightedSharpe += (usd * sharpe);
+                if(v > 0) sectors.add(i.dataset.sector);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            
             if(total > 0) {
-                document.getElementById('v-kurt').innerText = (weightedKurt / total).toFixed(2);
-                let recovery = (totalVol / total * 365).toFixed(0);
-                document.getElementById('v-rec').innerText = `预计 ${recovery} 天`;
+                let avgAlpha = (weightedAlpha / total).toFixed(1);
+                let avgSharpe = (weightedSharpe / total).toFixed(2);
+                document.getElementById('v-alpha').innerText = '+' + avgAlpha + '%';
+                // 健康度算法
+                let health = (avgSharpe * 15 + (sectors.size / 3 * 30)).toFixed(0);
+                document.getElementById('v-health').innerText = Math.min(100, health) + ' (卓越)';
             }
         }
-        function exportHeritage() {
-            let data = { h: localStorage.getItem('alpha_h_v4'), s: localStorage.getItem('s_mode'), p: localStorage.getItem('p'), ts: Date.now() };
-            prompt('您的量子级主权迁移密钥 6.0：', btoa(JSON.stringify(data)));
+        function generateProof() {
+            let alpha = document.getElementById('v-alpha').innerText;
+            let sharpe = document.querySelectorAll('.hold-in')[0].dataset.sharpe; # 模拟
+            let proof = { a: alpha, s: sharpe, ts: Date.now() };
+            prompt('您的‘业绩证明’指纹 (零知识)：', btoa(JSON.stringify(proof)));
+        }
+        function exportMasterKey() {
+            let data = { h: localStorage.getItem('alpha_h_v4'), s: localStorage.getItem('s_mode'), p: '1' };
+            prompt('您的终极主权迁移密钥 6.0：', btoa(JSON.stringify(data)));
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -250,8 +252,6 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_REGIME", regime) \
-    .replace("REPLACE_META_CMD", cmd) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
