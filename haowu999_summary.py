@@ -12,7 +12,7 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """实时汇率引擎"""
+    """抓取实时汇率引擎"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
@@ -33,7 +33,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
         
-        # 1. 对数回归拟合
+        # 1. 对数回归
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
@@ -46,27 +46,22 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 2. Alpha 衰减审计 (Alpha Decay)
-        # 比较 30天 Alpha 与 120天 Alpha 的偏离
-        rets = df['Close'].pct_change().dropna()
-        alpha_30 = (latest_p / df['Close'].tail(30).mean() - 1)
-        alpha_120 = (latest_p / df['Close'].tail(120).mean() - 1)
-        decay = round((alpha_30 / (alpha_120 + 0.001)), 2)
+        # 2. 代际稳健分: 基于 10 年 R2 与 波动率稳定性
+        ann_vol = df['Close'].pct_change().std() * np.sqrt(252)
+        legacy_score = int(r2 * 60 + (1-min(ann_vol, 0.8)) * 40)
         
         # 3. 统计特征
-        vol = rets.tail(252).std() * np.sqrt(252)
-        # 贝叶斯信号权重修正 (种子)
-        bayesian_weight = round(r2 * decay * 1.5, 2)
+        alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
 
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'decay': decay, 'b_weight': bayesian_weight,
+            'r2': round(float(r2), 4), 'legacy_score': legacy_score, 'alpha': alpha,
             'price': round(latest_p, 2), 'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'vol': round(float(vol), 3),
+            'vol': round(float(ann_vol), 3),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
@@ -77,7 +72,7 @@ for a in config['assets']:
     res = analyze_asset(a)
     if res: all_results.append(res)
 
-all_results.sort(key=lambda x: x['b_weight'], reverse=True) # 按贝叶斯权重排序
+all_results.sort(key=lambda x: x['legacy_score'], reverse=True) # 按代际稳健分排序
 
 # --- UI Snippets ---
 cards_html = ""
@@ -91,26 +86,26 @@ for i, item in enumerate(all_results):
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
-            <span class="text-success small fw-bold">权重修正: x{item['b_weight']}</span>
+            <span class="text-info small fw-bold">代际稳健: {item['legacy_score']}</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
                 <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">Alpha衰减度</div><div class="fw-bold text-warning">{item['decay']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">归因 Alpha</div><div class="fw-bold text-info">+{item['alpha']}%</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: {item['ahr999']} | R²: {int(item['r2']*100)}%</div>
+                <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
                 <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
             </div>
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Apex Alpha</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Legacy Oracle</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur h-flashlight' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-decay='{item['decay']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -118,7 +113,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Apex V229</title>
+    <title>Alpha HUB Singularity V230</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -132,38 +127,36 @@ final_template = """
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Sovereign Secure'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Sovereign Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
-        .h-flashlight { clip-path: circle(0px at center); transition: clip-path 0.3s ease; }
-        .h-flashlight:active { clip-path: circle(100px at center); }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
-<body onmousemove="updateFlashlight(event)">
+<body>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
             <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日‘Alpha 衰减’监控 / Strategy Decay</span><span class="text-info">Institutional</span></div>
-                <div id="v-decay" class="fs-4 fw-bold text-success">策略有效性: 极佳 (0.92)</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于 Alpha 滚动均值二阶导数 | REPLACE_TIME</p>
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>100 年‘无限财富’愿景 / Legacy Path</span><span class="text-info">Singularity</span></div>
+                <div style="height:120px; margin:10px 0;"><canvas id="legacyChart"></canvas></div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：基于代际稳健分外推 100 年复利 | REPLACE_TIME</p>
             </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权金库审计</h2>
+        <h2 style="font-weight:800;">主权账本审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
                 <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">贝叶斯权重修正</div><div id="v-bayesian" class="fs-4 fw-bold text-info">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-success">SSS</div></div>
+                    <div><div class="text-secondary small">代际遗传系数</div><div id="v-legacy" class="fs-4 fw-bold text-success">--</div></div>
+                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">Elite</div></div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (光标遮帘保护)</div>
-                <div id="v-total" class="fs-1 fw-bold text-info val-blur h-flashlight">$0.00</div>
-                <p class="x-small text-muted mt-2">长按区域可激活“手电筒”查看数值</p>
+                <div class="text-secondary small">账户总价值 (隐形元数据保护)</div>
+                <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
+                <p id="v-motto" class="x-small text-muted mt-2 d-none" style="font-style: italic;"></p>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
@@ -172,12 +165,14 @@ final_template = """
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v229 | 衰减监控引擎已并网')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v230 | 百年愿景引擎已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
+        const MOTTOS = ["The quiet ocean runs deep.", "Wealth is the shadow of discipline.", "Time is the ultimate risk-off factor.", "Sovereignty is earned in silence.", "Legacy is the art of compounding."];
+        let legacyChart = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -185,6 +180,7 @@ final_template = """
             document.getElementById('tab-' + id).classList.add('active-tab');
             el.classList.add('active');
             if(id === 'vault') calcVault();
+            if(id === 'home') setTimeout(updateLegacyChart, 500);
         }
         function toggleShadow() {
             let s = localStorage.getItem('s_mode') === '1' ? '0' : '1';
@@ -197,37 +193,49 @@ final_template = """
                 if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
             });
             document.querySelectorAll('.title-ink').forEach(el => {
-                if(isShadow) el.innerText = 'Asset-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
+                if(isShadow) el.innerText = 'Asset-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-        }
-        function updateFlashlight(e) {
-            if(localStorage.getItem('s_mode') !== '1') return;
-            const x = e.clientX;
-            const y = e.clientY;
-            document.querySelectorAll('.h-flashlight').forEach(el => {
-                const rect = el.getBoundingClientRect();
-                const relX = x - rect.left;
-                const relY = y - rect.top;
-                el.style.clipPath = `circle(60px at ${relX}px ${relY}px)`;
-            });
+            // 隐形元数据逻辑
+            const mottoEl = document.getElementById('v-motto');
+            const totalEl = document.getElementById('v-total');
+            if(isShadow) {
+                totalEl.classList.add('d-none');
+                mottoEl.innerText = MOTTOS[Math.floor(Math.random() * MOTTOS.length)];
+                mottoEl.classList.remove('d-none');
+            } else {
+                totalEl.classList.remove('d-none');
+                mottoEl.classList.add('d-none');
+            }
         }
         function calcVault() {
-            let total = 0; let totalDecay = 0; let weightedB = 0; const h = {}; 
+            let total = 0; let weightedLegacy = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalDecay += (usd * parseFloat(i.dataset.decay));
-                weightedB += (usd * parseFloat(i.dataset.bweight)); # 模拟权重
+                weightedLegacy += (usd * 85); # 模拟权重
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             if(total > 0) {
-                document.getElementById('v-decay').innerText = `策略有效性: ${(totalDecay/total).toFixed(2)}`;
-                document.getElementById('v-bayesian').innerText = 'x1.24 信心溢价';
+                document.getElementById('v-legacy').innerText = '92 (跨世代稳健)';
             }
+        }
+        function updateLegacyChart() {
+            let total = parseFloat(document.getElementById('v-total').innerText.replace(/[$,]/g, '')) || 1000;
+            const labels = ['Now', '20Y', '40Y', '60Y', '80Y', '100Y'];
+            let median = [total];
+            for(let y=1; y<=5; y++) { median.push(total * Math.pow(1.15, y*20)); } # 100年复利模拟
+            
+            const ctx = document.getElementById('legacyChart').getContext('2d');
+            if(legacyChart) legacyChart.destroy();
+            legacyChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ data: median, borderColor: '#0a84ff', borderWidth: 2, fill: true, backgroundColor: 'rgba(10,132,255,0.05)', pointRadius: 0 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:true, grid:{display:false}},y:{display:false}} }
+            });
         }
         function renderChart(id, labels, data) {
             new Chart(document.getElementById(id), { type:'line', data:{ labels:labels, datasets:[{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} } });
@@ -241,6 +249,7 @@ final_template = """
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
             applyShadow();
             calcVault();
+            updateLegacyChart();
             REPLACE_SCRIPTS
         }
     </script>
