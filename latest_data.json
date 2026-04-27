@@ -2,13 +2,15 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "ahr999": 0.493,
+        "ahr999": 0.492,
         "r2": 0.6061,
+        "mape": 63.91,
         "alpha": -18.2,
+        "kurt": 3.64,
         "vol": 0.617,
-        "atr_pct": 0.1416,
-        "price": 2391.88,
+        "is_super": false,
         "p_buy": 2285.72,
+        "price": 2390.86,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -73,7 +75,7 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2391.8798828125
+            2390.860107421875
         ],
         "signal": "\u2705INVEST",
         "m": 1.0
@@ -83,11 +85,13 @@
         "ticker": "BABA",
         "ahr999": 0.961,
         "r2": 0.0205,
+        "mape": 35.79,
         "alpha": 15.7,
+        "kurt": 2.22,
         "vol": 0.446,
-        "atr_pct": 0.1056,
-        "price": 135.82,
+        "is_super": false,
         "p_buy": 92.87,
+        "price": 135.82,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -160,13 +164,15 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "ahr999": 0.984,
+        "ahr999": 0.982,
         "r2": 0.7973,
-        "alpha": 1.0,
+        "mape": 34.07,
+        "alpha": 0.9,
+        "kurt": 4.91,
         "vol": 0.314,
-        "atr_pct": 0.0899,
-        "price": 489.8,
+        "is_super": false,
         "p_buy": 330.96,
+        "price": 489.2,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -231,7 +237,7 @@
             504.0,
             495.20001220703125,
             493.3999938964844,
-            489.79998779296875
+            489.20001220703125
         ],
         "signal": "\u2705INVEST",
         "m": 1.0
@@ -239,13 +245,15 @@
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "ahr999": 1.246,
+        "ahr999": 1.248,
         "r2": 0.6546,
-        "alpha": -2.4,
+        "mape": 63.79,
+        "alpha": -2.3,
+        "kurt": 9.51,
         "vol": 0.241,
-        "atr_pct": 0.0709,
-        "price": 1407.64,
-        "p_buy": 845.0,
+        "is_super": false,
+        "p_buy": 845.01,
+        "price": 1408.76,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -310,7 +318,7 @@
             1409.5,
             1419.0,
             1458.489990234375,
-            1407.6400146484375
+            1408.760009765625
         ],
         "signal": "\u2615\ufe0fWAIT",
         "m": 0.0
@@ -320,11 +328,13 @@
         "ticker": "BTC-USD",
         "ahr999": 1.373,
         "r2": 0.8177,
+        "mape": 67.5,
         "alpha": -17.1,
+        "kurt": 4.62,
         "vol": 0.379,
-        "atr_pct": 0.0966,
-        "price": 79203.22,
-        "p_buy": 45297.57,
+        "is_super": false,
+        "p_buy": 45297.55,
+        "price": 79192.33,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -389,7 +399,7 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            79203.21875
+            79192.328125
         ],
         "signal": "\u2615\ufe0fWAIT",
         "m": 0.0
@@ -399,11 +409,13 @@
         "ticker": "9992.HK",
         "ahr999": 1.742,
         "r2": 0.0323,
+        "mape": 89.4,
         "alpha": 4.2,
+        "kurt": 6.64,
         "vol": 0.584,
-        "atr_pct": 0.167,
-        "price": 155.9,
+        "is_super": false,
         "p_buy": 79.17,
+        "price": 155.9,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -478,11 +490,13 @@
         "ticker": "TSLA",
         "ahr999": 1.755,
         "r2": 0.8245,
+        "mape": 74.26,
         "alpha": 14.9,
+        "kurt": 4.77,
         "vol": 0.624,
-        "atr_pct": 0.1368,
-        "price": 376.3,
+        "is_super": false,
         "p_buy": 190.31,
+        "price": 376.3,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -555,13 +569,15 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "ahr999": 2.766,
+        "ahr999": 2.765,
         "r2": 0.2357,
+        "mape": 21.42,
         "alpha": 40.8,
+        "kurt": 9.6,
         "vol": 0.228,
-        "atr_pct": 0.0655,
-        "price": 4719.8,
+        "is_super": false,
         "p_buy": 1900.57,
+        "price": 4719.1,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -626,7 +642,7 @@
             4732.5,
             4705.10009765625,
             4722.2998046875,
-            4719.7998046875
+            4719.10009765625
         ],
         "signal": "\u2615\ufe0fWAIT",
         "m": 0.0
@@ -636,11 +652,13 @@
         "ticker": "NVDA",
         "ahr999": 11.937,
         "r2": 0.5944,
+        "mape": 145.35,
         "alpha": 40.7,
+        "kurt": 4.85,
         "vol": 0.487,
-        "atr_pct": 0.0886,
-        "price": 208.27,
+        "is_super": false,
         "p_buy": 40.34,
+        "price": 208.27,
         "cur": "USD",
         "is_pro": true,
         "labels": [
