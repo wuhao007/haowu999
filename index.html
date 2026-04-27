@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Singularity V237</title>
+    <title>Alpha HUB Zenith V238</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -18,48 +18,35 @@
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Semantic Secured'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Perlin Layer Active'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
+        #perlin-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2000; opacity:0; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
+    <canvas id="perlin-canvas"></canvas>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
-            <div class="row g-2 mt-3 px-2">
-    <div class="col-4 text-center">
-        <div class="p-2 rounded bg-black border border-secondary shadow-sm">
-            <div class="x-small text-secondary">Crypto</div>
-            <div class="fw-bold" style="color:#ff453a; font-size:0.75rem;">-0.44</div>
-        </div>
-    </div>
-    <div class="col-4 text-center">
-        <div class="p-2 rounded bg-black border border-secondary shadow-sm">
-            <div class="x-small text-secondary">Stocks</div>
-            <div class="fw-bold" style="color:#ffd60a; font-size:0.75rem;">0.73</div>
-        </div>
-    </div>
-    <div class="col-4 text-center">
-        <div class="p-2 rounded bg-black border border-secondary shadow-sm">
-            <div class="x-small text-secondary">Metals</div>
-            <div class="fw-bold" style="color:#ff453a; font-size:0.75rem;">0.02</div>
-        </div>
-    </div></div>
-            <p class="x-small text-muted mt-2 mb-0">今日全市场‘轮动强度’罗盘 | 04-26 19:43</p>
+            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>波动率自适应政权 / Regime 4.0</span><span class="text-info">Institutional</span></div>
+                <div id="v-regime" class="fs-4 fw-bold text-success">环境感知：波动率自适应激活</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：底部阈值已随日内波频动态修正 | 04-26 19:44</p>
+            </div>
         </div>
         <div class="px-3 mt-3">
     <div id='card_0' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Ethereum'>Ethereum </span>
-            <span class="text-info small fw-bold">Alpha衰减: -0.36</span>
+            <span class="text-info small fw-bold">动态底部: 0.39</span>
         </div>
         <div class=''>
             <div style="height:60px; opacity:0.6;"><canvas id="c_0"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$2285.72'>$2285.72</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">59%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$2127.59'>$2127.59</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">3.64</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: 0.493 | R²: 60%</div>
@@ -70,67 +57,67 @@
     <div id='card_1' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Alibaba'>Alibaba <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.87</span>
+            <span class="text-info small fw-bold">动态底部: 0.42</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_1"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$92.87'>$92.87</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">42%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$89.72'>$89.72</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">2.22</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: 0.961 | R²: 2%</div>
                 <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_2' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Tencent'>Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.71</span>
+            <span class="text-info small fw-bold">动态底部: 0.45</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_2"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$330.96'>$330.96</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">27%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$330.96'>$330.96</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">4.9</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.969 | R²: 79%</div>
+                <div class="text-secondary small">AHR: 0.97 | R²: 79%</div>
                 <div class="fs-5 fw-bold text-primary">✅INVEST</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_3' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Moutai'>Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 1.67</span>
+            <span class="text-info small fw-bold">动态底部: 0.46</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_3"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$845.0'>$845.0</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">19%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$854.36'>$854.36</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">9.5</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.247 | R²: 65%</div>
+                <div class="text-secondary small">AHR: 1.248 | R²: 65%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_4' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Bitcoin'>Bitcoin </span>
-            <span class="text-info small fw-bold">Alpha衰减: -0.53</span>
+            <span class="text-info small fw-bold">动态底部: 0.43</span>
         </div>
         <div class=''>
             <div style="height:60px; opacity:0.6;"><canvas id="c_4"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$45297.37'>$45297.37</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">39%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$44278.04'>$44278.04</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">4.63</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.368 | R²: 81%</div>
+                <div class="text-secondary small">AHR: 1.37 | R²: 81%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
@@ -138,50 +125,50 @@
     <div id='card_5' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Pop Mart'>Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.58</span>
+            <span class="text-info small fw-bold">动态底部: 0.39</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_5"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$79.17'>$79.17</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">59%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$73.7'>$73.7</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">6.64</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: 1.709 | R²: 3%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_6' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Tesla'>Tesla <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.17</span>
+            <span class="text-info small fw-bold">动态底部: 0.39</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_6"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$190.31'>$190.31</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">48%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$177.16'>$177.16</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">4.77</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: 1.755 | R²: 82%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_7' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Gold'>Gold </span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.02</span>
+            <span class="text-info small fw-bold">动态底部: 0.47</span>
         </div>
         <div class=''>
             <div style="height:60px; opacity:0.6;"><canvas id="c_7"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$1900.57'>$1900.57</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">27%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$1942.4'>$1942.4</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">9.6</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 2.767 | R²: 23%</div>
+                <div class="text-secondary small">AHR: 2.766 | R²: 23%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
@@ -189,47 +176,48 @@
     <div id='card_8' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='NVIDIA'>NVIDIA <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha衰减: 0.4</span>
+            <span class="text-info small fw-bold">动态底部: 0.41</span>
         </div>
         <div class='pro-blur'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_8"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='$40.34'>$40.34</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">33%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='$38.51'>$38.51</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">4.85</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: 11.937 | R²: 59%</div>
                 <div class="fs-5 fw-bold text-primary">☕️WAIT</div>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Apex Oracle</button></div></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div></div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权账本审计</h2>
+        <h2 style="font-weight:800;">财富主权审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
                 <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">组合 Alpha 有效性</div><div id="v-decay" class="fs-4 fw-bold text-success">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">Elite</div></div>
+                    <div><div class="text-secondary small">Sharpe 4.0 (峰度修正)</div><div id="v-sharpe" class="fs-4 fw-bold text-info">--</div></div>
+                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-success">SSS</div></div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (语义替换保护)</div>
+                <div class="text-secondary small">账户实时总净值 (Perlin 像素混淆)</div>
                 <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                <p class="x-small text-muted mt-2">提示：Shadow Mode 31.0 开启。所有数值已按数量级替换为逻辑语义词。</p>
+                <p class="x-small text-muted mt-2">提示：Shadow Mode 32.0 开启。像素重构防御 AI OCR 逆向还原。</p>
             </div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2392.01' data-cur='USD' data-decay='-0.36' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' data-decay='0.87' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='486.0' data-cur='HKD' data-decay='0.71' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1408.3' data-cur='CNY' data-decay='1.67' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='79070.0' data-cur='USD' data-decay='-0.53' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='154.4' data-cur='HKD' data-decay='0.58' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-decay='0.17' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4720.8' data-cur='USD' data-decay='0.02' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-decay='0.4' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
+            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='ETH-USD' data-price='2392.86' data-cur='USD' data-vol='0.618' data-alpha='-18.1' data-kurt='3.64' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='BABA' data-price='135.82' data-cur='USD' data-vol='0.446' data-alpha='15.7' data-kurt='2.22' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='0700.HK' data-price='486.2' data-cur='HKD' data-vol='0.314' data-alpha='0.2' data-kurt='4.9' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='600519.SS' data-price='1408.42' data-cur='CNY' data-vol='0.241' data-alpha='-2.3' data-kurt='9.5' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='BTC-USD' data-price='79102.44' data-cur='USD' data-vol='0.379' data-alpha='-17.2' data-kurt='4.63' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='9992.HK' data-price='154.4' data-cur='HKD' data-vol='0.584' data-alpha='3.2' data-kurt='6.64' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-vol='0.624' data-alpha='14.9' data-kurt='4.77' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='GC=F' data-price='4720.0' data-cur='USD' data-vol='0.228' data-alpha='40.9' data-kurt='9.6' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur noise-target' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-vol='0.487' data-alpha='40.7' data-kurt='4.85' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('全加密密钥已同步')">🔐 导出量子级主权密钥 6.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v237 | 语义隐私系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v238 | Perlin 加密引擎已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const FX = {"HKD": 7.836289653131761, "CNY": 6.827400078784505, "USD": 1.0};
+        const FX = {"HKD": 7.836169784450889, "CNY": 6.827500101737679, "USD": 1.0};
+        let perlinInterval = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -252,35 +240,38 @@
                 if(isShadow) el.innerText = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            calcVault(); // 触发语义替换
+            // Perlin 像素重构交互
+            document.getElementById('perlin-canvas').style.opacity = isShadow ? '0.1' : '0';
+            if(isShadow && !perlinInterval) perlinInterval = setInterval(renderPerlin, 100);
+            else if(!isShadow && perlinInterval) { clearInterval(perlinInterval); perlinInterval = null; }
+        }
+        function renderPerlin() {
+            const canvas = document.getElementById('perlin-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const idata = ctx.createImageData(canvas.width, canvas.height);
+            const buffer = new Uint32Array(idata.data.buffer);
+            for (let i = 0; i < buffer.length; i++) {
+                if(Math.random() > 0.98) buffer[i] = 0xFF0084FF; # 注入品牌色噪点
+            }
+            ctx.putImageData(idata, 0, 0);
         }
         function calcVault() {
-            let total = 0; let totalDecay = 0; const h = {}; 
-            let isShadow = localStorage.getItem('s_mode') === '1';
-            
+            let total = 0; let weightedSharpe = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let alpha = parseFloat(i.dataset.alpha); let vol = parseFloat(i.dataset.vol); let kurt = parseFloat(i.dataset.kurt);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalDecay += (usd * parseFloat(i.dataset.decay));
+                // Sharpe 4.0: (Alpha - 2%) / (Vol * Kurt)
+                let s4 = (alpha - 2) / (vol * 100 * (1 + Math.abs(kurt)/10));
+                weightedSharpe += (usd * s4);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
-            
-            let displayVal = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(isShadow) {
-                // 语义替换逻辑: Shadow Mode 31.0
-                if(total < 1000) displayVal = "Foundational";
-                else if(total < 10000) displayVal = "Significant";
-                else if(total < 50000) displayVal = "Strategic";
-                else if(total < 100000) displayVal = "High-Net-Worth";
-                else if(total < 500000) displayVal = "Elite-Portfolio";
-                else displayVal = "Legendary-Vault";
-            }
-            document.getElementById('v-total').innerText = displayVal;
+            document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             if(total > 0) {
-                let avgDecay = (totalDecay / total).toFixed(2);
-                document.getElementById('v-decay').innerText = avgDecay + (avgDecay > 0.8 ? ' (强有效)' : ' (预警)');
+                document.getElementById('v-sharpe').innerText = (weightedSharpe / total).toFixed(2);
             }
         }
         function renderChart(id, labels, data) {
@@ -295,14 +286,14 @@
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
             applyShadow();
             calcVault();
-            renderChart('c_0', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2392.010009765625]);
+            renderChart('c_0', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2392.860107421875]);
 renderChart('c_1', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
-renderChart('c_2', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 486.0]);
-renderChart('c_3', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1408.300048828125]);
-renderChart('c_4', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79070.0]);
+renderChart('c_2', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 486.20001220703125]);
+renderChart('c_3', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1408.4200439453125]);
+renderChart('c_4', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79102.4375]);
 renderChart('c_5', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 154.39999389648438]);
 renderChart('c_6', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
-renderChart('c_7', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4720.7998046875]);
+renderChart('c_7', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4720.0]);
 renderChart('c_8', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
 
         }

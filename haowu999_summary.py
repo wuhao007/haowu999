@@ -12,7 +12,7 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 def get_fx_rates():
-    """实时汇率引擎"""
+    """抓取实时汇率引擎"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
         return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
@@ -27,7 +27,6 @@ def solve_target_price(target_ahr, ma200_sum_199, fit_p):
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
-    sector = asset_cfg.get('type', 'Stocks')
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
@@ -39,31 +38,34 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
         df = df[df['Days'] > 0]
         model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
         r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        slope = model.coef_[0]
+        intercept = model.intercept_
         
         latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
-        fit_p = 10 ** (model.coef_[0] * math.log10(df['Days'].iloc[-1]) + model.intercept_)
+        fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
         
-        # 2. Alpha 衰减审计
-        rets = df['Close'].pct_change().dropna()
-        alpha_recent = (latest_p / df['Close'].tail(30).mean() - 1)
-        alpha_base = (latest_p / df['Close'].tail(365).mean() - 1)
-        decay = round(alpha_recent / (alpha_base + 0.01), 2)
+        # 2. 统计特征 (用于 Sharpe 4.0 与阈值修正)
+        rets = df['Close'].pct_change().dropna().tail(252*2)
+        vol = rets.std() * np.sqrt(252)
+        kurt = rets.kurtosis() # 峰度修正
+        alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
         
-        # 3. 统计特征
-        vol = rets.tail(252).std() * np.sqrt(252)
+        # 3. 动态修正阈值 (Volatility-Adjusted)
+        v_adj = 1.0 + (vol - 0.3) * 0.5 # 以 30% 波动率为基准偏离
+        bottom_target = round(0.45 / v_adj, 2)
 
         return {
-            'name': name, 'ticker': ticker, 'sector': sector, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'decay': decay, 'alpha': round(alpha_recent*100, 1),
-            'price': round(latest_p, 2), 'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
+            'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
+            'r2': round(float(r2), 4), 'alpha': alpha, 'vol': round(float(vol), 3),
+            'kurt': round(float(kurt), 2), 'bottom_target': bottom_target,
+            'price': round(latest_p, 2), 'p_buy': solve_target_price(bottom_target, ma200_sum_199, fit_p),
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
             'values': df.tail(30)['Close'].tolist(),
-            'vol': round(float(vol), 3),
-            'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
+            'signal': "💎BOTTOM" if ahr < bottom_target else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
     except: return None
 
@@ -74,24 +76,6 @@ for a in config['assets']:
     if res: all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
-
-# 4. 轮动强度核算 (Sector Rotation Intensity)
-sector_deltas = {}
-for x in all_results:
-    if x['sector'] not in sector_deltas: sector_deltas[x['sector']] = []
-    sector_deltas[x['sector']].append(x['decay'])
-
-rotation_html = ""
-for k, v in sector_deltas.items():
-    avg_d = sum(v)/len(v)
-    d_color = "#32d74b" if avg_d > 0.8 else "#ffd60a" if avg_d > 0.4 else "#ff453a"
-    rotation_html += f"""
-    <div class="col-4 text-center">
-        <div class="p-2 rounded bg-black border border-secondary shadow-sm">
-            <div class="x-small text-secondary">{k}</div>
-            <div class="fw-bold" style="color:{d_color}; font-size:0.75rem;">{round(avg_d,2)}</div>
-        </div>
-    </div>"""
 
 # --- UI Snippets ---
 cards_html = ""
@@ -105,13 +89,13 @@ for i, item in enumerate(all_results):
     <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
-            <span class="text-info small fw-bold">Alpha衰减: {item['decay']}</span>
+            <span class="text-info small fw-bold">动态底部: {item['bottom_target']}</span>
         </div>
         <div class='{blur}'>
             <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
             <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">抄底目标价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">近期波动率</div><div class="fw-bold text-warning">{int(item['vol']*100)}%</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">自适应抄底价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
+                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">尾部峰度 (K)</div><div class="fw-bold text-danger">{item['kurt']}</div></div></div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
                 <div class="text-secondary small">AHR: {item['ahr999']} | R²: {int(item['r2']*100)}%</div>
@@ -120,11 +104,11 @@ for i, item in enumerate(all_results):
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Apex Oracle</button></div>"
+        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Zenith Oracle</button></div>"
     cards_html += "</div>"
     
     scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-decay='{item['decay']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
+    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur noise-target' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-vol='{item['vol']}' data-alpha='{item['alpha']}' data-kurt='{item['kurt']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
 final_template = """
 <!DOCTYPE html>
@@ -132,7 +116,7 @@ final_template = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Singularity V237</title>
+    <title>Alpha HUB Zenith V238</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -146,47 +130,53 @@ final_template = """
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Semantic Secured'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Perlin Layer Active'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
+        #perlin-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2000; opacity:0; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
 <body>
+    <canvas id="perlin-canvas"></canvas>
     <div id="tab-home" class="tab-view active-tab">
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
-            <div class="row g-2 mt-3 px-2">REPLACE_ROTATION_MATRIX</div>
-            <p class="x-small text-muted mt-2 mb-0">今日全市场‘轮动强度’罗盘 | REPLACE_TIME</p>
+            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>波动率自适应政权 / Regime 4.0</span><span class="text-info">Institutional</span></div>
+                <div id="v-regime" class="fs-4 fw-bold text-success">环境感知：波动率自适应激活</div>
+                <p class="x-small text-muted mt-2 mb-0">系统分析：底部阈值已随日内波频动态修正 | REPLACE_TIME</p>
+            </div>
         </div>
         <div class="px-3 mt-3">REPLACE_CARDS</div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">主权账本审计</h2>
+        <h2 style="font-weight:800;">财富主权审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
                 <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">组合 Alpha 有效性</div><div id="v-decay" class="fs-4 fw-bold text-success">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">Elite</div></div>
+                    <div><div class="text-secondary small">Sharpe 4.0 (峰度修正)</div><div id="v-sharpe" class="fs-4 fw-bold text-info">--</div></div>
+                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-success">SSS</div></div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (语义替换保护)</div>
+                <div class="text-secondary small">账户实时总净值 (Perlin 像素混淆)</div>
                 <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                <p class="x-small text-muted mt-2">提示：Shadow Mode 31.0 开启。所有数值已按数量级替换为逻辑语义词。</p>
+                <p class="x-small text-muted mt-2">提示：Shadow Mode 32.0 开启。像素重构防御 AI OCR 逆向还原。</p>
             </div>
             <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('全加密密钥已同步')">🔐 导出量子级主权密钥 6.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
+        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>审计</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v237 | 语义隐私系统已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v238 | Perlin 加密引擎已激活')">⚙️<br>设置</div>
     </nav>
 
     <script>
         const FX = REPLACE_FX;
+        let perlinInterval = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -209,35 +199,38 @@ final_template = """
                 if(isShadow) el.innerText = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
                 else el.innerText = el.dataset.orig;
             });
-            calcVault(); // 触发语义替换
+            // Perlin 像素重构交互
+            document.getElementById('perlin-canvas').style.opacity = isShadow ? '0.1' : '0';
+            if(isShadow && !perlinInterval) perlinInterval = setInterval(renderPerlin, 100);
+            else if(!isShadow && perlinInterval) { clearInterval(perlinInterval); perlinInterval = null; }
+        }
+        function renderPerlin() {
+            const canvas = document.getElementById('perlin-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const idata = ctx.createImageData(canvas.width, canvas.height);
+            const buffer = new Uint32Array(idata.data.buffer);
+            for (let i = 0; i < buffer.length; i++) {
+                if(Math.random() > 0.98) buffer[i] = 0xFF0084FF; # 注入品牌色噪点
+            }
+            ctx.putImageData(idata, 0, 0);
         }
         function calcVault() {
-            let total = 0; let totalDecay = 0; const h = {}; 
-            let isShadow = localStorage.getItem('s_mode') === '1';
-            
+            let total = 0; let weightedSharpe = 0; const h = {}; 
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
+                let alpha = parseFloat(i.dataset.alpha); let vol = parseFloat(i.dataset.vol); let kurt = parseFloat(i.dataset.kurt);
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
                 total += usd;
-                totalDecay += (usd * parseFloat(i.dataset.decay));
+                // Sharpe 4.0: (Alpha - 2%) / (Vol * Kurt)
+                let s4 = (alpha - 2) / (vol * 100 * (1 + Math.abs(kurt)/10));
+                weightedSharpe += (usd * s4);
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
-            
-            let displayVal = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            if(isShadow) {
-                // 语义替换逻辑: Shadow Mode 31.0
-                if(total < 1000) displayVal = "Foundational";
-                else if(total < 10000) displayVal = "Significant";
-                else if(total < 50000) displayVal = "Strategic";
-                else if(total < 100000) displayVal = "High-Net-Worth";
-                else if(total < 500000) displayVal = "Elite-Portfolio";
-                else displayVal = "Legendary-Vault";
-            }
-            document.getElementById('v-total').innerText = displayVal;
+            document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             if(total > 0) {
-                let avgDecay = (totalDecay / total).toFixed(2);
-                document.getElementById('v-decay').innerText = avgDecay + (avgDecay > 0.8 ? ' (强有效)' : ' (预警)');
+                document.getElementById('v-sharpe').innerText = (weightedSharpe / total).toFixed(2);
             }
         }
         function renderChart(id, labels, data) {
@@ -260,7 +253,6 @@ final_template = """
 """
 
 final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_ROTATION_MATRIX", rotation_html) \
     .replace("REPLACE_CARDS", cards_html) \
     .replace("REPLACE_VAULT", vault_rows) \
     .replace("REPLACE_FX", json.dumps(fx)) \
