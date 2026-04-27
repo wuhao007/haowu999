@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Ultimate V216</title>
+    <title>Alpha HUB Zenith V217</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -19,7 +19,7 @@
         .pro-blur { filter: blur(15px); opacity: 0.2; pointer-events: none; }
         .pro-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }
         .val-blur { filter: blur(15px); transition: 0.3s; position:relative; }
-        .val-blur::after { content: 'Elite Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
+        .val-blur::after { content: 'Sovereign Zenith Verified'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(255,255,255,0.1); font-size:0.4rem; font-weight:900; z-index:10; }
         .eye-btn { position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
@@ -29,10 +29,10 @@
         <div class="header text-center">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
-            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:rgba(255,255,255,0.03); border:1px solid #222;">
-                <div class="text-secondary small mb-1">全球经济政权环境 / Regime</div>
-                <div class="fs-2 fw-bold text-info">HOT 🔥</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于平均 AHR 偏离度审计 | 04-26 19:13</p>
+            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
+                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>阶梯止盈自动指令 / Smart Exit</span><span class="text-info">Institutional</span></div>
+                <div id="exit-list" class="fs-6 fw-bold text-success">正在审计出货点位...</div>
+                <p class="x-small text-muted mt-2 mb-0">系统判定：已进入回归阻力区间 | 04-26 19:15</p>
             </div>
         </div>
         <div class="px-3 mt-3">
@@ -47,13 +47,13 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_0"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$5921.04</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$2285.72</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">✅INVEST</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.492 | $ 2389.9</div>
+                <div class="text-secondary small">AHR: 0.492 | $ 2390.95</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_0', 'Ethereum')">📤 导出研报</button>
             </div>
         </div>
@@ -69,8 +69,8 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_1"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$240.4</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$92.87</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">✅INVEST</div></div></div>
                     </div>
                 </div>
             </div>
@@ -79,11 +79,11 @@
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_1', 'Alibaba')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_2' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Tencent'>Tencent <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha: +0.4%</span>
+            <span class="text-info small fw-bold">Alpha: +0.6%</span>
         </div>
         <div class='pro-blur'>
             <div class="row align-items-center">
@@ -91,21 +91,21 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_2"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$856.46</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$330.96</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">✅INVEST</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 0.974 | $ 487.2</div>
+                <div class="text-secondary small">AHR: 0.977 | $ 488.0</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_2', 'Tencent')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_3' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Moutai'>Moutai <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha: +-2.7%</span>
+            <span class="text-info small fw-bold">Alpha: +-2.6%</span>
         </div>
         <div class='pro-blur'>
             <div class="row align-items-center">
@@ -113,17 +113,17 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_3"></canvas></div>
                     <div class="row g-1 text-center mt-2">
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$844.99</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$2186.92</div></div></div>
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$845.0</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.237 | $ 1402.4</div>
+                <div class="text-secondary small">AHR: 1.241 | $ 1404.6</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_3', 'Moutai')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_4' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Bitcoin'>Bitcoin </span>
@@ -135,13 +135,13 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_4"></canvas></div>
                     <div class="row g-1 text-center mt-2">
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$45297.47</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$117206.08</div></div></div>
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$45297.57</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.371 | $ 79136.55</div>
+                <div class="text-secondary small">AHR: 1.373 | $ 79202.16</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_4', 'Bitcoin')">📤 导出研报</button>
             </div>
         </div>
@@ -157,8 +157,8 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_5"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$492.31</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$190.31</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
                     </div>
                 </div>
             </div>
@@ -167,11 +167,11 @@
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_5', 'Tesla')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_6' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Pop Mart'>Pop Mart <span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span></span>
-            <span class="text-info small fw-bold">Alpha: +4.6%</span>
+            <span class="text-info small fw-bold">Alpha: +4.9%</span>
         </div>
         <div class='pro-blur'>
             <div class="row align-items-center">
@@ -179,17 +179,17 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_6"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$204.7</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$79.17</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 1.758 | $ 156.6</div>
+                <div class="text-secondary small">AHR: 1.767 | $ 157.0</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_6', 'Pop Mart')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div>
     <div id='card_7' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="fw-bold fs-5 text-white title-ink" data-orig='Gold'>Gold </span>
@@ -201,13 +201,13 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_7"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$4916.0</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$1900.57</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: 2.764 | $ 4718.5</div>
+                <div class="text-secondary small">AHR: 2.763 | $ 4717.1</div>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_7', 'Gold')">📤 导出研报</button>
             </div>
         </div>
@@ -223,8 +223,8 @@
                 <div class="col-7">
                     <div style="height:50px; opacity:0.6;"><canvas id="c_8"></canvas></div>
                     <div class="row g-1 text-center mt-2">
+                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">止盈目标</div><div class="fw-bold text-info" style="font-size:0.75rem">$104.26</div></div></div>
                         <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">抄底目标</div><div class="fw-bold text-success" style="font-size:0.75rem">$40.34</div></div></div>
-                        <div class="col-6"><div class="p-1 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.45rem">当前信号</div><div class="fw-bold text-primary" style="font-size:0.75rem">☕️WAIT</div></div></div>
                     </div>
                 </div>
             </div>
@@ -233,36 +233,34 @@
                 <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" style="font-size:0.45rem" onclick="shareCard('card_8', 'NVIDIA')">📤 导出研报</button>
             </div>
         </div>
-    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock DNA Master</button></div></div></div>
+    <div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab("settings")'>Unlock Zenith Oracle</button></div></div></div>
     </div>
 
     <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富主权审计</h2>
+        <h2 style="font-weight:800;">有效前沿审计</h2>
         <div id="audit-report">
             <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">组合‘熵’多样化评分</div><div id="v-entropy" class="fs-4 fw-bold text-success">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权信任分</div><div class="fs-4 fw-bold text-info">SSS</div></div>
+                <div class="text-secondary small mb-2">组合效率分布 (Efficient Frontier)</div>
+                <div style="height:180px;"><canvas id="mptChart"></canvas></div>
+                <div class="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div class="text-secondary small">账户总价值 (动态扰动中)</div>
+                    <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
                 </div>
-                <div class="text-secondary small">10 年增长路径灵敏度预览</div>
-                <div class="range-wrap my-2"><input type="range" id="growth-in" min="10" max="50" value="25" oninput="calcVault()" class="form-range"></div>
-                <div style="height:140px;"><canvas id="monteChart"></canvas></div>
-                <div id="v-total" class="fs-1 fw-bold text-info val-blur mt-3">$0.00</div>
             </div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2389.9' data-cur='USD' data-vol='0.617' data-sector='Crypto' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' data-vol='0.446' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='487.2' data-cur='HKD' data-vol='0.314' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1402.4' data-cur='CNY' data-vol='0.241' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='79136.55' data-cur='USD' data-vol='0.379' data-sector='Crypto' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-vol='0.624' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='156.6' data-cur='HKD' data-vol='0.584' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4718.5' data-cur='USD' data-vol='0.228' data-sector='Metals' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-vol='0.487' data-sector='Stocks' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
+            <div class="card bg-dark border-secondary p-3 rounded-4 text-start"><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Ethereum'>Ethereum (USD)</div><input type='number' class='hold-in val-blur' data-ticker='ETH-USD' data-price='2390.95' data-cur='USD' data-vol='0.617' data-alpha='-18.2' data-sector='Crypto' data-exit='0.0' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Alibaba'>Alibaba (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BABA' data-price='135.82' data-cur='USD' data-vol='0.446' data-alpha='15.7' data-sector='Stocks' data-exit='0.0' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tencent'>Tencent (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='0700.HK' data-price='488.0' data-cur='HKD' data-vol='0.314' data-alpha='0.6' data-sector='Stocks' data-exit='0.0' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Moutai'>Moutai (CNY)</div><input type='number' class='hold-in val-blur' data-ticker='600519.SS' data-price='1404.6' data-cur='CNY' data-vol='0.241' data-alpha='-2.6' data-sector='Stocks' data-exit='0.2' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Bitcoin'>Bitcoin (USD)</div><input type='number' class='hold-in val-blur' data-ticker='BTC-USD' data-price='79202.16' data-cur='USD' data-vol='0.379' data-alpha='-17.1' data-sector='Crypto' data-exit='0.2' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Tesla'>Tesla (USD)</div><input type='number' class='hold-in val-blur' data-ticker='TSLA' data-price='376.3' data-cur='USD' data-vol='0.624' data-alpha='14.9' data-sector='Stocks' data-exit='0.2' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Pop Mart'>Pop Mart (HKD)</div><input type='number' class='hold-in val-blur' data-ticker='9992.HK' data-price='157.0' data-cur='HKD' data-vol='0.584' data-alpha='4.9' data-sector='Stocks' data-exit='0.2' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='Gold'>Gold (USD)</div><input type='number' class='hold-in val-blur' data-ticker='GC=F' data-price='4717.1' data-cur='USD' data-vol='0.228' data-alpha='40.8' data-sector='Metals' data-exit='0.3' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div><div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='NVIDIA'>NVIDIA (USD)</div><input type='number' class='hold-in val-blur' data-ticker='NVDA' data-price='208.27' data-cur='USD' data-vol='0.487' data-alpha='40.7' data-sector='Stocks' data-exit='0.5' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div></div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('全加密密钥已同步')">🔐 导出量子级主权密钥 6.0</button></div>
+        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出全加密主权密钥 6.0</button></div>
     </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="switchTab('home', this)">📊<br>机会</div>
         <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v216 | 组合熵引擎已激活')">⚙️<br>设置</div>
+        <div class="nav-item" onclick="alert('Alpha Pro v217 | 有效前沿引擎已并网')">⚙️<br>设置</div>
     </nav>
 
     <script>
-        const FX = {"HKD": 7.8353701437337815, "CNY": 6.827900222859273, "USD": 1.0};
-        let monteChart = null;
+        const FX = {"HKD": 7.835400333153178, "CNY": 6.828000260467539, "USD": 1.0};
+        let mptChart = null;
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
@@ -287,49 +285,38 @@
             });
         }
         function calcVault() {
-            let total = 0; const h = {}; const sectors = new Set();
+            let total = 0; let mptData = []; const h = {}; 
+            let isShadow = localStorage.getItem('s_mode') === '1';
+            
             document.querySelectorAll('.hold-in').forEach(i => {
                 let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
                 h[i.dataset.ticker] = i.value;
                 let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
+                if(isShadow) usd *= (1 + (Math.random()-0.5)*0.01);
                 total += usd;
-                if(v > 0) sectors.add(i.dataset.sector);
+                if(v > 0) mptData.push({ x: parseFloat(i.dataset.vol), y: parseFloat(i.dataset.alpha) });
             });
             localStorage.setItem('alpha_h_v4', JSON.stringify(h));
             document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-            
-            if(total > 0) {
-                // 熵审计: 基于行业多样性
-                let entropy = (sectors.size / 3 * 10).toFixed(1);
-                document.getElementById('v-entropy').innerText = `${entropy} (大师级)`;
-                updateMonte(total);
-            }
+            if(total > 0) updateMPT(mptData);
         }
-        function updateMonte(total) {
-            let growth = parseFloat(document.getElementById('growth-in').value) / 100;
-            const labels = ['Now', '2Y', '4Y', '6Y', '8Y', '10Y'];
-            let median = [total], high = [total], low = [total];
-            for(let y=1; y<=5; y++) {
-                let drift = Math.pow(1 + growth, y * 2);
-                median.push(total * drift);
-                high.push(total * drift * (1 + y*0.15));
-                low.push(total * drift * (1 - y*0.1));
-            }
-            const ctx = document.getElementById('monteChart').getContext('2d');
-            if(monteChart) monteChart.destroy();
-            monteChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: labels, datasets: [
-                    { data: high, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: '+1', pointRadius: 0 },
-                    { data: low, borderColor: 'transparent', backgroundColor: 'rgba(10, 132, 255, 0.1)', fill: false, pointRadius: 0 },
-                    { data: median, borderColor: '#0a84ff', borderWidth: 2, fill: false, pointRadius: 2 }
-                ]},
-                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+        function updateMPT(data) {
+            const ctx = document.getElementById('mptChart').getContext('2d');
+            if(mptChart) mptChart.destroy();
+            mptChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Asset Risk/Return', data: data, backgroundColor: '#0a84ff', pointRadius: 5 },
+                        { label: 'Frontier', data: [{x:0.1, y:5}, {x:0.2, y:15}, {x:0.4, y:35}], borderColor: '#32d74b', showLine: true, fill: false, pointRadius: 0 }
+                    ]
+                },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{title:{display:true, text:'Risk (Vol)', color:'#666'}},y:{title:{display:true, text:'Return (Alpha)', color:'#666'}}} }
             });
         }
         function shareCard(id, name) {
             html2canvas(document.getElementById(id), {backgroundColor:'#000', scale:2}).then(canvas => {
-                const a = document.createElement('a'); a.download = `Alpha_Report_${name}.png`; a.href = canvas.toDataURL(); a.click();
+                const a = document.createElement('a'); a.download = `Alpha_Zenith_${name}.png`; a.href = canvas.toDataURL(); a.click();
             });
         }
         function renderChart(id, labels, data) {
@@ -355,23 +342,34 @@
             }
             let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
             document.querySelectorAll('.hold-in').forEach(i => { i.value = h[i.dataset.ticker] || ''; });
+            
+            let exitHtml = "";
+            document.querySelectorAll('.hold-in').forEach(i => {
+                let e = parseFloat(i.dataset.exit);
+                if(e > 0) {
+                    let name = i.parentElement.innerText.split(' (')[0];
+                    exitHtml += `• ${name}: 建议阶梯减仓 ${(e*100).toFixed(0)}%<br>`;
+                }
+            });
+            document.getElementById('exit-list').innerHTML = exitHtml || "全市场处于低估/均衡期，建议持仓观望。";
+
             applyShadow();
             calcVault();
-            renderChart('c_0', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2389.89990234375]);
+            renderChart('c_0', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [1992.694580078125, 1982.5596923828125, 2023.514892578125, 2104.708251953125, 2138.737060546875, 2056.8525390625, 2053.38525390625, 2065.3515625, 2108.99560546875, 2107.761474609375, 2241.806640625, 2190.33544921875, 2189.14404296875, 2245.148681640625, 2285.39013671875, 2192.201171875, 2370.71484375, 2323.30859375, 2359.43701171875, 2348.64501953125, 2421.07177734375, 2351.1005859375, 2264.9169921875, 2315.21240234375, 2327.970458984375, 2376.088134765625, 2331.513916015625, 2315.690185546875, 2318.8291015625, 2390.949951171875]);
 renderDNARadar('dna_0', [213.4, 38.3, 56.5, -11.6, 60.6, 50.7]);
 renderChart('c_1', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [135.2100067138672, 136.7100067138672, 136.57000732421875, 134.42999267578125, 124.9000015258789, 122.41000366210938, 126.05999755859375, 125.4800033569336, 129.8699951171875, 125.41000366210938, 122.69000244140625, 121.9800033569336, 125.45999908447266, 123.7300033569336, 122.05000305175781, 122.30999755859375, 119.72000122070312, 125.31999969482422, 127.68000030517578, 127.33000183105469, 128.00999450683594, 131.35000610351562, 133.27999877929688, 138.58999633789062, 141.00999450683594, 140.1699981689453, 135.3800048828125, 136.4199981689453, 131.6999969482422, 135.82000732421875]);
 renderDNARadar('dna_1', [8.3, 55.4, 56.2, 14.0, 2.0, 28.3]);
-renderChart('c_2', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 487.20001220703125]);
-renderDNARadar('dna_2', [44.5, 68.6, 31.9, 0.4, 79.7, 27.9]);
-renderChart('c_3', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1402.4000244140625]);
-renderDNARadar('dna_3', [47.1, 75.9, 97.0, -4.4, 65.5, 22.4]);
-renderChart('c_4', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79136.546875]);
+renderChart('c_2', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [546.5, 547.5, 558.5, 550.0, 550.5, 513.0, 508.0, 498.3999938964844, 514.0, 505.5, 495.6000061035156, 493.3999938964844, 481.6000061035156, 484.0, 496.6000061035156, 489.20001220703125, 508.0, 508.5, 504.5, 490.0, 493.20001220703125, 499.0, 517.0, 510.5, 522.5, 519.0, 504.0, 495.20001220703125, 493.3999938964844, 488.0]);
+renderDNARadar('dna_2', [44.5, 68.6, 31.8, 0.8, 79.7, 27.9]);
+renderChart('c_3', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [1460.1800537109375, 1485.0, 1468.800048828125, 1452.8699951171875, 1445.0, 1408.0699462890625, 1407.3299560546875, 1410.27001953125, 1401.1800537109375, 1416.02001953125, 1420.0, 1450.0, 1459.43994140625, 1459.8800048828125, 1460.0, 1440.02001953125, 1465.02001953125, 1460.489990234375, 1453.9599609375, 1443.31005859375, 1446.9000244140625, 1467.5, 1462.8399658203125, 1407.239990234375, 1410.8900146484375, 1412.010009765625, 1409.5, 1419.0, 1458.489990234375, 1404.5999755859375]);
+renderDNARadar('dna_3', [47.1, 75.9, 97.2, -4.4, 65.5, 22.4]);
+renderChart('c_4', ["03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09", "04-10", "04-11", "04-12", "04-13", "04-14", "04-15", "04-16", "04-17", "04-18", "04-19", "04-20", "04-21", "04-22", "04-23", "04-24", "04-25", "04-27"], [66319.6953125, 65954.921875, 66691.4453125, 68233.3125, 68078.5546875, 66888.5703125, 66931.1015625, 67290.515625, 68981.8984375, 68859.828125, 71940.703125, 71123.359375, 71767.828125, 72979.046875, 73054.2734375, 70753.40625, 74484.640625, 74181.609375, 74805.078125, 75152.1328125, 77126.875, 75726.2109375, 73856.3515625, 75872.5234375, 76352.7734375, 78203.1015625, 78268.953125, 77455.3125, 77612.015625, 79202.15625]);
 renderDNARadar('dna_4', [84.8, 62.1, 39.7, -18.0, 81.8, 20.4]);
 renderChart('c_5', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [391.20001220703125, 395.55999755859375, 399.2699890136719, 392.7799987792969, 380.29998779296875, 367.9599914550781, 380.8500061035156, 383.0299987792969, 385.95001220703125, 372.1099853515625, 361.8299865722656, 355.2799987792969, 371.75, 381.260009765625, 360.5899963378906, 352.82000732421875, 346.6499938964844, 343.25, 345.6199951171875, 348.95001220703125, 352.4200134277344, 364.20001220703125, 391.95001220703125, 388.8999938964844, 400.6199951171875, 392.5, 386.4200134277344, 387.510009765625, 373.7200012207031, 376.29998779296875]);
 renderDNARadar('dna_5', [105.0, 37.6, 68.5, 9.6, 82.5, 16.2]);
-renderChart('c_6', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 156.60000610351562]);
+renderChart('c_6', ["03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-27"], [205.1999969482422, 204.8000030517578, 208.8000030517578, 215.39999389648438, 221.8000030517578, 212.8000030517578, 209.60000610351562, 202.1999969482422, 217.1999969482422, 168.3000030517578, 150.6999969482422, 149.60000610351562, 148.6999969482422, 143.60000610351562, 145.3000030517578, 141.8000030517578, 152.60000610351562, 152.6999969482422, 150.89999389648438, 151.5, 161.39999389648438, 163.3000030517578, 164.8000030517578, 159.10000610351562, 160.89999389648438, 164.39999389648438, 160.1999969482422, 155.60000610351562, 156.5, 157.0]);
 renderDNARadar('dna_6', [8.3, 41.6, 23.7, 3.2, 3.2, 16.1]);
-renderChart('c_7', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4718.5]);
+renderChart('c_7', ["03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24", "04-26"], [4994.0, 5001.0, 4889.89990234375, 4600.7001953125, 4570.39990234375, 4404.10009765625, 4399.2998046875, 4549.7998046875, 4375.5, 4492.0, 4526.0, 4647.60009765625, 4783.2001953125, 4651.5, 4656.7998046875, 4657.10009765625, 4749.5, 4792.2001953125, 4761.89990234375, 4742.39990234375, 4825.0, 4800.0, 4785.39990234375, 4857.60009765625, 4806.60009765625, 4698.39990234375, 4732.5, 4705.10009765625, 4722.2998046875, 4717.10009765625]);
 renderDNARadar('dna_7', [7.9, 77.2, -13.1, 71.2, 23.6, 10.5]);
 renderChart('c_8', ["03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-06", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16", "04-17", "04-20", "04-21", "04-22", "04-23", "04-24"], [180.25, 183.22000122070312, 181.92999267578125, 180.39999389648438, 178.55999755859375, 172.6999969482422, 175.63999938964844, 175.1999969482422, 178.67999267578125, 171.24000549316406, 167.52000427246094, 165.1699981689453, 174.39999389648438, 175.75, 177.38999938964844, 177.63999938964844, 178.10000610351562, 182.0800018310547, 183.91000366210938, 188.6300048828125, 189.30999755859375, 196.50999450683594, 198.8699951171875, 198.35000610351562, 201.67999267578125, 202.05999755859375, 199.8800048828125, 202.5, 199.63999938964844, 208.27000427246094]);
 renderDNARadar('dna_8', [83.0, 51.3, 41.2, 33.2, 59.4, 2.5]);
