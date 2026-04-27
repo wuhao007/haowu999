@@ -2,14 +2,13 @@
     {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "sector": "Crypto",
         "ahr999": 0.492,
         "r2": 0.6061,
-        "alpha": -18.2,
-        "vol": 0.617,
-        "sharpe": -0.14,
+        "rsi": 63.2,
+        "fragility": 11.2,
         "p_buy": 2285.72,
-        "price": 2390.49,
+        "price": 2390.08,
+        "vol": 0.59,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -74,21 +73,20 @@
             2331.513916015625,
             2315.690185546875,
             2318.8291015625,
-            2390.489990234375
+            2390.080078125
         ],
         "signal": "\u2705INVEST"
     },
     {
         "name": "Alibaba",
         "ticker": "BABA",
-        "sector": "Stocks",
         "ahr999": 0.961,
         "r2": 0.0205,
-        "alpha": 15.7,
-        "vol": 0.446,
-        "sharpe": 0.98,
+        "rsi": 66.8,
+        "fragility": 8.1,
         "p_buy": 92.87,
         "price": 135.82,
+        "vol": 0.429,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -160,14 +158,13 @@
     {
         "name": "Tencent",
         "ticker": "0700.HK",
-        "sector": "Stocks",
-        "ahr999": 0.983,
+        "ahr999": 0.979,
         "r2": 0.7973,
-        "alpha": 0.9,
-        "vol": 0.314,
-        "sharpe": 0.85,
+        "rsi": 49.7,
+        "fragility": 5.1,
         "p_buy": 330.96,
-        "price": 489.4,
+        "price": 488.4,
+        "vol": 0.272,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -232,21 +229,20 @@
             504.0,
             495.20001220703125,
             493.3999938964844,
-            489.3999938964844
+            488.3999938964844
         ],
         "signal": "\u2705INVEST"
     },
     {
         "name": "Moutai",
         "ticker": "600519.SS",
-        "sector": "Stocks",
-        "ahr999": 1.249,
+        "ahr999": 1.247,
         "r2": 0.6546,
-        "alpha": -2.3,
-        "vol": 0.241,
-        "sharpe": -0.22,
-        "p_buy": 845.01,
-        "price": 1409.01,
+        "rsi": 43.2,
+        "fragility": 3.6,
+        "p_buy": 845.0,
+        "price": 1407.8,
+        "vol": 0.191,
         "cur": "CNY",
         "is_pro": true,
         "labels": [
@@ -311,21 +307,20 @@
             1409.5,
             1419.0,
             1458.489990234375,
-            1409.010009765625
+            1407.800048828125
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Bitcoin",
         "ticker": "BTC-USD",
-        "sector": "Crypto",
-        "ahr999": 1.373,
+        "ahr999": 1.372,
         "r2": 0.8177,
-        "alpha": -17.1,
-        "vol": 0.379,
-        "sharpe": -0.19,
-        "p_buy": 45297.56,
-        "price": 79195.6,
+        "rsi": 74.5,
+        "fragility": 7.4,
+        "p_buy": 45297.51,
+        "price": 79160.68,
+        "vol": 0.391,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -390,21 +385,20 @@
             78268.953125,
             77455.3125,
             77612.015625,
-            79195.6015625
+            79160.6796875
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Pop Mart",
         "ticker": "9992.HK",
-        "sector": "Stocks",
-        "ahr999": 1.742,
+        "ahr999": 1.738,
         "r2": 0.0323,
-        "alpha": 4.2,
-        "vol": 0.584,
-        "sharpe": 1.7,
+        "rsi": 64.4,
+        "fragility": 11.1,
         "p_buy": 79.17,
-        "price": 155.9,
+        "price": 155.7,
+        "vol": 0.59,
         "cur": "HKD",
         "is_pro": true,
         "labels": [
@@ -469,21 +463,20 @@
             160.1999969482422,
             155.60000610351562,
             156.5,
-            155.89999389648438
+            155.6999969482422
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "Tesla",
         "ticker": "TSLA",
-        "sector": "Stocks",
         "ahr999": 1.755,
         "r2": 0.8245,
-        "alpha": 14.9,
-        "vol": 0.624,
-        "sharpe": 1.03,
+        "rsi": 61.2,
+        "fragility": 9.1,
         "p_buy": 190.31,
         "price": 376.3,
+        "vol": 0.483,
         "cur": "USD",
         "is_pro": true,
         "labels": [
@@ -555,14 +548,13 @@
     {
         "name": "Gold",
         "ticker": "GC=F",
-        "sector": "Metals",
-        "ahr999": 2.764,
+        "ahr999": 2.762,
         "r2": 0.2357,
-        "alpha": 40.8,
-        "vol": 0.228,
-        "sharpe": 1.58,
+        "rsi": 54.8,
+        "fragility": 5.2,
         "p_buy": 1900.57,
-        "price": 4717.8,
+        "price": 4716.6,
+        "vol": 0.273,
         "cur": "USD",
         "is_pro": false,
         "labels": [
@@ -627,21 +619,20 @@
             4732.5,
             4705.10009765625,
             4722.2998046875,
-            4717.7998046875
+            4716.60009765625
         ],
         "signal": "\u2615\ufe0fWAIT"
     },
     {
         "name": "NVIDIA",
         "ticker": "NVDA",
-        "sector": "Stocks",
         "ahr999": 11.937,
         "r2": 0.5944,
-        "alpha": 40.7,
-        "vol": 0.487,
-        "sharpe": 1.24,
+        "rsi": 86.7,
+        "fragility": 6.4,
         "p_buy": 40.34,
         "price": 208.27,
+        "vol": 0.337,
         "cur": "USD",
         "is_pro": true,
         "labels": [
