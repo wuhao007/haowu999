@@ -24,11 +24,11 @@ class Haowu999Asset {
     return Haowu999Asset(
       name: json['name_cn'] ?? json['name'],
       ticker: json['ticker'],
-      score: json['score'].toDouble(),
-      ahr999: json['ahr999'].toDouble(),
-      r2: json['r2'].toDouble(),
+      score: (json['snr'] ?? json['score'] ?? 0.0).toDouble(),
+      ahr999: (json['ahr999'] ?? 0.0).toDouble(),
+      r2: (json['r2'] ?? 0.0).toDouble(),
       signal: json['signal'],
-      weight: json['ahr999'] < json['p10'] ? 3.0 : (json['ahr999'] < 1.2 ? 1.0 : 0.0),
+      weight: (json['ahr999'] ?? 0.0) < 0.45 ? 3.0 : ((json['ahr999'] ?? 0.0) < 1.2 ? 1.0 : 0.0),
     );
   }
 }
