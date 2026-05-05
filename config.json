@@ -8,6 +8,7 @@
         {"ticker": "BTC-USD", "name": "Bitcoin", "type": "Crypto", "is_pro": false},
         {"ticker": "ETH-USD", "name": "Ethereum", "type": "Crypto", "is_pro": false},
         {"ticker": "GC=F", "name": "Gold", "type": "Metals", "is_pro": false},
+        {"ticker": "HG=F", "name": "Copper", "type": "Metals", "is_pro": false},
         {"ticker": "NVDA", "name": "NVIDIA", "type": "Stocks", "is_pro": true},
         {"ticker": "TSLA", "name": "Tesla", "type": "Stocks", "is_pro": true},
         {"ticker": "9992.HK", "name": "Pop Mart", "type": "Stocks", "is_pro": true},
