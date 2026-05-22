@@ -1,0 +1,15 @@
+{
+  "velocity": "\u60ef\u6027\u6f02\u79fb",
+  "weather": "\u26c8\ufe0f Stormy - 30% Opportunity Breadth",
+  "timestamp": "05-22 16:28",
+  "fx": {
+    "HKD": 7.836249391486427,
+    "CNY": 6.8295004814111,
+    "USD": 1.0
+  },
+  "avg_snr": 3.2,
+  "market_breadth": 30,
+  "avg_ahr": 2.407,
+  "version": "V254",
+  "generated_at": "2026-05-22T16:28:27.097927"
+}

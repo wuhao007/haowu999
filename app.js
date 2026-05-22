@@ -1,0 +1,518 @@
+/* =============================================================
+   Alpha Hub Pro — Application Logic (app.js)
+   ============================================================= */
+
+(function () {
+  'use strict';
+
+  /* --- State --- */
+  let pulseInterval = null;
+  let APP_DATA = [];       // loaded from latest_data.json
+  let CLIENT_CFG = {};     // loaded from config_client.json
+  const FX_FALLBACK = { HKD: 7.82, CNY: 7.26, USD: 1.0 };
+
+  /* ===== INIT ===== */
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    initTrial();
+    restoreHoldings();
+    applyShadow();
+    calcVault();
+    renderAllCharts();
+    registerSW();
+  });
+
+  /* ===== DATA LOADING ===== */
+  async function loadData() {
+    try {
+      const [dataRes, cfgRes] = await Promise.all([
+        fetch('latest_data.json'),
+        fetch('config_client.json').catch(() => null)
+      ]);
+      APP_DATA = await dataRes.json();
+      if (cfgRes && cfgRes.ok) {
+        CLIENT_CFG = await cfgRes.json();
+        applyClientConfig();
+      }
+    } catch (e) {
+      console.warn('[AlphaHub] Data load failed, using embedded fallback', e);
+    }
+  }
+
+  function applyClientConfig() {
+    const velEl = document.getElementById('v-velocity');
+    const weatherEl = document.getElementById('v-weather');
+    const timeEl = document.getElementById('v-time');
+    if (velEl && CLIENT_CFG.velocity) velEl.textContent = '状态: ' + CLIENT_CFG.velocity;
+    if (weatherEl && CLIENT_CFG.weather) weatherEl.textContent = CLIENT_CFG.weather;
+    if (timeEl && CLIENT_CFG.timestamp) timeEl.textContent = '系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | ' + CLIENT_CFG.timestamp;
+  }
+
+  /* ===== TAB NAVIGATION ===== */
+  window.switchTab = function (id, el) {
+    document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const tabEl = document.getElementById('tab-' + id);
+    if (tabEl) tabEl.classList.add('active-tab');
+    if (el) el.classList.add('active');
+    else {
+      // find nav item for this tab
+      document.querySelectorAll('.nav-item').forEach(n => {
+        if (n.dataset.tab === id) n.classList.add('active');
+      });
+    }
+    if (id === 'vault') calcVault();
+  };
+
+  /* ===== SHADOW MODE ===== */
+  window.toggleShadow = function () {
+    const s = localStorage.getItem('s_mode') === '1' ? '0' : '1';
+    localStorage.setItem('s_mode', s);
+    applyShadow();
+  };
+
+  function applyShadow() {
+    const isShadow = localStorage.getItem('s_mode') === '1';
+
+    // Fix: properly toggle blur class instead of always adding it
+    document.querySelectorAll('[data-shadow-blur]').forEach(el => {
+      if (isShadow) el.classList.add('val-blur');
+      else el.classList.remove('val-blur');
+    });
+
+    document.querySelectorAll('.title-ink').forEach(el => {
+      if (isShadow) {
+        el.textContent = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
+      } else {
+        el.textContent = el.dataset.orig || el.textContent;
+      }
+    });
+
+    // Geometric pulse canvas
+    const canvas = document.getElementById('pulse-canvas');
+    if (canvas) {
+      canvas.style.opacity = isShadow ? '1' : '0';
+      if (isShadow && !pulseInterval) {
+        pulseInterval = setInterval(renderPulse, 50);
+      } else if (!isShadow && pulseInterval) {
+        clearInterval(pulseInterval);
+        pulseInterval = null;
+      }
+    }
+  }
+
+  function renderPulse() {
+    const canvas = document.getElementById('pulse-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const parent = canvas.parentElement;
+    canvas.width = parent.offsetWidth;
+    canvas.height = 60;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const time = Date.now() / 200;
+
+    // Outer glow
+    const gradient = ctx.createRadialGradient(canvas.width / 2, 30, 5, canvas.width / 2, 30, 40);
+    gradient.addColorStop(0, 'hsla(230, 60%, 60%, 0.15)');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 30, 15 + Math.sin(time) * 5, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'hsla(260, 60%, 60%, 0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 30, 25 + Math.cos(time) * 10, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'hsla(200, 80%, 60%, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 30, 35 + Math.sin(time * 0.7) * 8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  /* ===== VAULT CALCULATOR ===== */
+  window.calcVault = function () {
+    let total = 0;
+    let totalSNR = 0;
+    const holdings = {};
+    let isHunter = false;
+    let isDiamond = false;
+
+    document.querySelectorAll('.hold-in').forEach(input => {
+      const v = parseFloat(input.value || 0);
+      const p = parseFloat(input.dataset.price);
+      const c = input.dataset.cur;
+      holdings[input.dataset.ticker] = input.value;
+
+      const fxRate = c === 'HKD' ? 1 / (CLIENT_CFG.fx?.HKD || FX_FALLBACK.HKD) :
+                     c === 'CNY' ? 1 / (CLIENT_CFG.fx?.CNY || FX_FALLBACK.CNY) : 1;
+      const usd = v * p * fxRate;
+      total += usd;
+      totalSNR += usd * parseFloat(input.dataset.snr);
+      if (v > 0) isDiamond = true;
+      if (v > 0 && parseFloat(input.dataset.ahr) < 0.45) isHunter = true;
+    });
+
+    localStorage.setItem('alpha_h_v4', JSON.stringify(holdings));
+
+    // Animate total value
+    const totalEl = document.getElementById('v-total');
+    if (totalEl) animateValue(totalEl, total);
+
+    const snrEl = document.getElementById('v-snr');
+    if (snrEl && total > 0) {
+      snrEl.textContent = (totalSNR / total).toFixed(1) + 'dB';
+    }
+
+    // Badges
+    updateBadge('badge-whale', total > 10000, 'badge-whale');
+    updateBadge('badge-diamond', isDiamond, 'badge-diamond');
+    updateBadge('badge-hunter', isHunter, 'badge-hunter');
+  };
+
+  function updateBadge(id, active, activeClass) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'achievement-badge ' + (active ? activeClass : 'badge-locked');
+  }
+
+  function animateValue(el, target) {
+    const duration = 600;
+    const start = parseFloat(el.dataset.current || '0');
+    const startTime = performance.now();
+    el.dataset.current = target;
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const current = start + (target - start) * eased;
+      el.textContent = '$' + current.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ===== CHART RENDERING ===== */
+  function renderAllCharts() {
+    APP_DATA.forEach((item, i) => {
+      const canvasEl = document.getElementById('c_' + i);
+      if (canvasEl && item.labels && item.values) {
+        renderChart('c_' + i, item.labels, item.values);
+      }
+    });
+  }
+
+  function renderChart(id, labels, data) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          borderColor: '#667eea',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          backgroundColor: (context) => {
+            const chart = context.chart;
+            const { ctx: c, chartArea } = chart;
+            if (!chartArea) return 'transparent';
+            const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'hsla(230, 70%, 65%, 0.15)');
+            gradient.addColorStop(1, 'hsla(230, 70%, 65%, 0)');
+            return gradient;
+          },
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: { display: false }
+        },
+        interaction: { mode: 'nearest', intersect: false },
+        elements: { line: { capBezierPoints: true } }
+      }
+    });
+  }
+
+  /* ===== TRIAL / PRO ===== */
+  function initTrial() {
+    const trialEnd = localStorage.getItem('trial_end');
+    const isPro = localStorage.getItem('p') === '1';
+    const banner = document.getElementById('trial-banner');
+    const trialText = document.getElementById('trial-text');
+    const trialBtn = document.getElementById('trial-btn');
+
+    if (isPro) {
+      unlockPro();
+      if (banner) banner.style.display = 'none';
+      return;
+    }
+
+    if (banner) banner.style.display = 'block';
+
+    if (trialEnd) {
+      const remaining = parseInt(trialEnd) - Date.now();
+      if (remaining > 0) {
+        if (trialText) trialText.textContent = 'Pro Trial: ' + Math.ceil(remaining / 3600000) + 'h left';
+        if (trialBtn) trialBtn.style.display = 'none';
+        unlockPro();
+      } else {
+        if (trialText) trialText.textContent = 'Trial Expired. Upgrade to Pro';
+        if (trialBtn) {
+          trialBtn.textContent = 'Upgrade';
+          trialBtn.onclick = () => switchTab('settings');
+        }
+      }
+    }
+  }
+
+  function unlockPro() {
+    document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
+    document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
+    const adContainer = document.getElementById('ad-container');
+    if (adContainer) adContainer.style.display = 'none';
+  }
+
+  window.startTrial = function () {
+    localStorage.setItem('trial_end', Date.now() + 24 * 3600 * 1000);
+    location.reload();
+  };
+
+  /* ===== SETTINGS ===== */
+  window.activateLicense = function () {
+    const input = document.getElementById('license-key-input');
+    if (!input) return;
+    const key = input.value.trim().toUpperCase();
+
+    // Simple validation: keys are 16-char alphanumeric
+    if (key.length >= 12) {
+      localStorage.setItem('p', '1');
+      localStorage.setItem('license_key', key);
+      unlockPro();
+      const banner = document.getElementById('trial-banner');
+      if (banner) banner.style.display = 'none';
+      input.style.borderColor = 'var(--accent-green)';
+      const statusEl = document.getElementById('license-status');
+      if (statusEl) {
+        statusEl.textContent = '✅ License activated!';
+        statusEl.style.color = 'var(--accent-green)';
+      }
+    } else {
+      input.style.borderColor = 'var(--accent-red)';
+      const statusEl = document.getElementById('license-status');
+      if (statusEl) {
+        statusEl.textContent = '❌ Invalid key format';
+        statusEl.style.color = 'var(--accent-red)';
+      }
+    }
+  };
+
+  window.resetLicense = function () {
+    localStorage.removeItem('p');
+    localStorage.removeItem('license_key');
+    localStorage.removeItem('trial_end');
+    location.reload();
+  };
+
+  /* ===== POSTER GENERATION ===== */
+  window.generatePoster = function () {
+    const modal = document.getElementById('poster-modal');
+    if (!modal) return;
+    modal.classList.add('visible');
+
+    const canvas = document.getElementById('poster-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = 720;
+    const H = 1080;
+    canvas.width = W;
+    canvas.height = H;
+
+    // Background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, '#0d0f1a');
+    bgGrad.addColorStop(0.5, '#111428');
+    bgGrad.addColorStop(1, '#0a0c15');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid pattern
+    ctx.strokeStyle = 'hsla(230, 40%, 40%, 0.06)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += 30) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 30) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Header gradient bar
+    const headerGrad = ctx.createLinearGradient(0, 0, W, 0);
+    headerGrad.addColorStop(0, '#667eea');
+    headerGrad.addColorStop(1, '#764ba2');
+    ctx.fillStyle = headerGrad;
+    ctx.fillRect(0, 0, W, 4);
+
+    // Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 38px Inter, -apple-system, sans-serif';
+    ctx.fillText('Alpha HUB', 40, 70);
+    ctx.font = '500 14px Inter, sans-serif';
+    ctx.fillStyle = '#667eea';
+    ctx.fillText('INSTITUTIONAL RESEARCH', 42, 92);
+
+    // Timestamp
+    ctx.fillStyle = 'hsla(0, 0%, 100%, 0.3)';
+    ctx.font = '400 11px Inter, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(new Date().toISOString().slice(0, 16).replace('T', ' '), W - 40, 70);
+    ctx.textAlign = 'left';
+
+    // Divider
+    ctx.strokeStyle = 'hsla(230, 40%, 50%, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(40, 110); ctx.lineTo(W - 40, 110); ctx.stroke();
+
+    // Asset rows
+    let y = 150;
+    const investAssets = APP_DATA.filter(a => !a.is_pro || localStorage.getItem('p') === '1');
+    const displayAssets = investAssets.slice(0, 8);
+
+    // Column headers
+    ctx.fillStyle = 'hsla(0, 0%, 100%, 0.35)';
+    ctx.font = '600 10px Inter, sans-serif';
+    ctx.fillText('ASSET', 40, y - 10);
+    ctx.fillText('PRICE', 220, y - 10);
+    ctx.fillText('AHR999', 340, y - 10);
+    ctx.fillText('SNR', 440, y - 10);
+    ctx.fillText('SIGNAL', 540, y - 10);
+
+    ctx.strokeStyle = 'hsla(230, 40%, 50%, 0.15)';
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 40, y); ctx.stroke();
+    y += 20;
+
+    displayAssets.forEach(asset => {
+      // Row background
+      ctx.fillStyle = 'hsla(230, 15%, 15%, 0.4)';
+      ctx.beginPath();
+      roundRect(ctx, 35, y - 14, W - 70, 48, 8);
+      ctx.fill();
+
+      // Asset name
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 15px Inter, sans-serif';
+      ctx.fillText(asset.name, 50, y + 10);
+
+      // Price
+      ctx.fillStyle = '#64d2ff';
+      ctx.font = '600 14px Inter, monospace';
+      ctx.fillText('$' + asset.price.toLocaleString(), 220, y + 10);
+
+      // AHR999
+      ctx.fillStyle = asset.ahr999 < 0.45 ? '#ff6b6b' : asset.ahr999 < 1.2 ? '#32d74b' : '#ffd60a';
+      ctx.font = '700 14px Inter, monospace';
+      ctx.fillText(asset.ahr999.toFixed(3), 340, y + 10);
+
+      // SNR
+      ctx.fillStyle = asset.snr > 8 ? '#32d74b' : asset.snr > 3 ? '#ffd60a' : '#ff453a';
+      ctx.fillText(asset.snr.toFixed(1) + 'dB', 440, y + 10);
+
+      // Signal
+      const sig = asset.signal.replace(/[^\w]/g, '');
+      ctx.fillStyle = sig === 'INVEST' ? '#32d74b' : sig === 'BOTTOM' ? '#ff6b6b' : '#ffd60a';
+      ctx.font = '800 13px Inter, sans-serif';
+      ctx.fillText(sig, 540, y + 10);
+
+      y += 56;
+    });
+
+    // Footer
+    y = H - 80;
+    ctx.strokeStyle = 'hsla(230, 40%, 50%, 0.15)';
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 40, y); ctx.stroke();
+
+    ctx.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
+    ctx.font = '400 10px Inter, sans-serif';
+    ctx.fillText('© ' + new Date().getFullYear() + ' Alpha Hub Quant Studio', 40, y + 25);
+    ctx.fillText('Institutional Grade Data for the Retail Investor', 40, y + 42);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#667eea';
+    ctx.font = '700 11px Inter, sans-serif';
+    ctx.fillText('haowu999.github.io', W - 40, y + 25);
+    ctx.textAlign = 'left';
+
+    // Weather summary
+    const weatherText = CLIENT_CFG.weather || 'Market Analysis';
+    ctx.fillStyle = 'hsla(0, 0%, 100%, 0.15)';
+    ctx.font = '500 11px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(weatherText, W - 40, y + 42);
+    ctx.textAlign = 'left';
+  };
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  window.savePoster = function () {
+    const canvas = document.getElementById('poster-canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'AlphaHub_Research_' + new Date().toISOString().slice(0, 10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  window.closePoster = function () {
+    const modal = document.getElementById('poster-modal');
+    if (modal) modal.classList.remove('visible');
+  };
+
+  /* ===== HOLDINGS RESTORE ===== */
+  function restoreHoldings() {
+    try {
+      const h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{}');
+      document.querySelectorAll('.hold-in').forEach(input => {
+        input.value = h[input.dataset.ticker] || '';
+      });
+    } catch (e) {
+      console.warn('[AlphaHub] Failed to restore holdings', e);
+    }
+  }
+
+  /* ===== SERVICE WORKER ===== */
+  function registerSW() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('[AlphaHub] SW registration failed', err);
+      });
+    }
+  }
+
+})();

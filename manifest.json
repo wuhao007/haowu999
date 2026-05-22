@@ -1,16 +1,30 @@
 {
-  "name": "Haowu999 Quant Pro",
-  "short_name": "Haowu999",
-  "description": "全球资产对数回归智能定投终端",
+  "name": "Alpha Hub Pro — Signal Dashboard",
+  "short_name": "Alpha Hub",
+  "description": "Institutional-grade AHR999 signal engine for Bitcoin, Gold, NVIDIA and 10+ global assets. Log-regression powered smart DCA signals.",
   "start_url": "/haowu999/",
+  "scope": "/haowu999/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#0a84ff",
+  "orientation": "portrait",
+  "background_color": "#0d0f1a",
+  "theme_color": "#667eea",
+  "categories": ["finance", "business", "utilities"],
   "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/128/2534/2534312.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/256/2534/2534312.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2534/2534312.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

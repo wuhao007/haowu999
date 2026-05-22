@@ -4,8 +4,17 @@ import numpy as np
 import math
 import json
 import os
+import logging
 from sklearn.linear_model import LinearRegression
-from datetime import datetime
+from datetime import datetime, timedelta
+
+# --- Logging Setup ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+log = logging.getLogger('AlphaHub')
 
 # 1. 加载配置
 with open('config.json', 'r') as f:
@@ -15,52 +24,86 @@ def get_fx_rates():
     """实时汇率感知引擎"""
     try:
         data = yf.download(['HKDUSD=X', 'CNYUSD=X'], period='1d', progress=False)['Close'].iloc[-1]
-        return {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
-    except: return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
+        rates = {'HKD': 1.0/float(data['HKDUSD=X']), 'CNY': 1.0/float(data['CNYUSD=X']), 'USD': 1.0}
+        log.info(f"FX rates loaded: HKD={rates['HKD']:.4f}, CNY={rates['CNY']:.4f}")
+        return rates
+    except (KeyError, IndexError, ValueError) as e:
+        log.warning(f"FX rate fetch failed ({e}), using fallback rates")
+        return {'HKD': 7.82, 'CNY': 7.26, 'USD': 1.0}
 
 def solve_target_price(target_ahr, ma200_sum_199, fit_p):
+    """Solve for the price at which AHR999 = target_ahr"""
     try:
         a, b, c = 200, -(target_ahr * fit_p), -(target_ahr * fit_p * ma200_sum_199)
         delta = b**2 - 4*a*c
         return round((-b + math.sqrt(delta)) / (2 * a), 2) if delta >= 0 else 0.0
-    except: return 0.0
+    except (ValueError, ZeroDivisionError) as e:
+        log.warning(f"Target price solve failed: {e}")
+        return 0.0
 
 def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
+    log.info(f"Analyzing {name} ({ticker})...")
     try:
         start_date = '2015-01-01' if 'BTC' in ticker else '2020-12-11' if '9992' in ticker else base_start
         df = yf.download(ticker, start=start_date, progress=False).reset_index()
-        if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
-        
+
+        # Data validation: need at least 200 rows for MA200
+        if len(df) < 200:
+            log.warning(f"{name}: Only {len(df)} rows, need 200+ for MA200. Skipping.")
+            return None
+
+        # Staleness check
+        latest_date = pd.to_datetime(df['Date'].iloc[-1])
+        days_stale = (pd.Timestamp.now() - latest_date).days
+        if days_stale > 5:
+            log.warning(f"{name}: Data is {days_stale} days stale (latest: {latest_date.strftime('%Y-%m-%d')})")
+
         # 1. 对数回归拟合
         df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
         df = df[df['Days'] > 0]
-        model = LinearRegression().fit(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
-        r2 = model.score(np.log10(df['Days'].values).reshape(-1, 1), np.log10(df['Close'].values))
+        X = np.log10(df['Days'].values).reshape(-1, 1)
+        y_log = np.log10(df['Close'].values)
+        model = LinearRegression().fit(X, y_log)
+        r2 = model.score(X, y_log)
         slope, intercept = model.coef_[0], model.intercept_
-        
+
         latest_p = float(df['Close'].iloc[-1])
         ma200_sum_199 = df['Close'].iloc[-199:].sum()
         fit_p = 10 ** (slope * math.log10(df['Days'].iloc[-1]) + intercept)
         ahr = (latest_p / ((ma200_sum_199 + latest_p)/200)) * (latest_p / fit_p)
-        
-        # 2. 信号信噪比 (Signal SNR)
-        # SNR = 趋势分量的方差 / 波动残差的方差
-        ahr_series = (df['Close'] / (df['Close'].rolling(200).mean())) * (df['Close'] / (10 ** (slope * np.log10(df['Days']) + intercept)))
+
+        # 2. MAPE (Mean Absolute Percentage Error)
+        y_pred = 10 ** model.predict(X)
+        y_actual = df['Close'].values
+        mape = round(float(np.mean(np.abs((y_actual - y_pred) / y_actual)) * 100), 1)
+
+        # 3. Sell-Peak price (AHR999x = 5.0 threshold)
+        p_sell = solve_target_price(5.0, ma200_sum_199, fit_p)
+
+        # 4. 信号信噪比 (Signal SNR)
+        ahr_series = (df['Close'] / (df['Close'].rolling(200).mean())) * \
+                     (df['Close'] / (10 ** (slope * np.log10(df['Days']) + intercept)))
         ahr_clean = ahr_series.dropna().tail(30)
         trend = ahr_clean.rolling(5).mean()
         noise = ahr_clean - trend
         snr = round(10 * math.log10(trend.var() / (noise.var() + 1e-9)), 1) if noise.var() > 0 else 0
 
-        # 3. 统计特征
+        # 5. 统计特征
         rets = df['Close'].pct_change().dropna().tail(252)
         alpha = round(float((latest_p / df['Close'].tail(500).mean() - 1) * 100), 1)
 
+        log.info(f"  {name}: AHR={ahr:.3f}, SNR={snr}dB, R²={r2:.4f}, MAPE={mape}%")
+
         return {
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
-            'r2': round(float(r2), 4), 'alpha': alpha, 'snr': snr,
-            'price': round(latest_p, 2), 'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
+            'r2': round(float(r2), 4), 'mape': mape, 'alpha': alpha, 'snr': snr,
+            'price': round(latest_p, 2),
+            'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
+            'p_sell': p_sell,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'is_pro': asset_cfg['is_pro'],
             'labels': df.tail(30)['Date'].dt.strftime('%m-%d').tolist(),
@@ -68,15 +111,24 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'vol': round(float(rets.std() * np.sqrt(252)), 3),
             'signal': "💎BOTTOM" if ahr < 0.45 else "✅INVEST" if ahr < 1.2 else "☕️WAIT"
         }
-    except: return None
+    except Exception as e:
+        log.error(f"Failed to analyze {name} ({ticker}): {e}")
+        return None
+
+# --- Main Pipeline ---
+log.info("=" * 50)
+log.info("Alpha Hub Pro — Data Pipeline Starting")
+log.info("=" * 50)
 
 fx = get_fx_rates()
 all_results = []
 for a in config['assets']:
     res = analyze_asset(a)
-    if res: all_results.append(res)
+    if res:
+        all_results.append(res)
 
 all_results.sort(key=lambda x: x['ahr999'])
+log.info(f"Successfully analyzed {len(all_results)}/{len(config['assets'])} assets")
 
 # 4. 政权速度 (Regime Velocity)
 avg_snr = sum([x['snr'] for x in all_results]) / len(all_results) if all_results else 0
@@ -92,268 +144,293 @@ elif market_breadth > 40:
 else:
     weather = f"⛈️ Stormy - {int(market_breadth)}% Opportunity Breadth"
 
-# --- UI Snippets ---
+# 6. Correlation Matrix (90-day rolling)
+log.info("Computing correlation matrix...")
+corr_data = {}
+try:
+    tickers_for_corr = [a['ticker'] for a in config['assets']]
+    names_for_corr = [a['name'] for a in config['assets']]
+    corr_df = yf.download(tickers_for_corr, period='120d', progress=False)['Close'].dropna()
+    if isinstance(corr_df.columns, pd.MultiIndex):
+        corr_df.columns = corr_df.columns.get_level_values(0)
+    corr_matrix = corr_df.tail(90).pct_change().corr()
+    corr_data = {
+        'names': names_for_corr,
+        'tickers': tickers_for_corr,
+        'matrix': corr_matrix.values.tolist()
+    }
+    log.info("Correlation matrix computed successfully")
+except Exception as e:
+    log.warning(f"Correlation matrix failed: {e}")
+
+timestamp = datetime.now().strftime('%m-%d %H:%M')
+
+# --- UI Generation ---
 cards_html = ""
-scripts_html = ""
-vault_rows = ""
 for i, item in enumerate(all_results):
-    pro = '<span class="badge bg-primary ms-1" style="font-size:0.5rem">PRO</span>' if item['is_pro'] else ''
+    pro = '<span class="pro-badge">PRO</span>' if item['is_pro'] else ''
     blur = "pro-blur" if item['is_pro'] else ""
-    snr_color = "#32d74b" if item['snr'] > 8 else "#ff453a"
-    
+    snr_class = "snr-high" if item['snr'] > 8 else "snr-mid" if item['snr'] > 3 else "snr-low"
+
+    signal_class = "signal-invest"
+    if "WAIT" in item['signal']:
+        signal_class = "signal-wait"
+    elif "BOTTOM" in item['signal']:
+        signal_class = "signal-bottom"
+
     cards_html += f"""
-    <div id='card_{i}' class="card bg-dark border-secondary rounded-4 p-3 mb-3 shadow-lg position-relative overflow-hidden">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold fs-5 text-white title-ink" data-orig='{item['name']}'>{item['name']} {pro}</span>
-            <span style='color:{snr_color}; font-size:0.75rem; font-weight:900;'>信噪比: {item['snr']}dB</span>
+    <div id="card_{i}" class="asset-card">
+        <div class="card-header-row">
+            <span class="asset-name title-ink" data-orig="{item['name']}">{item['name']} {pro}</span>
+            <span class="snr-badge {snr_class}">SNR: {item['snr']}dB</span>
         </div>
-        <div class='{blur}'>
-            <div style="height:60px; opacity:0.6;"><canvas id="c_{i}"></canvas></div>
-            <div class="row g-2 text-center mt-3">
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">建议抄底价</div><div class="fw-bold text-success val-ink" data-v='${item['p_buy']}'>${item['p_buy']}</div></div></div>
-                <div class="col-6"><div class="p-2 rounded bg-black border border-secondary"><div class="small text-secondary" style="font-size:0.55rem">年化波动率</div><div class="fw-bold text-warning">{int(item['vol']*100)}%</div></div></div>
+        <div class="{blur}">
+            <div class="chart-wrap"><canvas id="c_{i}"></canvas></div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">建议抄底价 / Buy</div>
+                    <div class="metric-value green" data-shadow-blur data-v="${item['p_buy']}">${item['p_buy']}</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">年化波动率 / Vol</div>
+                    <div class="metric-value amber">{int(item['vol']*100)}%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">模型精度 / R²</div>
+                    <div class="metric-value cyan">{item['r2']}</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">预测误差 / MAPE</div>
+                    <div class="metric-value {'green' if item['mape'] < 5 else 'amber' if item['mape'] < 15 else 'red'}">{item['mape']}%</div>
+                </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-25">
-                <div class="text-secondary small">AHR: {item['ahr999']} | $ {item['price']}</div>
-                <div class="fs-5 fw-bold text-primary">{item['signal']}</div>
+            <div class="signal-row">
+                <div class="signal-meta">AHR: {item['ahr999']} | ${item['price']}</div>
+                <div class="signal-badge {signal_class}">{item['signal']}</div>
             </div>
         </div>
     """
     if item['is_pro']:
-        cards_html += "<div class='pro-overlay text-center'><button class='btn btn-primary btn-sm rounded-pill px-3 fw-bold' onclick='switchTab(\"settings\")'>Unlock Alpha Apex</button></div>"
+        cards_html += '<div class="pro-overlay"><button class="unlock-btn" onclick="switchTab(\'settings\')">🔓 Unlock Alpha Apex</button></div>'
     cards_html += "</div>"
-    
-    scripts_html += f"renderChart('c_{i}', {json.dumps(item['labels'])}, {json.dumps(item['values'])});\n"
-    vault_rows += f"<div class='mb-3 d-flex justify-content-between align-items-center'><div class='small text-secondary title-ink' data-orig='{item['name']}'>{item['name']} ({item['cur']})</div><input type='number' class='hold-in val-blur pulse-target' data-ticker='{item['ticker']}' data-price='{item['price']}' data-cur='{item['cur']}' data-snr='{item['snr']}' data-ahr='{item['ahr999']}' placeholder='Units' onchange='calcVault()' style='width:80px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; text-align:center;'></div>"
 
-final_template = f"""
-<!DOCTYPE html>
+vault_rows = ""
+for item in all_results:
+    vault_rows += f"""<div class="vault-row">
+        <div class="asset-label title-ink" data-orig="{item['name']}">{item['name']} ({item['cur']})</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="{item['ticker']}" data-price="{item['price']}" data-cur="{item['cur']}" data-snr="{item['snr']}" data-ahr="{item['ahr999']}" placeholder="Units" onchange="calcVault()">
+    </div>"""
+
+# --- HTML Template (simplified — JS is in app.js, CSS is in styles.css) ---
+final_html = f"""<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Alpha HUB Singularity V254</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Alpha Hub Pro — Institutional Signal Dashboard</title>
+    <meta name="description" content="Alpha Hub Pro: Institutional-grade AHR999 signal engine for Bitcoin, Gold, NVIDIA and 10+ global assets. Log-regression powered smart DCA signals.">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2534/2534312.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2534/2534312.png">
+    <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={config['publisher_id']}" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {{ background:#000; color:#fff; font-family:-apple-system, system-ui; margin:0; padding-bottom:100px; -webkit-font-smoothing: antialiased; }}
-        .header {{ padding: 60px 20px 20px; background: linear-gradient(180deg, #1c1c1e 0%, #000 100%); position:relative; }}
-        .nav-bar {{ position:fixed; bottom:0; left:0; right:0; height:85px; background:rgba(20,20,22,0.9); backdrop-filter:blur(20px); display:flex; justify-content:space-around; border-top:0.5px solid #333; z-index:1000; }}
-        .nav-item {{ color:#8e8e93; font-size:0.7rem; text-align:center; padding-top:15px; border:none; background:none; flex:1; cursor:pointer; }}
-        .nav-item.active {{ color:#0a84ff; }}
-        .tab-view {{ display:none; animation: fadeIn 0.3s; }}
-        .active-tab {{ display:block; }}
-        .pro-blur {{ filter: blur(15px); opacity: 0.2; pointer-events: none; }}
-        .pro-overlay {{ position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; }}
-        .val-blur {{ filter: blur(18px); transition: 0.3s; }}
-        .eye-btn {{ position:absolute; top:60px; right:20px; font-size:1.2rem; cursor:pointer; opacity:0.6; }}
-        #pulse-canvas {{ position:absolute; inset:0; pointer-events:none; z-index:50; opacity:0; }}
-        @keyframes fadeIn {{ from {{ opacity:0; }} to {{ opacity:1; }} }}
-    </style>
 </head>
 <body>
-    <div id="trial-banner" class="bg-warning text-dark text-center py-2 fw-bold" style="display:none; font-size: 0.8rem; z-index: 2000; position: relative;">
+
+    <!-- Trial Banner -->
+    <div id="trial-banner" class="trial-banner">
         <span id="trial-text">24h Free Trial Available</span>
-        <button id="trial-btn" class="btn btn-dark btn-sm ms-2 py-0 px-2" onclick="startTrial()">Start Trial</button>
+        <button id="trial-btn" class="trial-btn" onclick="startTrial()">Start Trial</button>
     </div>
 
+    <!-- ==================== HOME TAB ==================== -->
     <div id="tab-home" class="tab-view active-tab">
-        <div class="header text-center">
+        <div class="header" style="text-align:center;">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
-            <h1 style="font-weight:900; margin:0;">Alpha <span style="color:#0a84ff;">HUB</span></h1>
-            <div class="mt-3 p-3 rounded-4 shadow-sm" style="background:#111; border:1px solid #333;">
-                <div class="d-flex justify-content-between x-small text-secondary mb-1"><span>今日政权‘运动速度’仪表盘 / Velocity</span><span class="text-info">SNR Audit</span></div>
-                <div id="v-velocity" class="fs-4 fw-bold text-success">状态: REPLACE_VELOCITY</div>
-                <p class="x-small text-muted mt-2 mb-0">系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | REPLACE_TIME</p>
+            <h1>Alpha <span class="accent">HUB</span></h1>
+
+            <div class="glass-panel velocity-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="velocity-label">今日政权运动速度 / Velocity</span>
+                    <span style="color:var(--accent-cyan); font-size:0.65rem; font-weight:700;">SNR Audit</span>
+                </div>
+                <div id="v-velocity" class="velocity-value">状态: {velocity}</div>
+                <div id="v-time" class="velocity-meta">系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | {timestamp}</div>
             </div>
-            <div class="mt-2 p-2 rounded-4 shadow-sm text-center" style="background:#1a1a1c; border:1px solid #333;">
-                <div class="x-small text-secondary mb-1">Market Weather Summary</div>
-                <div class="fs-6 fw-bold text-warning">REPLACE_WEATHER</div>
+
+            <div class="glass-panel-sm weather-panel" style="margin-top:10px;">
+                <div class="velocity-label" style="margin-bottom:4px;">Market Weather Summary</div>
+                <div id="v-weather" class="weather-value">{weather}</div>
             </div>
-            <button class="btn btn-outline-primary btn-sm rounded-pill mt-3 px-4" onclick="generatePoster()">📸 Generate Professional Research Poster</button>
+
+            <button class="poster-btn" onclick="generatePoster()">📸 Generate Research Poster</button>
         </div>
-        <div class="px-3 mt-3">
-            REPLACE_CARDS
-            <div id="ad-container" class="mt-4 text-center ad-container">
-                <ins class="adsbygoogle" style="display:block" data-ad-client="REPLACE_PUB_ID" data-ad-slot="REPLACE_AD_UNIT" data-ad-format="auto" data-full-width-responsive="true"></ins>
+
+        <div style="padding:0 16px; margin-top:16px;">
+            <div class="asset-cards-container">
+                {cards_html}
+            </div>
+            <div id="ad-container" class="ad-container">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{config['publisher_id']}" data-ad-slot="{config['ad_unit_id']}" data-ad-format="auto" data-full-width-responsive="true"></ins>
                 <script>(adsbygoogle = window.adsbygoogle || []).push({{}});</script>
             </div>
         </div>
     </div>
 
-    <div id="tab-vault" class="tab-view container py-5 mt-4 text-center">
-        <h2 style="font-weight:800;">财富主权审计</h2>
-        <div id="audit-report">
-            <div class="card bg-dark border-primary p-4 rounded-4 shadow mb-4 text-start">
-                <div class="d-flex justify-content-between mb-3">
-                    <div><div class="text-secondary small">组合信号信噪比 (Confidence)</div><div id="v-snr" class="fs-4 fw-bold text-success">--</div></div>
-                    <div class="text-end"><div class="text-secondary small">主权分</div><div class="fs-4 fw-bold text-info">Elite</div></div>
+    <!-- ==================== VAULT TAB ==================== -->
+    <div id="tab-vault" class="tab-view" style="padding:60px 16px 20px;">
+        <h2 class="vault-header" style="text-align:center;">💰 财富主权审计</h2>
+
+        <div class="vault-summary-card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                <div>
+                    <div class="vault-snr-label">组合信噪比 / Confidence</div>
+                    <div id="v-snr" class="vault-snr-value">--</div>
                 </div>
-                <div class="text-secondary small">账户实时总净值 (几何脉冲保护)</div>
-                <div class="position-relative">
-                    <div id="v-total" class="fs-1 fw-bold text-info val-blur">$0.00</div>
-                    <canvas id="pulse-canvas"></canvas>
+                <div style="text-align:right;">
+                    <div class="vault-snr-label">主权分 / Rank</div>
+                    <div style="font-size:1.2rem; font-weight:800; color:var(--accent-cyan);">Elite</div>
                 </div>
-                <p class="x-small text-muted mt-2">提示：Shadow Mode 48.0 开启。金额已映射为动态几何能量环，截屏物理不可逆。</p>
             </div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 text-start">REPLACE_VAULT</div>
-            <div class="card bg-dark border-secondary p-3 rounded-4 mt-3 text-start">
-                <div class="text-secondary small mb-2">🏅 Achievements</div>
-                <div class="d-flex justify-content-between">
-                    <span id="badge-diamond" class="badge bg-secondary opacity-50">💎 Diamond Hands</span>
-                    <span id="badge-hunter" class="badge bg-secondary opacity-50">🎯 Alpha Hunter</span>
-                    <span id="badge-whale" class="badge bg-secondary opacity-50">🐳 Whale</span>
-                </div>
+            <div class="vault-snr-label">账户实时总净值 (几何脉冲保护)</div>
+            <div style="position:relative;">
+                <div id="v-total" class="vault-total" data-shadow-blur data-current="0">$0.00</div>
+                <canvas id="pulse-canvas"></canvas>
+            </div>
+            <div class="vault-hint">提示：Shadow Mode 开启时，金额已映射为动态几何能量环，截屏物理不可逆。</div>
+        </div>
+
+        <div class="vault-holdings-card">
+            {vault_rows}
+        </div>
+
+        <div class="achievements-card">
+            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:10px;">🏅 Achievements</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <span id="badge-diamond" class="achievement-badge badge-locked">💎 Diamond Hands</span>
+                <span id="badge-hunter" class="achievement-badge badge-locked">🎯 Alpha Hunter</span>
+                <span id="badge-whale" class="achievement-badge badge-locked">🐳 Whale</span>
             </div>
         </div>
-        <div class="mt-4"><button class="btn btn-outline-info btn-sm rounded-pill w-100" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button></div>
+
+        <button class="export-btn" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button>
     </div>
 
+    <!-- ==================== SETTINGS TAB ==================== -->
+    <div id="tab-settings" class="tab-view" style="padding:60px 16px 20px;">
+        <h2 class="vault-header" style="text-align:center;">⚙️ Settings</h2>
+
+        <div class="settings-section">
+            <div class="section-title">🔑 Pro License</div>
+            <input id="license-key-input" class="license-input" type="text" placeholder="Enter License Key" maxlength="20" spellcheck="false">
+            <div id="license-status" style="text-align:center; font-size:0.75rem; margin-top:8px; min-height:18px;"></div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <button class="poster-btn" style="flex:1; margin:0;" onclick="activateLicense()">Activate</button>
+                <button class="export-btn" style="flex:1; margin:0; font-size:0.75rem;" onclick="resetLicense()">Reset</button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">📊 Engine Status</div>
+            <div class="settings-row">
+                <span class="label">Version</span>
+                <span class="value">Alpha Hub Singularity V254</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Last Data Refresh</span>
+                <span class="value">{timestamp}</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Assets Tracked</span>
+                <span class="value">{len(all_results)} assets</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Avg SNR</span>
+                <span class="value">{avg_snr:.1f} dB</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Market Breadth</span>
+                <span class="value">{int(market_breadth)}%</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">📬 Contact</div>
+            <div class="settings-row">
+                <span class="label">WeChat</span>
+                <span class="value">{config.get('contact_wechat', 'N/A')}</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Telegram</span>
+                <span class="value">{config.get('contact_telegram', 'N/A')}</span>
+            </div>
+        </div>
+
+        <div class="version-text">© {datetime.now().year} Alpha Hub Quant Studio</div>
+    </div>
+
+    <!-- ==================== POSTER MODAL ==================== -->
+    <div id="poster-modal" class="poster-modal">
+        <div class="poster-canvas-wrap">
+            <canvas id="poster-canvas"></canvas>
+            <div class="poster-actions">
+                <button class="poster-save-btn" onclick="savePoster()">💾 Save Image</button>
+                <button class="poster-close-btn" onclick="closePoster()">✕ Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NAVIGATION ==================== -->
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">📊<br>信号</div>
-        <div class="nav-item" onclick="switchTab('vault', this)">💰<br>主权</div>
-        <div class="nav-item" onclick="alert('Alpha Pro v254 | 信号信噪比引擎已并网')">⚙️<br>设置</div>
+        <div class="nav-item active" data-tab="home" onclick="switchTab('home', this)">
+            <span class="nav-icon">📊</span>信号
+        </div>
+        <div class="nav-item" data-tab="vault" onclick="switchTab('vault', this)">
+            <span class="nav-icon">💰</span>主权
+        </div>
+        <div class="nav-item" data-tab="settings" onclick="switchTab('settings', this)">
+            <span class="nav-icon">⚙️</span>设置
+        </div>
     </nav>
 
-    <script>
-        const FX = REPLACE_FX;
-        let pulseInterval = null;
-
-        function switchTab(id, el) {{
-            document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active-tab'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('tab-' + id).classList.add('active-tab');
-            el.classList.add('active');
-            if(id === 'vault') calcVault();
-        }}
-        function toggleShadow() {{
-            let s = localStorage.getItem('s_mode') === '1' ? '0' : '1';
-            localStorage.setItem('s_mode', s);
-            applyShadow();
-        }}
-        function applyShadow() {{
-            let isShadow = localStorage.getItem('s_mode') === '1';
-            document.querySelectorAll('.val-blur').forEach(el => {{
-                if(isShadow) el.classList.add('val-blur'); else el.classList.remove('val-blur');
-            }});
-            document.querySelectorAll('.title-ink').forEach(el => {{
-                if(isShadow) el.innerText = 'Alpha-Zenith-' + Math.random().toString(36).substring(7).toUpperCase();
-                else el.innerText = el.dataset.orig;
-            }});
-            // 几何脉冲渲染交互
-            const canvas = document.getElementById('pulse-canvas');
-            canvas.style.opacity = isShadow ? '1' : '0';
-            if(isShadow && !pulseInterval) pulseInterval = setInterval(renderPulse, 50);
-            else if(!isShadow && pulseInterval) {{ clearInterval(pulseInterval); pulseInterval = null; }}
-        }}
-        function renderPulse() {{
-            const canvas = document.getElementById('pulse-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.offsetWidth; canvas.height = 60;
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            const time = Date.now() / 200;
-            ctx.strokeStyle = '#0a84ff'; ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(canvas.width/2, 30, 15 + Math.sin(time)*5, 0, Math.PI*2);
-            ctx.stroke();
-            ctx.strokeStyle = 'rgba(94, 92, 230, 0.4)';
-            ctx.beginPath();
-            ctx.arc(canvas.width/2, 30, 25 + Math.cos(time)*10, 0, Math.PI*2);
-            ctx.stroke();
-        }}
-        function calcVault() {{
-            let total = 0; let totalSNR = 0; const h = {{}}; 
-            let isHunter = false; let isDiamond = false;
-            document.querySelectorAll('.hold-in').forEach(i => {{
-                let v = parseFloat(i.value || 0); let p = parseFloat(i.dataset.price); let c = i.dataset.cur;
-                h[i.dataset.ticker] = i.value;
-                let usd = v * p * (c==='HKD'?0.128:c==='CNY'?0.138:1);
-                total += usd;
-                totalSNR += (usd * parseFloat(i.dataset.snr));
-                if (v > 0) isDiamond = true;
-                if (v > 0 && parseFloat(i.dataset.ahr) < 0.45) isHunter = true;
-            }});
-            localStorage.setItem('alpha_h_v4', JSON.stringify(h));
-            document.getElementById('v-total').innerText = '$' + total.toLocaleString(undefined, {{minimumFractionDigits: 2}});
-            if(total > 0) {{
-                document.getElementById('v-snr').innerText = (totalSNR / total).toFixed(1) + 'dB';
-            }}
-            if (total > 10000) {{
-                document.getElementById('badge-whale').classList.replace('bg-secondary', 'bg-warning');
-                document.getElementById('badge-whale').classList.remove('opacity-50');
-            }} else {{
-                document.getElementById('badge-whale').classList.replace('bg-warning', 'bg-secondary');
-                document.getElementById('badge-whale').classList.add('opacity-50');
-            }}
-            if (isDiamond) {{
-                document.getElementById('badge-diamond').classList.replace('bg-secondary', 'bg-info');
-                document.getElementById('badge-diamond').classList.remove('opacity-50');
-            }} else {{
-                document.getElementById('badge-diamond').classList.replace('bg-info', 'bg-secondary');
-                document.getElementById('badge-diamond').classList.add('opacity-50');
-            }}
-            if (isHunter) {{
-                document.getElementById('badge-hunter').classList.replace('bg-secondary', 'bg-danger');
-                document.getElementById('badge-hunter').classList.remove('opacity-50');
-            }} else {{
-                document.getElementById('badge-hunter').classList.replace('bg-danger', 'bg-secondary');
-                document.getElementById('badge-hunter').classList.add('opacity-50');
-            }}
-        }}
-        function renderChart(id, labels, data) {{
-            new Chart(document.getElementById(id), {{ type:'line', data:{{ labels:labels, datasets:[{{data:data, borderColor:'#0a84ff', borderWidth:2, pointRadius:0, fill:false}}] }}, options:{{ responsive:true, maintainAspectRatio:false, plugins:{{legend:{{display:false}}}}, scales:{{x:{{display:false}},y:{{display:false}}}} }} }});
-        }}
-        function startTrial() {{
-            localStorage.setItem('trial_end', Date.now() + 24*3600*1000);
-            location.reload();
-        }}
-        function generatePoster() {{
-            alert("Generating Professional Research Poster (Bloomberg Style)...");
-        }}
-        window.onload = function() {{
-            let trialEnd = localStorage.getItem('trial_end');
-            if(localStorage.getItem('p') === '1') {{
-                document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
-                document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
-                let adContainer = document.getElementById('ad-container');
-                if(adContainer) adContainer.style.display = 'none';
-            }} else {{
-                document.getElementById('trial-banner').style.display = 'block';
-                if (trialEnd) {{
-                    let remaining = parseInt(trialEnd) - Date.now();
-                    if (remaining > 0) {{
-                        document.getElementById('trial-text').innerText = 'Pro Trial: ' + Math.ceil(remaining/3600000) + 'h left';
-                        document.getElementById('trial-btn').style.display = 'none';
-                        document.querySelectorAll('.pro-blur').forEach(el => el.classList.remove('pro-blur'));
-                        document.querySelectorAll('.pro-overlay').forEach(el => el.style.display = 'none');
-                    }} else {{
-                        document.getElementById('trial-text').innerText = 'Trial Expired. Upgrade to Pro';
-                        document.getElementById('trial-btn').innerText = 'Upgrade';
-                        document.getElementById('trial-btn').onclick = () => alert('Upgrade Flow');
-                    }}
-                }}
-            }}
-            let h = JSON.parse(localStorage.getItem('alpha_h_v4') || '{{}}');
-            document.querySelectorAll('.hold-in').forEach(i => {{ i.value = h[i.dataset.ticker] || ''; }});
-            applyShadow();
-            calcVault();
-            REPLACE_SCRIPTS
-        }}
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
 """
 
-final_html = final_template.replace("REPLACE_TIME", datetime.now().strftime('%m-%d %H:%M')) \
-    .replace("REPLACE_VELOCITY", velocity) \
-    .replace("REPLACE_WEATHER", weather) \
-    .replace("REPLACE_CARDS", cards_html) \
-    .replace("REPLACE_VAULT", vault_rows) \
-    .replace("REPLACE_FX", json.dumps(fx)) \
-    .replace("REPLACE_SCRIPTS", scripts_html) \
-    .replace("REPLACE_PUB_ID", config['publisher_id']) \
-    .replace("REPLACE_AD_UNIT", config['ad_unit_id'])
+# --- Write Outputs ---
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(final_html)
+log.info("Generated index.html")
 
-with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
-with open("latest_data.json", "w", encoding="utf-8") as f: json.dump(all_results, f, indent=4)
+with open("latest_data.json", "w", encoding="utf-8") as f:
+    json.dump(all_results, f, indent=4)
+log.info("Generated latest_data.json")
+
+# Client config for frontend fetch
+client_config = {
+    'velocity': velocity,
+    'weather': weather,
+    'timestamp': timestamp,
+    'fx': fx,
+    'avg_snr': round(avg_snr, 1),
+    'market_breadth': int(market_breadth),
+    'avg_ahr': round(avg_ahr, 3),
+    'correlation': corr_data,
+    'version': 'V254',
+    'generated_at': datetime.now().isoformat()
+}
+with open("config_client.json", "w", encoding="utf-8") as f:
+    json.dump(client_config, f, indent=2)
+log.info("Generated config_client.json")
+
+log.info("=" * 50)
+log.info("Pipeline complete!")
+log.info(f"  Assets: {len(all_results)}")
+log.info(f"  Velocity: {velocity}")
+log.info(f"  Weather: {weather}")
+log.info("=" * 50)
