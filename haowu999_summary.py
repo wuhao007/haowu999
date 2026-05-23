@@ -204,7 +204,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'mape': mape, 'alpha': alpha, 'snr': snr,
             'price': round(latest_p, 2),
-            'p_buy': solve_target_price(0.45, ma200_sum_199, fit_p),
+            'p_buy': solve_target_price(0.85, ma200_sum_199, fit_p),
             'p_sell': p_sell,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'type': asset_cfg.get('type', 'Asset'),
