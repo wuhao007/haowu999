@@ -113,8 +113,24 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
     ticker, name = asset_cfg['ticker'], asset_cfg['name']
     log.info(f"Analyzing {name} ({ticker})...")
     try:
-        start_date = '2015-01-01' if any(x in ticker for x in ['BTC', 'ETH', 'SOL']) else '2020-12-11' if '9992' in ticker else base_start
-        df = yf.download(ticker, start=start_date, progress=False).reset_index()
+        # Determine download start date and fit base date to match notebooks exactly
+        if ticker == 'BTC-USD':
+            download_start = '2010-07-18'
+            fit_base_date = '2009-01-03'
+        elif any(x in ticker for x in ['ETH-USD', 'SOL-USD']):
+            download_start = '2015-01-01'
+            fit_base_date = '2015-01-01'
+        elif any(x in ticker for x in ['GC=F', 'SI=F', 'HG=F', 'CL=F']):
+            download_start = '2000-01-01'
+            fit_base_date = '2000-01-01'
+        elif '9992' in ticker:
+            download_start = '2020-12-11'
+            fit_base_date = '2020-12-11'
+        else:
+            download_start = base_start
+            fit_base_date = base_start
+
+        df = yf.download(ticker, start=download_start, progress=False).reset_index()
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         df = df[['Date', 'Close']].copy().dropna()
@@ -132,7 +148,7 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             log.warning(f"{name}: Data is {days_stale} days stale (latest: {latest_date.strftime('%Y-%m-%d')})")
 
         # 1. 对数回归拟合
-        df['Days'] = (df['Date'] - pd.to_datetime(start_date)).dt.days
+        df['Days'] = (df['Date'] - pd.to_datetime(fit_base_date)).dt.days
         df = df[df['Days'] > 0]
         X = np.log10(df['Days'].values).reshape(-1, 1)
         y_log = np.log10(df['Close'].values)
@@ -204,8 +220,8 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'mape': mape, 'alpha': alpha, 'snr': snr,
             'price': round(latest_p, 2),
-            'p_dca': solve_target_price(2.5, ma200_sum_199, fit_p),
-            'p_dip': solve_target_price(1.2, ma200_sum_199, fit_p),
+            'p_dca': solve_target_price(1.2, ma200_sum_199, fit_p),
+            'p_dip': solve_target_price(0.45, ma200_sum_199, fit_p),
             'p_sell': p_sell,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'type': asset_cfg.get('type', 'Asset'),
