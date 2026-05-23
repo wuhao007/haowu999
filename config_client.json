@@ -1,7 +1,7 @@
 {
-  "velocity": "\u60ef\u6027\u6f02\u79fb",
+  "velocity": "Inertial Drift",
   "weather": "\u26c8\ufe0f Stormy - 40% Opportunity Breadth",
-  "timestamp": "05-22 17:03",
+  "timestamp": "05-22 17:28",
   "fx": {
     "HKD": 7.834299941910094,
     "CNY": NaN,
@@ -9,7 +9,7 @@
   },
   "avg_snr": 3.4,
   "market_breadth": 40,
-  "avg_ahr": 2.498,
+  "avg_ahr": 2.497,
   "correlation": {
     "names": [
       "Bitcoin",
@@ -159,5 +159,5 @@
     ]
   },
   "version": "V254",
-  "generated_at": "2026-05-22T17:03:57.903206"
+  "generated_at": "2026-05-22T17:28:02.109617"
 }

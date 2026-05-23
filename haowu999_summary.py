@@ -132,7 +132,7 @@ log.info(f"Successfully analyzed {len(all_results)}/{len(config['assets'])} asse
 
 # 4. 政权速度 (Regime Velocity)
 avg_snr = sum([x['snr'] for x in all_results]) / len(all_results) if all_results else 0
-velocity = "加速冲刺" if avg_snr > 10 else "匀速前进" if avg_snr > 5 else "惯性漂移"
+velocity = "Accelerating Run" if avg_snr > 10 else "Steady Cruise" if avg_snr > 5 else "Inertial Drift"
 
 # 5. Market Weather
 market_breadth = len([x for x in all_results if "BOTTOM" in x['signal'] or "INVEST" in x['signal']]) / len(all_results) * 100 if all_results else 0
@@ -188,19 +188,19 @@ for i, item in enumerate(all_results):
             <div class="chart-wrap"><canvas id="c_{i}"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">建议抄底价 / Buy</div>
+                    <div class="metric-label">Suggested Buy / Buy</div>
                     <div class="metric-value green" data-shadow-blur data-v="${item['p_buy']}">${item['p_buy']}</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">年化波动率 / Vol</div>
+                    <div class="metric-label">Annual Volatility / Vol</div>
                     <div class="metric-value amber">{int(item['vol']*100)}%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">模型精度 / R²</div>
+                    <div class="metric-label">Model Fit / R²</div>
                     <div class="metric-value cyan">{item['r2']}</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">预测误差 / MAPE</div>
+                    <div class="metric-label">Fit Error / MAPE</div>
                     <div class="metric-value {'green' if item['mape'] < 5 else 'amber' if item['mape'] < 15 else 'red'}">{item['mape']}%</div>
                 </div>
             </div>
@@ -223,7 +223,7 @@ for item in all_results:
 
 # --- HTML Template (simplified — JS is in app.js, CSS is in styles.css) ---
 final_html = f"""<!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -255,11 +255,11 @@ final_html = f"""<!DOCTYPE html>
 
             <div class="glass-panel velocity-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="velocity-label">今日政权运动速度 / Velocity</span>
+                    <span class="velocity-label">Today's Regime Velocity</span>
                     <span style="color:var(--accent-cyan); font-size:0.65rem; font-weight:700;">SNR Audit</span>
                 </div>
-                <div id="v-velocity" class="velocity-value">状态: {velocity}</div>
-                <div id="v-time" class="velocity-meta">系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | {timestamp}</div>
+                <div id="v-velocity" class="velocity-value">Status: {velocity}</div>
+                <div id="v-time" class="velocity-meta">System Analysis: Based on average SNR & Δ-AHR acceleration audit | {timestamp}</div>
             </div>
 
             <div class="glass-panel-sm weather-panel" style="margin-top:10px;">
@@ -283,25 +283,25 @@ final_html = f"""<!DOCTYPE html>
 
     <!-- ==================== VAULT TAB ==================== -->
     <div id="tab-vault" class="tab-view" style="padding:60px 16px 20px;">
-        <h2 class="vault-header" style="text-align:center;">💰 财富主权审计</h2>
+        <h2 class="vault-header" style="text-align:center;">💰 Portfolio & Wealth Sovereignty</h2>
 
         <div class="vault-summary-card">
             <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
                 <div>
-                    <div class="vault-snr-label">组合信噪比 / Confidence</div>
+                    <div class="vault-snr-label">Portfolio SNR / Confidence</div>
                     <div id="v-snr" class="vault-snr-value">--</div>
                 </div>
                 <div style="text-align:right;">
-                    <div class="vault-snr-label">主权分 / Rank</div>
+                    <div class="vault-snr-label">Sovereignty Score / Rank</div>
                     <div style="font-size:1.2rem; font-weight:800; color:var(--accent-cyan);">Elite</div>
                 </div>
             </div>
-            <div class="vault-snr-label">账户实时总净值 (几何脉冲保护)</div>
+            <div class="vault-snr-label">Real-time Portfolio Value (Geometric Pulse Protected)</div>
             <div style="position:relative;">
                 <div id="v-total" class="vault-total" data-shadow-blur data-current="0">$0.00</div>
                 <canvas id="pulse-canvas"></canvas>
             </div>
-            <div class="vault-hint">提示：Shadow Mode 开启时，金额已映射为动态几何能量环，截屏物理不可逆。</div>
+            <div class="vault-hint">Tip: When Shadow Mode is active, values map to dynamic geometric energy rings. Screenshots are physically non-invertible.</div>
         </div>
 
         <div class="vault-holdings-card">
@@ -317,7 +317,7 @@ final_html = f"""<!DOCTYPE html>
             </div>
         </div>
 
-        <button class="export-btn" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button>
+        <button class="export-btn" onclick="alert('Sovereign Quantum Key synchronized successfully.')">🔐 Export Sovereign Quantum Key 6.0</button>
     </div>
 
     <!-- ==================== SETTINGS TAB ==================== -->
@@ -424,13 +424,13 @@ final_html = f"""<!DOCTYPE html>
     <!-- ==================== NAVIGATION ==================== -->
     <nav class="nav-bar">
         <div class="nav-item active" data-tab="home" onclick="switchTab('home', this)">
-            <span class="nav-icon">📊</span>信号
+            <span class="nav-icon">📊</span>Signals
         </div>
         <div class="nav-item" data-tab="vault" onclick="switchTab('vault', this)">
-            <span class="nav-icon">💰</span>主权
+            <span class="nav-icon">💰</span>Sovereignty
         </div>
         <div class="nav-item" data-tab="settings" onclick="switchTab('settings', this)">
-            <span class="nav-icon">⚙️</span>设置
+            <span class="nav-icon">⚙️</span>Settings
         </div>
     </nav>
 

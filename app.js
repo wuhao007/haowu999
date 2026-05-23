@@ -43,9 +43,9 @@
     const velEl = document.getElementById('v-velocity');
     const weatherEl = document.getElementById('v-weather');
     const timeEl = document.getElementById('v-time');
-    if (velEl && CLIENT_CFG.velocity) velEl.textContent = '状态: ' + CLIENT_CFG.velocity;
+    if (velEl && CLIENT_CFG.velocity) velEl.textContent = 'Status: ' + CLIENT_CFG.velocity;
     if (weatherEl && CLIENT_CFG.weather) weatherEl.textContent = CLIENT_CFG.weather;
-    if (timeEl && CLIENT_CFG.timestamp) timeEl.textContent = '系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | ' + CLIENT_CFG.timestamp;
+    if (timeEl && CLIENT_CFG.timestamp) timeEl.textContent = 'System Analysis: Based on average SNR & Δ-AHR acceleration audit | ' + CLIENT_CFG.timestamp;
   }
 
   /* ===== TAB NAVIGATION ===== */
