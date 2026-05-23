@@ -204,8 +204,8 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'mape': mape, 'alpha': alpha, 'snr': snr,
             'price': round(latest_p, 2),
-            'p_dca': solve_target_price(1.2, ma200_sum_199, fit_p),
-            'p_dip': solve_target_price(0.45, ma200_sum_199, fit_p),
+            'p_dca': solve_target_price(2.5, ma200_sum_199, fit_p),
+            'p_dip': solve_target_price(1.2, ma200_sum_199, fit_p),
             'p_sell': p_sell,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'type': asset_cfg.get('type', 'Asset'),
@@ -556,49 +556,77 @@ final_html = f"""<!DOCTYPE html>
                     </div>
                 </div>
             </div>
-            <button class="buy-btn" onclick="openCheckout('monthly')">💳 Buy Pro via Card (Gumroad)</button>
-            <button class="buy-btn" onclick="toggleCryptoPayment()" style="background: linear-gradient(135deg, #00d2ff, #0066ff); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align: middle;">
-                    <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                </svg>
-                🪙 Pay with Crypto (BTC / ETH)
+            <button class="buy-btn" onclick="toggleManualPayment()" style="background: linear-gradient(135deg, #667eea, #764ba2); margin-top: 0px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                💳 Buy Pro — Choose Payment Method
             </button>
 
-            <!-- Collapsible Crypto Payment Box -->
-            <div id="crypto-payment-box" style="display: none; margin-top: 14px; padding: 16px; background: var(--surface-2); border: 1px dashed var(--accent-cyan); border-radius: var(--radius-md); text-align: left;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                    <span style="color: var(--accent-cyan); font-size: 1.1rem; line-height: 1;">🪙</span> Crypto Payment Details
-                </div>
+            <!-- Collapsible Manual Payment Box -->
+            <div id="manual-payment-box" style="display: none; margin-top: 14px; padding: 16px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-align: left;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">💳 Payment Methods</div>
                 <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
-                    Send the equivalent of <strong>$9.99 USD</strong> (Monthly) or <strong>$49.99 USD</strong> (Annual) in BTC or ETH to one of the addresses below.
-                </div>
-                
-                <!-- BTC Address Row -->
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
-                        <span style="color:#f7931a;">₿</span> Bitcoin Address (Native SegWit)
-                    </label>
-                    <div style="display: flex; gap: 8px;">
-                        <input id="btc-address-input" readonly value="bc1q6detsdqch0faa44xh9es77p9uyf8nkdhskxjet" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.65rem; padding: 6px 8px; border-radius: var(--radius-sm); outline: none;">
-                        <button onclick="copyCryptoAddress('btc')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.65rem; padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; white-space: nowrap;">Copy</button>
-                    </div>
-                    <div id="copy-confirm-btc" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 4px; display: none;">BTC address copied!</div>
+                    Monthly: <strong>$9.99 USD</strong> · Annual: <strong>$49.99 USD</strong> (Save 58%). Choose any method below:
                 </div>
 
-                <!-- ETH Address Row -->
-                <div style="margin-bottom: 12px;">
-                    <label style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
-                        <span style="color:#627eea; font-weight: bold;">♦</span> Ethereum Address (ERC20 / Native)
+                <!-- Alipay -->
+                <div style="margin-bottom: 14px; padding: 12px; background: hsla(210, 100%, 96%, 0.06); border: 1px solid hsla(210, 100%, 60%, 0.2); border-radius: var(--radius-sm);">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+                        <span style="color:#1677ff; font-size: 0.85rem;">🅰</span> Alipay (支付宝)
                     </label>
-                    <div style="display: flex; gap: 8px;">
-                        <input id="eth-address-input" readonly value="0xc430d6C09eE821351874D9310Bf4edBe1d6625ec" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.65rem; padding: 6px 8px; border-radius: var(--radius-sm); outline: none;">
-                        <button onclick="copyCryptoAddress('eth')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.65rem; padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; white-space: nowrap;">Copy</button>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+                            <span style="color: var(--text-muted); min-width: 50px;">Account:</span>
+                            <input id="alipay-address-input" readonly value="tohaowu@gmail.com" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.65rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
+                            <button onclick="copyCryptoAddress('alipay')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
+                        </div>
+                        <div id="copy-confirm-alipay" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">Alipay account copied!</div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="color: var(--text-muted); min-width: 50px;">Phone:</span>
+                            <span style="color: var(--text-primary); font-family: monospace; font-size: 0.7rem;">12063691582</span>
+                        </div>
                     </div>
-                    <div id="copy-confirm-eth" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 4px; display: none;">ETH address copied!</div>
                 </div>
 
-                <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 10px;">
-                    💡 <strong>How to activate Pro:</strong> After sending, please contact us on WeChat (<strong>{config.get('contact_wechat', 'N/A')}</strong>) or Telegram (<strong>{config.get('contact_telegram', 'N/A')}</strong>) with your transaction ID/hash or screenshot. We will issue your custom Pro Activation Key immediately.
+                <!-- WeChat Pay -->
+                <div style="margin-bottom: 14px; padding: 12px; background: hsla(120, 60%, 50%, 0.04); border: 1px solid hsla(120, 60%, 40%, 0.2); border-radius: var(--radius-sm);">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+                        <span style="color:#07c160; font-size: 0.85rem;">💬</span> WeChat Pay (微信支付)
+                    </label>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.5;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="color: var(--text-muted); min-width: 50px;">WeChat:</span>
+                            <input id="wechat-address-input" readonly value="wuhao_007" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.65rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
+                            <button onclick="copyCryptoAddress('wechat')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
+                        </div>
+                        <div id="copy-confirm-wechat" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">WeChat ID copied!</div>
+                    </div>
+                </div>
+
+                <!-- BTC -->
+                <div style="margin-bottom: 14px; padding: 12px; background: hsla(36, 100%, 50%, 0.04); border: 1px solid hsla(36, 100%, 50%, 0.15); border-radius: var(--radius-sm);">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+                        <span style="color:#f7931a;">₿</span> Bitcoin (BTC)
+                    </label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="btc-address-input" readonly value="bc1q6detsdqch0faa44xh9es77p9uyf8nkdhskxjet" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
+                        <button onclick="copyCryptoAddress('btc')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
+                    </div>
+                    <div id="copy-confirm-btc" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">BTC address copied!</div>
+                </div>
+
+                <!-- ETH -->
+                <div style="margin-bottom: 14px; padding: 12px; background: hsla(228, 76%, 65%, 0.04); border: 1px solid hsla(228, 76%, 65%, 0.15); border-radius: var(--radius-sm);">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+                        <span style="color:#627eea; font-weight: bold;">♦</span> Ethereum (ETH)
+                    </label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="eth-address-input" readonly value="0xc430d6C09eE821351874D9310Bf4edBe1d6625ec" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
+                        <button onclick="copyCryptoAddress('eth')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
+                    </div>
+                    <div id="copy-confirm-eth" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">ETH address copied!</div>
+                </div>
+
+                <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+                    💡 <strong>How to activate Pro:</strong> After payment, contact us on <strong>WeChat (wuhao_007)</strong> or <strong>Telegram ({config.get('contact_telegram', 'N/A')})</strong> with your payment screenshot or transaction ID. We will issue your Pro Activation Key immediately.
                 </div>
             </div>
         </div>

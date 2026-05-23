@@ -303,8 +303,9 @@
       return;
     }
 
+    // Gumroad not configured — open manual payment panel instead
     switchTab('settings');
-    showLicenseStatus('Payment is not configured yet. Publish the Gumroad product, then add its URL and product_id.', 'var(--accent-amber)');
+    toggleManualPayment(true);
   };
 
   window.activateLicense = async function () {
@@ -620,17 +621,19 @@
     }
   }
 
-  /* ===== CRYPTO PAYMENT ===== */
-  window.toggleCryptoPayment = function () {
-    const box = document.getElementById('crypto-payment-box');
+  /* ===== MANUAL PAYMENT ===== */
+  window.toggleManualPayment = function (forceOpen) {
+    const box = document.getElementById('manual-payment-box');
     if (!box) return;
-    if (box.style.display === 'none' || !box.style.display) {
+    if (forceOpen || box.style.display === 'none' || !box.style.display) {
       box.style.display = 'block';
       box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       box.style.display = 'none';
     }
   };
+  // Backward compatibility alias
+  window.toggleCryptoPayment = function () { toggleManualPayment(); };
 
   window.copyCryptoAddress = function (type) {
     const input = document.getElementById(type + '-address-input');
