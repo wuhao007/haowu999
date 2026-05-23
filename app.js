@@ -294,6 +294,19 @@
   };
 
   /* ===== SETTINGS ===== */
+  window.openCheckout = function (plan) {
+    const gumroad = CLIENT_CFG.gumroad || {};
+    const url = plan === 'annual' ? gumroad.annual_url : gumroad.monthly_url;
+
+    if (url && /^https:\/\/[a-z0-9.-]+\.gumroad\.com\/l\/[a-z0-9_-]+/i.test(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    switchTab('settings');
+    showLicenseStatus('Payment is not configured yet. Publish the Gumroad product, then add its URL and product_id.', 'var(--accent-amber)');
+  };
+
   window.activateLicense = async function () {
     const input = document.getElementById('license-key-input');
     const statusEl = document.getElementById('license-status');
@@ -325,15 +338,21 @@
     input.style.borderColor = '';
 
     try {
-      const PRODUCT_PERMALINK = 'alphahubpro'; // Your Gumroad product permalink
+      const gumroad = CLIENT_CFG.gumroad || {};
+      const productId = (gumroad.product_id || '').trim();
+      const productPermalink = (gumroad.product_permalink || 'alphahubpro').trim();
+      const body = new URLSearchParams({
+        license_key: key,
+        increment_uses_count: 'false'
+      });
+
+      if (productId) body.set('product_id', productId);
+      else body.set('product_permalink', productPermalink);
+
       const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          product_permalink: PRODUCT_PERMALINK,
-          license_key: key,
-          increment_uses_count: 'false'
-        })
+        body
       });
       const data = await res.json();
 
@@ -447,8 +466,8 @@
     ctx.font = '600 10px Inter, sans-serif';
     ctx.fillText('ASSET', 40, y - 10);
     ctx.fillText('PRICE', 220, y - 10);
-    ctx.fillText('AHR999', 340, y - 10);
-    ctx.fillText('SNR', 440, y - 10);
+    ctx.fillText('SCORE', 340, y - 10);
+    ctx.fillText('RISK', 440, y - 10);
     ctx.fillText('SIGNAL', 540, y - 10);
 
     ctx.strokeStyle = 'hsla(230, 40%, 50%, 0.15)';
@@ -472,18 +491,19 @@
       ctx.font = '600 14px Inter, monospace';
       ctx.fillText('$' + asset.price.toLocaleString(), 220, y + 10);
 
-      // AHR999
-      ctx.fillStyle = asset.ahr999 < 0.45 ? '#ff6b6b' : asset.ahr999 < 1.2 ? '#32d74b' : '#ffd60a';
+      // Opportunity score
+      const score = asset.score || 0;
+      ctx.fillStyle = score >= 75 ? '#32d74b' : score >= 65 ? '#64d2ff' : score >= 50 ? '#ffd60a' : '#ff9f0a';
       ctx.font = '700 14px Inter, monospace';
-      ctx.fillText(asset.ahr999.toFixed(3), 340, y + 10);
+      ctx.fillText(String(score), 340, y + 10);
 
-      // SNR
-      ctx.fillStyle = asset.snr > 8 ? '#32d74b' : asset.snr > 3 ? '#ffd60a' : '#ff453a';
-      ctx.fillText(asset.snr.toFixed(1) + 'dB', 440, y + 10);
+      // Risk
+      ctx.fillStyle = asset.risk === 'Low' ? '#32d74b' : asset.risk === 'Medium' ? '#ffd60a' : '#ff453a';
+      ctx.fillText(asset.risk || '--', 440, y + 10);
 
       // Signal
       const sig = asset.signal.replace(/[^\w]/g, '');
-      ctx.fillStyle = sig === 'INVEST' ? '#32d74b' : sig === 'BOTTOM' ? '#ff6b6b' : '#ffd60a';
+      ctx.fillStyle = sig.includes('VALUE') ? '#ff6b6b' : (sig.includes('WATCH') || sig.includes('ACCUM')) ? '#32d74b' : '#ffd60a';
       ctx.font = '800 13px Inter, sans-serif';
       ctx.fillText(sig, 540, y + 10);
 

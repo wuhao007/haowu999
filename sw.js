@@ -1,12 +1,10 @@
-const CACHE_NAME = 'alphahub-v254';
+const CACHE_NAME = 'alphahub-v256';
 const STATIC_ASSETS = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
-  './manifest.json',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  './styles.css?v=256',
+  './app.js?v=256',
+  './manifest.json'
 ];
 
 // Install: cache static assets
@@ -37,6 +35,19 @@ self.addEventListener('activate', event => {
 // Fetch: network-first for JSON data, cache-first for static assets
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
   // Network-first for data files (always try fresh data, fallback to cache)
   if (url.pathname.endsWith('.json') && (url.pathname.includes('latest_data') || url.pathname.includes('config_client'))) {

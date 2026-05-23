@@ -18,7 +18,7 @@
 ## 🛠 Deployment & Tech
 - **Frontend**: PWA (Progressive Web App) with Chart.js & Bootstrap 5.
 - **Backend**: Python 3.9 + yfinance + Scikit-Learn (Log-Regression fitting).
-- **Monetization**: Integrated Google AdMob slots & Gumroad Pro License Key system.
+- **Monetization**: Configurable Google AdSense/AdMob slots & Gumroad Pro license key system.
 - **Live URL**: [https://wuhao007.github.io/haowu999](https://wuhao007.github.io/haowu999)
 - **Automation**: Daily scheduled updates via GitHub Actions workflow (running at 01:00 UTC).
 

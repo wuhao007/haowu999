@@ -11,8 +11,8 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2534/2534312.png" type="image/png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2534/2534312.png">
-    <link rel="stylesheet" href="styles.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-5787134782741442" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css?v=256">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -28,6 +28,13 @@
         <div class="header" style="text-align:center;">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
             <h1>Alpha <span class="accent">HUB</span></h1>
+            <p class="hero-tagline">Compare valuation regimes <strong>before you buy</strong>. Data-driven DCA research for 33 global assets.</p>
+            <div class="stats-bar">
+                <div class="stat-item">📊 <span>33 Assets</span></div>
+                <div class="stat-item">🔄 <span>Updated Daily</span></div>
+                <div class="stat-item">📈 <span>Since 2010</span></div>
+                <div class="stat-item">🆓 <span>Free Trial</span></div>
+            </div>
 
             <div class="glass-panel velocity-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -35,15 +42,56 @@
                     <span style="color:var(--accent-cyan); font-size:0.65rem; font-weight:700;">SNR Audit</span>
                 </div>
                 <div id="v-velocity" class="velocity-value">Status: Inertial Drift</div>
-                <div id="v-time" class="velocity-meta">System Analysis: Based on average SNR & Δ-AHR acceleration audit | 05-23 04:32</div>
+                <div id="v-time" class="velocity-meta">System Analysis: Based on average SNR & Δ-AHR acceleration audit | 05-22 22:03</div>
             </div>
 
             <div class="glass-panel-sm weather-panel" style="margin-top:10px;">
                 <div class="velocity-label" style="margin-bottom:4px;">Market Weather Summary</div>
-                <div id="v-weather" class="weather-value">⛈️ Stormy - 40% Opportunity Breadth</div>
+                <div id="v-weather" class="weather-value">⛈️ Patience Regime - 3% Score 65+</div>
             </div>
+            <div class="risk-note">Research signals only. Not financial, investment, tax, or trading advice. Markets can lose value quickly.</div>
 
             <button class="poster-btn" onclick="generatePoster()">📸 Generate Research Poster</button>
+        </div>
+
+        <div class="growth-dashboard">
+            <div class="radar-panel">
+                <div class="panel-kicker">Today's Research Radar</div>
+                <div class="panel-title">Top opportunity scores</div>
+                <div class="radar-grid">
+                    
+                <div class="radar-card">
+                    <div class="radar-rank">#1</div>
+                    <div class="radar-body">
+                        <div class="radar-name">Solana </div>
+                        <div class="radar-meta">High-beta crypto · Deep Value</div>
+                    </div>
+                    <div class="radar-score">71</div>
+                </div>
+                <div class="radar-card">
+                    <div class="radar-rank">#2</div>
+                    <div class="radar-body">
+                        <div class="radar-name">Ethereum </div>
+                        <div class="radar-meta">On-chain economy · Accumulation</div>
+                    </div>
+                    <div class="radar-score">63</div>
+                </div>
+                <div class="radar-card">
+                    <div class="radar-rank">#3</div>
+                    <div class="radar-body">
+                        <div class="radar-name">Tencent </div>
+                        <div class="radar-meta">China platform · Accumulation</div>
+                    </div>
+                    <div class="radar-score">47</div>
+                </div>
+                </div>
+            </div>
+            <div class="market-pulse-grid">
+                <div class="pulse-stat"><span>1</span><small>Score 65+</small></div>
+                <div class="pulse-stat"><span>1</span><small>Deep value</small></div>
+                <div class="pulse-stat"><span>16</span><small>A/A+ models</small></div>
+                <div class="pulse-stat"><span>24</span><small>Pro assets</small></div>
+            </div>
         </div>
 
         <div style="padding:0 16px; margin-top:16px;">
@@ -51,319 +99,1499 @@
                 
     <div id="card_0" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Ethereum">Ethereum </span>
-            <span class="snr-badge snr-mid">SNR: 3.9dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Solana">Solana </span>
+                <div class="asset-theme">Crypto · High-beta crypto</div>
+            </div>
+            <span class="score-badge score-good">71/100</span>
         </div>
         <div class="">
             <div class="chart-wrap"><canvas id="c_0"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Interesting setup, but confirm the risk profile before treating it as a core idea.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-deep">Deep Value</span>
+                    <span>Range-bound</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$2195.98">$2195.98</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$112.53">$112.53</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">55%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-66.0%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.605</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-1.2%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">64.0%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value green">0.252</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.399 | $2067.01</div>
-                <div class="signal-badge signal-bottom">💎BOTTOM</div>
+                <div class="signal-meta">$84.22 · <span class="tech-detail">R²=0.5607 · MAPE=107.0% · SNR=4.2dB · Vol=59%</span></div>
+                <div class="signal-badge signal-bottom">💎DEEP VALUE</div>
             </div>
         </div>
     </div>
     <div id="card_1" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Tencent">Tencent <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-mid">SNR: 6.7dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Ethereum">Ethereum </span>
+                <div class="asset-theme">Crypto · On-chain economy</div>
+            </div>
+            <span class="score-badge score-mid">63/100</span>
         </div>
-        <div class="pro-blur">
+        <div class="">
             <div class="chart-wrap"><canvas id="c_1"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Large pullback detected; the model sees value but the tape is still fragile.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-accum">Accumulation</span>
+                    <span>Cooling</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$326.37">$326.37</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$2054.02">$2054.02</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">27%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-56.0%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.7982</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">+4.5%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">34.0%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">0.454</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.822 | $441.4</div>
-                <div class="signal-badge signal-invest">✅INVEST</div>
+                <div class="signal-meta">$2063.49 · <span class="tech-detail">R²=0.5904 · MAPE=66.2% · SNR=3.8dB · Vol=55%</span></div>
+                <div class="signal-badge signal-invest">🟢ACCUMULATION</div>
             </div>
         </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
     <div id="card_2" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Alibaba">Alibaba <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: -2.6dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Long Treasuries">Long Treasuries <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">ETF · Rates hedge</div>
+            </div>
+            <span class="score-badge score-low">39/100</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_2"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Valuation is constructive; watch for trend confirmation and cleaner volatility.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-accum">Accumulation</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$63.61">$63.61</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-5.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-2.1%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">0.797</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$84.68 · <span class="tech-detail">R²=0.4698 · MAPE=11.3% · SNR=5.8dB · Vol=9%</span></div>
+                <div class="signal-badge signal-invest">🟢ACCUMULATION</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_3" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Tencent">Tencent </span>
+                <div class="asset-theme">Stock · China platform</div>
+            </div>
+            <span class="score-badge score-low">47/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_3"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-accum">Accumulation</span>
+                    <span>Cooling</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$326.37">$326.37</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-34.1%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-28.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">0.822</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$441.4 · <span class="tech-detail">R²=0.7982 · MAPE=34.0% · SNR=6.7dB · Vol=27%</span></div>
+                <div class="signal-badge signal-invest">🟢ACCUMULATION</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_4" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Alibaba">Alibaba <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · China commerce</div>
+            </div>
+            <span class="score-badge score-low">36/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_4"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Valuation is constructive; watch for trend confirmation and cleaner volatility.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-watch">Watchlist</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
                     <div class="metric-value green" data-shadow-blur data-v="$93.48">$93.48</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">43%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-31.3%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.021</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-22.2%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">35.6%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">0.869</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.869 | $130.0</div>
-                <div class="signal-badge signal-invest">✅INVEST</div>
+                <div class="signal-meta">$130.0 · <span class="tech-detail">R²=0.021 · MAPE=35.6% · SNR=-2.6dB · Vol=43%</span></div>
+                <div class="signal-badge signal-invest">✅WATCHLIST</div>
             </div>
         </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
-    <div id="card_3" class="asset-card">
-        <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Moutai">Moutai <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-high">SNR: 9.9dB</span>
-        </div>
-        <div class="pro-blur">
-            <div class="chart-wrap"><canvas id="c_3"></canvas></div>
-            <div class="metric-grid">
-                <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$846.06">$846.06</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">19%</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.6558</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">63.6%</div>
-                </div>
-            </div>
-            <div class="signal-row">
-                <div class="signal-meta">AHR: 1.045 | $1290.2</div>
-                <div class="signal-badge signal-invest">✅INVEST</div>
-            </div>
-        </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
-    <div id="card_4" class="asset-card">
-        <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Bitcoin">Bitcoin </span>
-            <span class="snr-badge snr-mid">SNR: 3.6dB</span>
-        </div>
-        <div class="">
-            <div class="chart-wrap"><canvas id="c_4"></canvas></div>
-            <div class="metric-grid">
-                <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$44525.62">$44525.62</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">38%</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.8189</div>
-                </div>
-                <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">67.3%</div>
-                </div>
-            </div>
-            <div class="signal-row">
-                <div class="signal-meta">AHR: 1.293 | $75556.38</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
-            </div>
-        </div>
-    </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
     <div id="card_5" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Pop Mart">Pop Mart <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: -1.4dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="China Large-Cap">China Large-Cap <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">ETF · China beta</div>
+            </div>
+            <span class="score-badge score-low">26/100</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_5"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Valuation is constructive; watch for trend confirmation and cleaner volatility.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-watch">Watchlist</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$77.37">$77.37</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$23.62">$23.62</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">56%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-14.0%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.0375</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-11.8%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">90.5%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">1.016</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.7 | $150.5</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">$35.52 · <span class="tech-detail">R²=0.0947 · MAPE=13.9% · SNR=-1.2dB · Vol=19%</span></div>
+                <div class="signal-badge signal-invest">✅WATCHLIST</div>
             </div>
         </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
     <div id="card_6" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Copper">Copper </span>
-            <span class="snr-badge snr-low">SNR: 2.4dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Moutai">Moutai <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · China premium consumer</div>
+            </div>
+            <span class="score-badge score-low">36/100</span>
         </div>
-        <div class="">
+        <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_6"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-watch">Watchlist</span>
+                    <span>Cooling</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$2.91">$2.91</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$846.06">$846.06</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">37%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-18.2%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.0188</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-6.3%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">20.3%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">1.045</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 2.134 | $6.34</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">$1290.2 · <span class="tech-detail">R²=0.6558 · MAPE=63.6% · SNR=9.9dB · Vol=19%</span></div>
+                <div class="signal-badge signal-invest">✅WATCHLIST</div>
             </div>
         </div>
-    </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
     <div id="card_7" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Tesla">Tesla <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-mid">SNR: 3.5dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Meta">Meta <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · AI ads platform</div>
+            </div>
+            <span class="score-badge score-low">39/100</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_7"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Valuation is constructive; watch for trend confirmation and cleaner volatility.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-watch">Watchlist</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$194.21">$194.21</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$385.85">$385.85</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">46%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-22.6%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.8255</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-3.2%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">74.3%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value cyan">1.124</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 2.159 | $426.01</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">$610.26 · <span class="tech-detail">R²=0.8948 · MAPE=23.6% · SNR=5.8dB · Vol=34%</span></div>
+                <div class="signal-badge signal-invest">✅WATCHLIST</div>
             </div>
         </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
     <div id="card_8" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="Gold">Gold </span>
-            <span class="snr-badge snr-mid">SNR: 5.3dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="US Dollar">US Dollar <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">ETF · Dollar strength</div>
+            </div>
+            <span class="score-badge score-low">24/100</span>
         </div>
-        <div class="">
+        <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_8"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$1935.71">$1935.71</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$16.93">$16.93</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">26%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-0.8%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.238</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">+1.5%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">21.8%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.208</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 2.447 | $4521.0</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">$27.77 · <span class="tech-detail">R²=0.4614 · MAPE=7.6% · SNR=2.2dB · Vol=6%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
             </div>
         </div>
-    </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
     <div id="card_9" class="asset-card">
         <div class="card-header-row">
-            <span class="asset-name title-ink" data-orig="NVIDIA">NVIDIA <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: 3.0dB</span>
+            <div>
+                <span class="asset-name title-ink" data-orig="Palantir">Palantir <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · AI analytics</div>
+            </div>
+            <span class="score-badge score-low">31/100</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_9"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
             <div class="metric-grid">
                 <div class="metric-tile">
-                    <div class="metric-label">Suggested Buy / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$41.43">$41.43</div>
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$81.09">$81.09</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Annual Volatility / Vol</div>
-                    <div class="metric-value amber">33%</div>
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-33.9%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Model Fit / R²</div>
-                    <div class="metric-value cyan">0.5955</div>
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-23.5%</div>
                 </div>
                 <div class="metric-tile">
-                    <div class="metric-label">Fit Error / MAPE</div>
-                    <div class="metric-value red">146.4%</div>
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.28</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 12.097 | $215.33</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">$136.88 · <span class="tech-detail">R²=0.4858 · MAPE=76.7% · SNR=2.9dB · Vol=50%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
             </div>
         </div>
-    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_10" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Bitcoin">Bitcoin </span>
+                <div class="asset-theme">Crypto · Digital scarcity</div>
             </div>
-            <div id="ad-container" class="ad-container">
-                <ins class="adsbygoogle" style="display:block" data-ad-client="pub-5787134782741442" data-ad-slot="ca-app-pub-3940256099942544/6300978111" data-ad-format="auto" data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            <span class="score-badge score-low">41/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_10"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Large pullback detected; the model sees value but the tape is still fragile.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
             </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$44525.42">$44525.42</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-39.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+10.9%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.289</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$75421.99 · <span class="tech-detail">R²=0.8189 · MAPE=67.3% · SNR=3.5dB · Vol=38%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_11" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Berkshire">Berkshire <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Quality value</div>
+            </div>
+            <span class="score-badge score-low">24/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_11"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$258.45">$258.45</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-5.3%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-1.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.59</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$486.38 · <span class="tech-detail">R²=0.7188 · MAPE=24.0% · SNR=2.3dB · Vol=14%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_12" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Pop Mart">Pop Mart <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · China consumer</div>
+            </div>
+            <span class="score-badge score-low">26/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_12"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Large pullback detected; the model sees value but the tape is still fragile.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$77.37">$77.37</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-54.3%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-23.6%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.7</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$150.5 · <span class="tech-detail">R²=0.0375 · MAPE=90.5% · SNR=-1.4dB · Vol=56%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_13" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Microsoft">Microsoft <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · AI software</div>
+            </div>
+            <span class="score-badge score-low">31/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_13"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$214.16">$214.16</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-22.3%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-10.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.715</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$418.57 · <span class="tech-detail">R²=0.6726 · MAPE=55.7% · SNR=-2.4dB · Vol=23%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_14" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Emerging Markets">Emerging Markets <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">ETF · Global diversification</div>
+            </div>
+            <span class="score-badge score-low">24/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_14"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Rebounding</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$31.66">$31.66</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-3.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+14.6%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">1.942</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$65.88 · <span class="tech-detail">R²=0.3328 · MAPE=11.6% · SNR=2.9dB · Vol=19%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_15" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="S&P 500">S&P 500 </span>
+                <div class="asset-theme">ETF · US market core</div>
+            </div>
+            <span class="score-badge score-low">31/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_15"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Rebounding</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$346.15">$346.15</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-0.3%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">+7.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.082</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$745.64 · <span class="tech-detail">R²=0.7488 · MAPE=23.7% · SNR=9.2dB · Vol=12%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_16" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Crude Oil">Crude Oil <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Commodity · Energy cycle</div>
+            </div>
+            <span class="score-badge score-low">26/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_16"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$44.77">$44.77</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-14.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+58.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.087</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$96.6 · <span class="tech-detail">R²=0.0857 · MAPE=26.7% · SNR=-0.5dB · Vol=50%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_17" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Copper">Copper <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Commodity · Industrial cycle</div>
+            </div>
+            <span class="score-badge score-low">19/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_17"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$2.91">$2.91</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-4.4%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">+6.2%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.134</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$6.34 · <span class="tech-detail">R²=0.0188 · MAPE=20.3% · SNR=2.4dB · Vol=37%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_18" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Tesla">Tesla <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · EV &amp; autonomy</div>
+            </div>
+            <span class="score-badge score-low">35/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_18"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$194.21">$194.21</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-13.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-4.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.159</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$426.01 · <span class="tech-detail">R²=0.8255 · MAPE=74.3% · SNR=3.5dB · Vol=46%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_19" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Amazon">Amazon <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Cloud &amp; retail</div>
+            </div>
+            <span class="score-badge score-low">31/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_19"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$119.18">$119.18</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-3.2%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+9.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.24</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$266.32 · <span class="tech-detail">R²=0.7731 · MAPE=46.7% · SNR=5.8dB · Vol=29%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_20" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="JPMorgan">JPMorgan <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Financials</div>
+            </div>
+            <span class="score-badge score-low">25/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_20"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$135.92">$135.92</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-8.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-0.9%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.28</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$306.38 · <span class="tech-detail">R²=0.6739 · MAPE=31.6% · SNR=4.8dB · Vol=21%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_21" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Gold">Gold </span>
+                <div class="asset-theme">Commodity · Defensive hedge</div>
+            </div>
+            <span class="score-badge score-low">21/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_21"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Cooling</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$1935.71">$1935.71</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value amber">-15.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-1.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.447</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$4521.0 · <span class="tech-detail">R²=0.238 · MAPE=21.8% · SNR=5.3dB · Vol=26%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_22" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Costco">Costco <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Consumer quality</div>
+            </div>
+            <span class="score-badge score-low">27/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_22"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-extended">Extended</span>
+                    <span>Range-bound</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$438.55">$438.55</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-6.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+9.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.466</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$1028.24 · <span class="tech-detail">R²=0.7272 · MAPE=39.2% · SNR=3.3dB · Vol=18%</span></div>
+                <div class="signal-badge signal-wait">☕️EXTENDED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_23" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Nasdaq 100">Nasdaq 100 </span>
+                <div class="asset-theme">ETF · Growth benchmark</div>
+            </div>
+            <span class="score-badge score-low">35/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_23"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$293.11">$293.11</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-0.3%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+14.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.688</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$717.54 · <span class="tech-detail">R²=0.7398 · MAPE=33.8% · SNR=11.1dB · Vol=16%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    </div>
+    <div id="card_24" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Apple">Apple </span>
+                <div class="asset-theme">Stock · Quality mega-cap</div>
+            </div>
+            <span class="score-badge score-low">35/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_24"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$119.53">$119.53</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">+0.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+18.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">2.993</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$308.82 · <span class="tech-detail">R²=0.7291 · MAPE=51.3% · SNR=11.3dB · Vol=22%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_25" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Silver">Silver <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Commodity · Precious metals beta</div>
+            </div>
+            <span class="score-badge score-low">19/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_25"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Range-bound</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$26.11">$26.11</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value green">-34.1%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value red">-11.6%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">3.788</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$75.89 · <span class="tech-detail">R²=0.0062 · MAPE=27.4% · SNR=-0.1dB · Vol=63%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_26" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Eli Lilly">Eli Lilly <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Healthcare growth</div>
+            </div>
+            <span class="score-badge score-low">28/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_26"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Range-bound</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$342.44">$342.44</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-3.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value cyan">-0.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">4.335</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$1065.0 · <span class="tech-detail">R²=0.6327 · MAPE=56.3% · SNR=4.3dB · Vol=37%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_27" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Google">Google <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Search &amp; AI</div>
+            </div>
+            <span class="score-badge score-low">35/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_27"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-low">Risk: Low</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$121.49">$121.49</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-4.9%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+12.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">4.369</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$379.38 · <span class="tech-detail">R²=0.7121 · MAPE=37.8% · SNR=7.4dB · Vol=28%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_28" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="ASML">ASML <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Chip equipment</div>
+            </div>
+            <span class="score-badge score-low">30/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_28"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$502.53">$502.53</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">+0.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+29.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">4.728</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$1632.9 · <span class="tech-detail">R²=0.7145 · MAPE=52.0% · SNR=-1.1dB · Vol=40%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_29" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="TSMC">TSMC <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · Semiconductor foundry</div>
+            </div>
+            <span class="score-badge score-low">29/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_29"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$112.78">$112.78</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-3.6%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+22.5%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">5.763</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$404.52 · <span class="tech-detail">R²=0.6898 · MAPE=49.7% · SNR=1.1dB · Vol=35%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_30" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="Broadcom">Broadcom <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · AI networking</div>
+            </div>
+            <span class="score-badge score-low">30/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_30"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-medium">Risk: Medium</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$101.65">$101.65</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-5.8%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+17.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">7.436</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$414.14 · <span class="tech-detail">R²=0.7283 · MAPE=60.9% · SNR=-2.3dB · Vol=42%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+    <div id="card_31" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="NVIDIA">NVIDIA </span>
+                <div class="asset-theme">Stock · AI infrastructure</div>
+            </div>
+            <span class="score-badge score-low">32/100</span>
+        </div>
+        <div class="">
+            <div class="chart-wrap"><canvas id="c_31"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$41.43">$41.43</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">-8.7%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+15.9%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">12.097</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$215.33 · <span class="tech-detail">R²=0.5955 · MAPE=146.4% · SNR=3.0dB · Vol=33%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    </div>
+    <div class="cta-card">
+        <div class="cta-title">🚀 Unlock 24 More Assets</div>
+        <div class="cta-assets">Long Treasuries · Alibaba · China Large-Cap · Moutai · Meta +19 more</div>
+        <div class="cta-highlight">✅ 24h Free Trial — No credit card needed</div>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="startTrial()">Start Free Trial</button>
+            <button class="cta-btn-secondary" onclick="switchTab('settings')">See Plans →</button>
+        </div>
+    </div>
+    
+    <div id="card_32" class="asset-card">
+        <div class="card-header-row">
+            <div>
+                <span class="asset-name title-ink" data-orig="AMD">AMD <span class="pro-badge">PRO</span></span>
+                <div class="asset-theme">Stock · AI chips challenger</div>
+            </div>
+            <span class="score-badge score-low">27/100</span>
+        </div>
+        <div class="pro-blur">
+            <div class="chart-wrap"><canvas id="c_32"></canvas></div>
+            <div class="lens-panel">
+                <div class="lens-title">Market Lens</div>
+                <div class="lens-copy">Model says patience: valuation is not yet compelling enough for a high-conviction setup.</div>
+                <div class="lens-chips">
+                    <span class="regime-chip regime-stretched">Stretched</span>
+                    <span>Rebounding</span>
+                    <span class="risk-high">Risk: High</span>
+                </div>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Model Buy Zone</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$73.69">$73.69</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">52W Drawdown</div>
+                    <div class="metric-value cyan">+0.0%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">90D Trend</div>
+                    <div class="metric-value green">+111.6%</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">AHR999 Index</div>
+                    <div class="metric-value amber">17.961</div>
+                </div>
+            </div>
+            <div class="signal-row">
+                <div class="signal-meta">$467.51 · <span class="tech-detail">R²=0.3947 · MAPE=154.0% · SNR=8.5dB · Vol=64%</span></div>
+                <div class="signal-badge signal-wait">🔥STRETCHED</div>
+            </div>
+        </div>
+    <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Pro</button></div></div>
+            </div>
+            <div class="trust-bar">
+                <div class="trust-count">🌎 Daily public-market research dashboard</div>
+                <div class="trust-logos">Powered by Yahoo Finance · Updated daily via GitHub Actions · 100% open data</div>
+            </div>
+
         </div>
     </div>
 
@@ -392,8 +1620,14 @@
 
         <div class="vault-holdings-card">
             <div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Solana">Solana (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="SOL-USD" data-price="84.22" data-cur="USD" data-snr="4.2" data-ahr="0.252" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Ethereum">Ethereum (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="ETH-USD" data-price="2067.01" data-cur="USD" data-snr="3.9" data-ahr="0.399" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="ETH-USD" data-price="2063.49" data-cur="USD" data-snr="3.8" data-ahr="0.454" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Long Treasuries">Long Treasuries (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="TLT" data-price="84.68" data-cur="USD" data-snr="5.8" data-ahr="0.797" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Tencent">Tencent (HKD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="0700.HK" data-price="441.4" data-cur="HKD" data-snr="6.7" data-ahr="0.822" placeholder="Units" onchange="calcVault()">
@@ -401,14 +1635,41 @@
         <div class="asset-label title-ink" data-orig="Alibaba">Alibaba (USD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="BABA" data-price="130.0" data-cur="USD" data-snr="-2.6" data-ahr="0.869" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="China Large-Cap">China Large-Cap (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="FXI" data-price="35.52" data-cur="USD" data-snr="-1.2" data-ahr="1.016" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Moutai">Moutai (CNY)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="600519.SS" data-price="1290.2" data-cur="CNY" data-snr="9.9" data-ahr="1.045" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Meta">Meta (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="META" data-price="610.26" data-cur="USD" data-snr="5.8" data-ahr="1.124" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="US Dollar">US Dollar (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="UUP" data-price="27.77" data-cur="USD" data-snr="2.2" data-ahr="1.208" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Palantir">Palantir (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="PLTR" data-price="136.88" data-cur="USD" data-snr="2.9" data-ahr="1.28" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Bitcoin">Bitcoin (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="BTC-USD" data-price="75556.38" data-cur="USD" data-snr="3.6" data-ahr="1.293" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="BTC-USD" data-price="75421.99" data-cur="USD" data-snr="3.5" data-ahr="1.289" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Berkshire">Berkshire (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="BRK-B" data-price="486.38" data-cur="USD" data-snr="2.3" data-ahr="1.59" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Pop Mart">Pop Mart (HKD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="9992.HK" data-price="150.5" data-cur="HKD" data-snr="-1.4" data-ahr="1.7" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Microsoft">Microsoft (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="MSFT" data-price="418.57" data-cur="USD" data-snr="-2.4" data-ahr="1.715" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Emerging Markets">Emerging Markets (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="EEM" data-price="65.88" data-cur="USD" data-snr="2.9" data-ahr="1.942" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="S&P 500">S&P 500 (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="SPY" data-price="745.64" data-cur="USD" data-snr="9.2" data-ahr="2.082" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Crude Oil">Crude Oil (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="CL=F" data-price="96.6" data-cur="USD" data-snr="-0.5" data-ahr="2.087" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Copper">Copper (USD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="HG=F" data-price="6.34" data-cur="USD" data-snr="2.4" data-ahr="2.134" placeholder="Units" onchange="calcVault()">
@@ -416,11 +1677,47 @@
         <div class="asset-label title-ink" data-orig="Tesla">Tesla (USD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="TSLA" data-price="426.01" data-cur="USD" data-snr="3.5" data-ahr="2.159" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Amazon">Amazon (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="AMZN" data-price="266.32" data-cur="USD" data-snr="5.8" data-ahr="2.24" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="JPMorgan">JPMorgan (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="JPM" data-price="306.38" data-cur="USD" data-snr="4.8" data-ahr="2.28" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Gold">Gold (USD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="GC=F" data-price="4521.0" data-cur="USD" data-snr="5.3" data-ahr="2.447" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Costco">Costco (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="COST" data-price="1028.24" data-cur="USD" data-snr="3.3" data-ahr="2.466" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Nasdaq 100">Nasdaq 100 (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="QQQ" data-price="717.54" data-cur="USD" data-snr="11.1" data-ahr="2.688" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Apple">Apple (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="AAPL" data-price="308.82" data-cur="USD" data-snr="11.3" data-ahr="2.993" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Silver">Silver (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="SI=F" data-price="75.89" data-cur="USD" data-snr="-0.1" data-ahr="3.788" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Eli Lilly">Eli Lilly (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="LLY" data-price="1065.0" data-cur="USD" data-snr="4.3" data-ahr="4.335" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Google">Google (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="GOOG" data-price="379.38" data-cur="USD" data-snr="7.4" data-ahr="4.369" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="ASML">ASML (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="ASML" data-price="1632.9" data-cur="USD" data-snr="-1.1" data-ahr="4.728" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="TSMC">TSMC (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="TSM" data-price="404.52" data-cur="USD" data-snr="1.1" data-ahr="5.763" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="Broadcom">Broadcom (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="AVGO" data-price="414.14" data-cur="USD" data-snr="-2.3" data-ahr="7.436" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="NVIDIA">NVIDIA (USD)</div>
         <input type="number" class="hold-in" data-shadow-blur data-ticker="NVDA" data-price="215.33" data-cur="USD" data-snr="3.0" data-ahr="12.097" placeholder="Units" onchange="calcVault()">
+    </div><div class="vault-row">
+        <div class="asset-label title-ink" data-orig="AMD">AMD (USD)</div>
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="AMD" data-price="467.51" data-cur="USD" data-snr="8.5" data-ahr="17.961" placeholder="Units" onchange="calcVault()">
     </div>
         </div>
 
@@ -443,18 +1740,18 @@
         <div class="settings-section">
             <div class="section-title">🚀 Upgrade to Alpha Apex Pro</div>
             <div class="pricing-grid">
-                <div class="pricing-card" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">
+                <div class="pricing-card" onclick="openCheckout('monthly')">
                     <div class="pricing-label">Monthly</div>
                     <div class="pricing-price">$9.99</div>
                     <div class="pricing-sub">/month</div>
                     <div class="pricing-features">
                         <div>✅ All PRO signals</div>
-                        <div>✅ NVIDIA, Tesla, Tencent</div>
-                        <div>✅ Alibaba, Moutai, Pop Mart</div>
+                        <div>✅ AI, mega-cap, ETF, macro assets</div>
+                        <div>✅ Score, trend, risk, and lens</div>
                         <div>✅ No ads</div>
                     </div>
                 </div>
-                <div class="pricing-card pricing-card-best" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro-yearly','_blank')">
+                <div class="pricing-card pricing-card-best" onclick="openCheckout('annual')">
                     <div class="pricing-badge-best">BEST VALUE</div>
                     <div class="pricing-label">Annual</div>
                     <div class="pricing-price">$49.99</div>
@@ -463,11 +1760,11 @@
                         <div>✅ Everything in Monthly</div>
                         <div>✅ Priority support</div>
                         <div>✅ Early access features</div>
-                        <div>✅ Webhook alerts (coming)</div>
+                        <div>✅ Watchlist alerts (coming)</div>
                     </div>
                 </div>
             </div>
-            <button class="buy-btn" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">💳 Buy Pro — Get License Key</button>
+            <button class="buy-btn" onclick="openCheckout('monthly')">💳 Buy Pro — Get License Key</button>
         </div>
 
         <div class="settings-section">
@@ -488,19 +1785,19 @@
             </div>
             <div class="settings-row">
                 <span class="label">Last Data Refresh</span>
-                <span class="value">05-23 04:32</span>
+                <span class="value">05-22 22:03</span>
             </div>
             <div class="settings-row">
                 <span class="label">Assets Tracked</span>
-                <span class="value">10 assets</span>
+                <span class="value">33 assets</span>
             </div>
             <div class="settings-row">
                 <span class="label">Avg SNR</span>
-                <span class="value">3.4 dB</span>
+                <span class="value">3.6 dB</span>
             </div>
             <div class="settings-row">
                 <span class="label">Market Breadth</span>
-                <span class="value">40%</span>
+                <span class="value">3%</span>
             </div>
         </div>
 
@@ -550,6 +1847,6 @@
         </div>
     </nav>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=256"></script>
 </body>
 </html>
