@@ -204,7 +204,8 @@ def analyze_asset(asset_cfg, base_start='2010-01-01'):
             'name': name, 'ticker': ticker, 'ahr999': round(float(ahr), 3),
             'r2': round(float(r2), 4), 'mape': mape, 'alpha': alpha, 'snr': snr,
             'price': round(latest_p, 2),
-            'p_buy': solve_target_price(0.85, ma200_sum_199, fit_p),
+            'p_dca': solve_target_price(1.2, ma200_sum_199, fit_p),
+            'p_dip': solve_target_price(0.45, ma200_sum_199, fit_p),
             'p_sell': p_sell,
             'cur': 'HKD' if '.HK' in ticker else 'CNY' if '.SS' in ticker else 'USD',
             'type': asset_cfg.get('type', 'Asset'),
@@ -320,6 +321,7 @@ for i, item in enumerate(all_results):
     type_label = escape(item.get('type', 'Asset'))
     theme = escape(item.get('theme', 'Market research'))
     lens = escape(item.get('lens', 'Research candidate.'))
+    sym = 'HK$' if item['cur'] == 'HKD' else '¥' if item['cur'] == 'CNY' else '$'
 
     cards_html += f"""
     <div id="card_{i}" class="asset-card">
@@ -342,9 +344,12 @@ for i, item in enumerate(all_results):
                 </div>
             </div>
             <div class="metric-grid">
-                <div class="metric-tile">
-                    <div class="metric-label">Model Buy Zone</div>
-                    <div class="metric-value green" data-shadow-blur data-v="${item['p_buy']}">${item['p_buy']}</div>
+                <div class="metric-tile" style="display:flex; flex-direction:column; justify-content:center;">
+                    <div class="metric-label" style="line-height: 1.1; margin-bottom: 2px;">DCA / Buy Dip</div>
+                    <div style="font-size:0.72rem; font-weight:700; display:flex; flex-direction:column; gap:2px; text-align:left;">
+                        <span style="color:#32d74b;" data-shadow-blur data-v="{sym}{item['p_dca']}"><span style="font-size:0.55rem; color:var(--text-muted); font-weight:500; margin-right:2px;">DCA:</span>{sym}{item['p_dca']}</span>
+                        <span style="color:#00d2ff;" data-shadow-blur data-v="{sym}{item['p_dip']}"><span style="font-size:0.55rem; color:var(--text-muted); font-weight:500; margin-right:2px;">Dip:</span>{sym}{item['p_dip']}</span>
+                    </div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">52W Drawdown</div>
@@ -360,7 +365,7 @@ for i, item in enumerate(all_results):
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">${item['price']} · <span class="tech-detail">R²={item['r2']} · MAPE={item['mape']}% · SNR={item['snr']}dB · Vol={int(item['vol']*100)}%</span></div>
+                <div class="signal-meta">{sym}{item['price']} · <span class="tech-detail">R²={item['r2']} · MAPE={item['mape']}% · SNR={item['snr']}dB · Vol={int(item['vol']*100)}%</span></div>
                 <div class="signal-badge {signal_class}">{item['signal']}</div>
             </div>
         </div>
