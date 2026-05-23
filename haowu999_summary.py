@@ -551,7 +551,36 @@ final_html = f"""<!DOCTYPE html>
                     </div>
                 </div>
             </div>
-            <button class="buy-btn" onclick="openCheckout('monthly')">💳 Buy Pro — Get License Key</button>
+            <button class="buy-btn" onclick="openCheckout('monthly')">💳 Buy Pro via Card (Gumroad)</button>
+            <button class="buy-btn" onclick="toggleBtcPayment()" style="background: linear-gradient(135deg, #f7931a, #ffb300); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 32 32" fill="white" style="vertical-align: middle;">
+                    <path d="M24.783 14.382c0.407-2.724-1.666-4.185-4.502-5.163l0.92-3.69-2.245-.558-.897 3.6c-.59-.147-1.196-.285-1.8-.423l.904-3.626-2.246-.56-.92 3.69c-.488-.112-.962-.224-1.423-.34l.002-.01-3.096-.773-.597 2.4s1.665.38 1.63.404c.909.227 1.073.83 1.046 1.306l-.986 3.96c.06.015.135.037.218.07-.07-.018-.147-.037-.223-.05l-1.383 5.545c-.11.277-.39.693-1.018.537.022.03-1.63-.406-1.63-.406l-1.115 2.57 2.922.73c.543.136 1.077.28 1.603.415l-.932 3.743 2.246.56.92-3.692c.613.167 1.21.324 1.794.473l-.907 3.637 2.247.56.93-3.73c3.83.725 6.714.433 7.925-3.033.976-2.788-.047-4.4-2.065-5.46 1.47-.34 2.576-1.307 2.87-3.3zm-5.132 7.29c-.695 2.793-5.397 1.283-6.922.903l1.235-4.954c1.525.38 6.42.113 5.687 4.05zm.696-7.33c-.633 2.543-4.55 1.252-5.82.935l1.12-4.494c1.27.318 5.365.912 4.7 3.559z"/>
+                </svg>
+                ₿ Pay with Bitcoin (BTC)
+            </button>
+
+            <!-- Collapsible BTC Payment Box -->
+            <div id="btc-payment-box" style="display: none; margin-top: 14px; padding: 16px; background: var(--surface-2); border: 1px dashed #f7931a; border-radius: var(--radius-md); text-align: left;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #f7931a; font-size: 1.1rem; line-height: 1;">₿</span> Bitcoin Payment Details
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                    Send the equivalent of <strong>$9.99 USD</strong> (Monthly) or <strong>$49.99 USD</strong> (Annual) in BTC to the address below.
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px;">BTC Wallet Address (Native SegWit)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="btc-address-input" readonly value="bc1q6detsdqch0faa44xh9es77p9uyf8nkdhskxjet" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.65rem; padding: 6px 8px; border-radius: var(--radius-sm); outline: none;">
+                        <button onclick="copyBtcAddress()" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.65rem; padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; white-space: nowrap;">Copy</button>
+                    </div>
+                    <div id="copy-confirm" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 4px; display: none;">Address copied to clipboard!</div>
+                </div>
+
+                <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 10px;">
+                    💡 <strong>How to activate Pro:</strong> After sending, please contact us on WeChat (<strong>{config.get('contact_wechat', 'N/A')}</strong>) or Telegram (<strong>{config.get('contact_telegram', 'N/A')}</strong>) with your transaction ID or screenshot. We will issue your custom Pro Activation Key immediately.
+                </div>
+            </div>
         </div>
 
         <div class="settings-section">

@@ -334,6 +334,42 @@
 
     // Show loading state
     if (activateBtn) { activateBtn.disabled = true; activateBtn.textContent = 'Verifying...'; }
+    input.style.borderColor = '';
+
+    // Check if it is a local offline custom Pro license key (from BTC or WeChat manual payments)
+    if (key.startsWith('AH-PRO-')) {
+      const parts = key.split('-');
+      if (parts.length >= 4 && parts[0] === 'AH' && parts[1] === 'PRO') {
+        const hashPart = parts[parts.length - 1];
+        const emailPart = parts.slice(2, parts.length - 1).join('-');
+        try {
+          const salt = "haowu999-quant-secret-salt-2026";
+          const dataStr = `AH-PRO-${emailPart}-${salt}`;
+          const msgUint8 = new TextEncoder().encode(dataStr);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+          const expectedHash = hashHex.substring(0, 8);
+
+          if (hashPart === expectedHash) {
+            localStorage.setItem('p', '1');
+            localStorage.setItem('license_key', key);
+            localStorage.setItem('license_email', emailPart.toLowerCase());
+            localStorage.setItem('lic_attempts', JSON.stringify({ count: 0, reset: 0 })); // reset
+            unlockPro();
+            const banner = document.getElementById('trial-banner');
+            if (banner) banner.style.display = 'none';
+            input.style.borderColor = 'var(--accent-green)';
+            showLicenseStatus('✅ Custom offline license activated successfully!', 'var(--accent-green)');
+            if (activateBtn) { activateBtn.disabled = false; activateBtn.textContent = 'Activate'; }
+            return;
+          }
+        } catch (e) {
+          console.error("Local license validation failed", e);
+        }
+      }
+    }
+
     showLicenseStatus('🔍 Verifying with Gumroad...', 'var(--text-muted)');
     input.style.borderColor = '';
 
@@ -583,5 +619,47 @@
       });
     }
   }
+
+  /* ===== BITCOIN PAYMENT ===== */
+  window.toggleBtcPayment = function () {
+    const box = document.getElementById('btc-payment-box');
+    if (!box) return;
+    if (box.style.display === 'none' || !box.style.display) {
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      box.style.display = 'none';
+    }
+  };
+
+  window.copyBtcAddress = function () {
+    const input = document.getElementById('btc-address-input');
+    const confirmEl = document.getElementById('copy-confirm');
+    if (!input) return;
+    
+    input.select();
+    input.setSelectionRange(0, 99999);
+    
+    try {
+      navigator.clipboard.writeText(input.value).then(() => {
+        showCopyConfirm();
+      }).catch(() => {
+        document.execCommand('copy');
+        showCopyConfirm();
+      });
+    } catch (err) {
+      document.execCommand('copy');
+      showCopyConfirm();
+    }
+
+    function showCopyConfirm() {
+      if (confirmEl) {
+        confirmEl.style.display = 'block';
+        setTimeout(() => {
+          confirmEl.style.display = 'none';
+        }, 2000);
+      }
+    }
+  };
 
 })();
