@@ -2,12 +2,12 @@
     {
         "name": "Solana",
         "ticker": "SOL-USD",
-        "ahr999": 0.252,
+        "ahr999": 0.253,
         "r2": 0.5607,
         "mape": 107.0,
-        "alpha": -43.3,
+        "alpha": -43.2,
         "snr": 4.2,
-        "price": 84.23,
+        "price": 84.26,
         "p_buy": 112.53,
         "p_sell": 377.41,
         "cur": "USD",
@@ -76,7 +76,7 @@
             84.20860290527344,
             86.04193878173828,
             87.15620422363281,
-            84.2300033569336
+            84.26000213623047
         ],
         "vol": 0.595,
         "signal": "\ud83d\udc8eDEEP VALUE",
@@ -87,7 +87,7 @@
         "regime_class": "regime-deep",
         "trend": "Range-bound",
         "mom_30": -3.1,
-        "mom_90": -1.2,
+        "mom_90": -1.1,
         "drawdown_52w": -66.0,
         "ma200_gap": -21.9,
         "lens": "Interesting setup, but confirm the risk profile before treating it as a core idea."
@@ -100,7 +100,7 @@
         "mape": 66.2,
         "alpha": -27.8,
         "snr": 3.8,
-        "price": 2062.8,
+        "price": 2063.15,
         "p_buy": 2054.02,
         "p_sell": 6879.02,
         "cur": "USD",
@@ -169,7 +169,7 @@
             2109.9638671875,
             2126.9833984375,
             2131.41064453125,
-            2062.800048828125
+            2063.14990234375
         ],
         "vol": 0.552,
         "signal": "\ud83d\udfe2ACCUMULATION",
@@ -937,9 +937,9 @@
         "mape": 67.3,
         "alpha": -20.2,
         "snr": 3.5,
-        "price": 75426.0,
-        "p_buy": 44525.42,
-        "p_sell": 148898.39,
+        "price": 75434.5,
+        "p_buy": 44525.44,
+        "p_sell": 148898.44,
         "cur": "USD",
         "type": "Crypto",
         "theme": "Digital scarcity",
@@ -1006,7 +1006,7 @@
             76750.90625,
             77457.7734375,
             77539.171875,
-            75426.0
+            75434.5
         ],
         "vol": 0.387,
         "signal": "\u2615\ufe0fEXTENDED",
@@ -1016,7 +1016,7 @@
         "regime": "Extended",
         "regime_class": "regime-extended",
         "trend": "Range-bound",
-        "mom_30": -3.6,
+        "mom_30": -3.5,
         "mom_90": 10.9,
         "drawdown_52w": -39.5,
         "ma200_gap": -6.6,

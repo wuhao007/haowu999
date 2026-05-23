@@ -620,9 +620,9 @@
     }
   }
 
-  /* ===== BITCOIN PAYMENT ===== */
-  window.toggleBtcPayment = function () {
-    const box = document.getElementById('btc-payment-box');
+  /* ===== CRYPTO PAYMENT ===== */
+  window.toggleCryptoPayment = function () {
+    const box = document.getElementById('crypto-payment-box');
     if (!box) return;
     if (box.style.display === 'none' || !box.style.display) {
       box.style.display = 'block';
@@ -632,9 +632,9 @@
     }
   };
 
-  window.copyBtcAddress = function () {
-    const input = document.getElementById('btc-address-input');
-    const confirmEl = document.getElementById('copy-confirm');
+  window.copyCryptoAddress = function (type) {
+    const input = document.getElementById(type + '-address-input');
+    const confirmEl = document.getElementById('copy-confirm-' + type);
     if (!input) return;
     
     input.select();
