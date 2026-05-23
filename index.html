@@ -17,11 +17,13 @@
 </head>
 <body>
 
+    <!-- Trial Banner -->
     <div id="trial-banner" class="trial-banner">
         <span id="trial-text">24h Free Trial Available</span>
         <button id="trial-btn" class="trial-btn" onclick="startTrial()">Start Trial</button>
     </div>
 
+    <!-- ==================== HOME TAB ==================== -->
     <div id="tab-home" class="tab-view active-tab">
         <div class="header" style="text-align:center;">
             <div class="eye-btn" onclick="toggleShadow()">👁️</div>
@@ -33,12 +35,12 @@
                     <span style="color:var(--accent-cyan); font-size:0.65rem; font-weight:700;">SNR Audit</span>
                 </div>
                 <div id="v-velocity" class="velocity-value">状态: 惯性漂移</div>
-                <div id="v-time" class="velocity-meta">系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | 05-22 16:28</div>
+                <div id="v-time" class="velocity-meta">系统分析：基于平均 SNR 与 Δ-AHR 加速度审计 | 05-22 17:03</div>
             </div>
 
             <div class="glass-panel-sm weather-panel" style="margin-top:10px;">
                 <div class="velocity-label" style="margin-bottom:4px;">Market Weather Summary</div>
-                <div id="v-weather" class="weather-value">⛈️ Stormy - 30% Opportunity Breadth</div>
+                <div id="v-weather" class="weather-value">⛈️ Stormy - 40% Opportunity Breadth</div>
             </div>
 
             <button class="poster-btn" onclick="generatePoster()">📸 Generate Research Poster</button>
@@ -50,14 +52,14 @@
     <div id="card_0" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Ethereum">Ethereum </span>
-            <span class="snr-badge snr-low">SNR: 1.9dB</span>
+            <span class="snr-badge snr-mid">SNR: 3.9dB</span>
         </div>
         <div class="">
             <div class="chart-wrap"><canvas id="c_0"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$2254.31">$2254.31</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$2195.97">$2195.97</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -65,30 +67,30 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.6058</div>
+                    <div class="metric-value cyan">0.605</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">64.0%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.5 | $2376.99</div>
-                <div class="signal-badge signal-invest">✅INVEST</div>
+                <div class="signal-meta">AHR: 0.398 | $2065.41</div>
+                <div class="signal-badge signal-bottom">💎BOTTOM</div>
             </div>
         </div>
     </div>
     <div id="card_1" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Tencent">Tencent <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: 0.5dB</span>
+            <span class="snr-badge snr-mid">SNR: 6.7dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_1"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$331.0">$331.0</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$326.37">$326.37</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -96,15 +98,15 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.7976</div>
+                    <div class="metric-value cyan">0.7982</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">34.0%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.915 | $472.2</div>
+                <div class="signal-meta">AHR: 0.822 | $441.4</div>
                 <div class="signal-badge signal-invest">✅INVEST</div>
             </div>
         </div>
@@ -112,30 +114,30 @@
     <div id="card_2" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Alibaba">Alibaba <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-mid">SNR: 4.4dB</span>
+            <span class="snr-badge snr-low">SNR: -2.6dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_2"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$93.08">$93.08</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$93.48">$93.48</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
-                    <div class="metric-value amber">42%</div>
+                    <div class="metric-value amber">43%</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.0206</div>
+                    <div class="metric-value cyan">0.021</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">35.6%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 0.928 | $133.79</div>
+                <div class="signal-meta">AHR: 0.869 | $130.0</div>
                 <div class="signal-badge signal-invest">✅INVEST</div>
             </div>
         </div>
@@ -143,14 +145,14 @@
     <div id="card_3" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Moutai">Moutai <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: -0.3dB</span>
+            <span class="snr-badge snr-high">SNR: 9.9dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_3"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$845.36">$845.36</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$846.06">$846.06</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -158,30 +160,30 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.6548</div>
+                    <div class="metric-value cyan">0.6558</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">63.6%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.205 | $1384.79</div>
-                <div class="signal-badge signal-wait">☕️WAIT</div>
+                <div class="signal-meta">AHR: 1.045 | $1290.2</div>
+                <div class="signal-badge signal-invest">✅INVEST</div>
             </div>
         </div>
     <div class="pro-overlay"><button class="unlock-btn" onclick="switchTab('settings')">🔓 Unlock Alpha Apex</button></div></div>
     <div id="card_4" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Bitcoin">Bitcoin </span>
-            <span class="snr-badge snr-mid">SNR: 7.6dB</span>
+            <span class="snr-badge snr-mid">SNR: 3.6dB</span>
         </div>
         <div class="">
             <div class="chart-wrap"><canvas id="c_4"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$45005.03">$45005.03</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$44525.58">$44525.58</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -189,15 +191,15 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.8181</div>
+                    <div class="metric-value cyan">0.8189</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">67.3%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.452 | $80937.36</div>
+                <div class="signal-meta">AHR: 1.292 | $75524.77</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -205,30 +207,30 @@
     <div id="card_5" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Pop Mart">Pop Mart <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: 0.2dB</span>
+            <span class="snr-badge snr-low">SNR: -1.4dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_5"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$79.02">$79.02</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$77.37">$77.37</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
-                    <div class="metric-value amber">58%</div>
+                    <div class="metric-value amber">56%</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.0337</div>
+                    <div class="metric-value cyan">0.0375</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">90.5%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.823 | $159.2</div>
+                <div class="signal-meta">AHR: 1.7 | $150.5</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -236,30 +238,30 @@
     <div id="card_6" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Tesla">Tesla <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-low">SNR: 0.4dB</span>
+            <span class="snr-badge snr-mid">SNR: 3.5dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_6"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$191.47">$191.47</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$194.21">$194.21</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
-                    <div class="metric-value amber">47%</div>
+                    <div class="metric-value amber">46%</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.8249</div>
+                    <div class="metric-value cyan">0.8255</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">74.3%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.944 | $398.43</div>
+                <div class="signal-meta">AHR: 2.159 | $426.01</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -267,14 +269,14 @@
     <div id="card_7" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Copper">Copper </span>
-            <span class="snr-badge snr-mid">SNR: 7.1dB</span>
+            <span class="snr-badge snr-low">SNR: 2.4dB</span>
         </div>
         <div class="">
             <div class="chart-wrap"><canvas id="c_7"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$2.88">$2.88</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$2.91">$2.91</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -282,15 +284,15 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.017</div>
+                    <div class="metric-value cyan">0.0188</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">20.3%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 1.953 | $6.01</div>
+                <div class="signal-meta">AHR: 2.16 | $6.38</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -298,30 +300,30 @@
     <div id="card_8" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="Gold">Gold </span>
-            <span class="snr-badge snr-low">SNR: 2.4dB</span>
+            <span class="snr-badge snr-mid">SNR: 5.3dB</span>
         </div>
         <div class="">
             <div class="chart-wrap"><canvas id="c_8"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$1911.49">$1911.49</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$1935.69">$1935.69</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
-                    <div class="metric-value amber">27%</div>
+                    <div class="metric-value amber">26%</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.2364</div>
+                    <div class="metric-value cyan">0.238</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">21.8%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 2.58 | $4584.5</div>
+                <div class="signal-meta">AHR: 2.436 | $4510.5</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -329,14 +331,14 @@
     <div id="card_9" class="asset-card">
         <div class="card-header-row">
             <span class="asset-name title-ink" data-orig="NVIDIA">NVIDIA <span class="pro-badge">PRO</span></span>
-            <span class="snr-badge snr-mid">SNR: 7.5dB</span>
+            <span class="snr-badge snr-low">SNR: 3.0dB</span>
         </div>
         <div class="pro-blur">
             <div class="chart-wrap"><canvas id="c_9"></canvas></div>
             <div class="metric-grid">
                 <div class="metric-tile">
                     <div class="metric-label">建议抄底价 / Buy</div>
-                    <div class="metric-value green" data-shadow-blur data-v="$40.71">$40.71</div>
+                    <div class="metric-value green" data-shadow-blur data-v="$41.43">$41.43</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">年化波动率 / Vol</div>
@@ -344,15 +346,15 @@
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">模型精度 / R²</div>
-                    <div class="metric-value cyan">0.5948</div>
+                    <div class="metric-value cyan">0.5955</div>
                 </div>
                 <div class="metric-tile">
                     <div class="metric-label">预测误差 / MAPE</div>
-                    <div class="metric-value green">0.0%</div>
+                    <div class="metric-value red">146.4%</div>
                 </div>
             </div>
             <div class="signal-row">
-                <div class="signal-meta">AHR: 10.774 | $199.6</div>
+                <div class="signal-meta">AHR: 12.097 | $215.33</div>
                 <div class="signal-badge signal-wait">☕️WAIT</div>
             </div>
         </div>
@@ -365,6 +367,7 @@
         </div>
     </div>
 
+    <!-- ==================== VAULT TAB ==================== -->
     <div id="tab-vault" class="tab-view" style="padding:60px 16px 20px;">
         <h2 class="vault-header" style="text-align:center;">💰 财富主权审计</h2>
 
@@ -390,34 +393,34 @@
         <div class="vault-holdings-card">
             <div class="vault-row">
         <div class="asset-label title-ink" data-orig="Ethereum">Ethereum (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="ETH-USD" data-price="2376.99" data-cur="USD" data-snr="1.9" data-ahr="0.5" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="ETH-USD" data-price="2065.41" data-cur="USD" data-snr="3.9" data-ahr="0.398" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Tencent">Tencent (HKD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="0700.HK" data-price="472.2" data-cur="HKD" data-snr="0.5" data-ahr="0.915" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="0700.HK" data-price="441.4" data-cur="HKD" data-snr="6.7" data-ahr="0.822" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Alibaba">Alibaba (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="BABA" data-price="133.79" data-cur="USD" data-snr="4.4" data-ahr="0.928" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="BABA" data-price="130.0" data-cur="USD" data-snr="-2.6" data-ahr="0.869" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Moutai">Moutai (CNY)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="600519.SS" data-price="1384.79" data-cur="CNY" data-snr="-0.3" data-ahr="1.205" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="600519.SS" data-price="1290.2" data-cur="CNY" data-snr="9.9" data-ahr="1.045" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Bitcoin">Bitcoin (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="BTC-USD" data-price="80937.36" data-cur="USD" data-snr="7.6" data-ahr="1.452" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="BTC-USD" data-price="75524.77" data-cur="USD" data-snr="3.6" data-ahr="1.292" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Pop Mart">Pop Mart (HKD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="9992.HK" data-price="159.2" data-cur="HKD" data-snr="0.2" data-ahr="1.823" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="9992.HK" data-price="150.5" data-cur="HKD" data-snr="-1.4" data-ahr="1.7" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Tesla">Tesla (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="TSLA" data-price="398.43" data-cur="USD" data-snr="0.4" data-ahr="1.944" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="TSLA" data-price="426.01" data-cur="USD" data-snr="3.5" data-ahr="2.159" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Copper">Copper (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="HG=F" data-price="6.01" data-cur="USD" data-snr="7.1" data-ahr="1.953" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="HG=F" data-price="6.38" data-cur="USD" data-snr="2.4" data-ahr="2.16" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="Gold">Gold (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="GC=F" data-price="4584.5" data-cur="USD" data-snr="2.4" data-ahr="2.58" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="GC=F" data-price="4510.5" data-cur="USD" data-snr="5.3" data-ahr="2.436" placeholder="Units" onchange="calcVault()">
     </div><div class="vault-row">
         <div class="asset-label title-ink" data-orig="NVIDIA">NVIDIA (USD)</div>
-        <input type="number" class="hold-in" data-shadow-blur data-ticker="NVDA" data-price="199.6" data-cur="USD" data-snr="7.5" data-ahr="10.774" placeholder="Units" onchange="calcVault()">
+        <input type="number" class="hold-in" data-shadow-blur data-ticker="NVDA" data-price="215.33" data-cur="USD" data-snr="3.0" data-ahr="12.097" placeholder="Units" onchange="calcVault()">
     </div>
         </div>
 
@@ -433,12 +436,43 @@
         <button class="export-btn" onclick="alert('主权密钥已同步')">🔐 导出主权级量子迁移密钥 6.0</button>
     </div>
 
+    <!-- ==================== SETTINGS TAB ==================== -->
     <div id="tab-settings" class="tab-view" style="padding:60px 16px 20px;">
         <h2 class="vault-header" style="text-align:center;">⚙️ Settings</h2>
 
         <div class="settings-section">
+            <div class="section-title">🚀 Upgrade to Alpha Apex Pro</div>
+            <div class="pricing-grid">
+                <div class="pricing-card" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">
+                    <div class="pricing-label">Monthly</div>
+                    <div class="pricing-price">$9.99</div>
+                    <div class="pricing-sub">/month</div>
+                    <div class="pricing-features">
+                        <div>✅ All PRO signals</div>
+                        <div>✅ NVIDIA, Tesla, Tencent</div>
+                        <div>✅ Alibaba, Moutai, Pop Mart</div>
+                        <div>✅ No ads</div>
+                    </div>
+                </div>
+                <div class="pricing-card pricing-card-best" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro-yearly','_blank')">
+                    <div class="pricing-badge-best">BEST VALUE</div>
+                    <div class="pricing-label">Annual</div>
+                    <div class="pricing-price">$49.99</div>
+                    <div class="pricing-sub">/year · Save 58%</div>
+                    <div class="pricing-features">
+                        <div>✅ Everything in Monthly</div>
+                        <div>✅ Priority support</div>
+                        <div>✅ Early access features</div>
+                        <div>✅ Webhook alerts (coming)</div>
+                    </div>
+                </div>
+            </div>
+            <button class="buy-btn" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">💳 Buy Pro — Get License Key</button>
+        </div>
+
+        <div class="settings-section">
             <div class="section-title">🔑 Pro License</div>
-            <input id="license-key-input" class="license-input" type="text" placeholder="Enter License Key" maxlength="20" spellcheck="false">
+            <input id="license-key-input" class="license-input" type="text" placeholder="Enter License Key" maxlength="36" spellcheck="false">
             <div id="license-status" style="text-align:center; font-size:0.75rem; margin-top:8px; min-height:18px;"></div>
             <div style="display:flex; gap:8px; margin-top:12px;">
                 <button class="poster-btn" style="flex:1; margin:0;" onclick="activateLicense()">Activate</button>
@@ -454,7 +488,7 @@
             </div>
             <div class="settings-row">
                 <span class="label">Last Data Refresh</span>
-                <span class="value">05-22 16:28</span>
+                <span class="value">05-22 17:03</span>
             </div>
             <div class="settings-row">
                 <span class="label">Assets Tracked</span>
@@ -462,29 +496,37 @@
             </div>
             <div class="settings-row">
                 <span class="label">Avg SNR</span>
-                <span class="value">3.2 dB</span>
+                <span class="value">3.4 dB</span>
             </div>
             <div class="settings-row">
                 <span class="label">Market Breadth</span>
-                <span class="value">30%</span>
+                <span class="value">40%</span>
             </div>
         </div>
 
         <div class="settings-section">
-            <div class="section-title">📬 Contact</div>
+            <div class="section-title">📬 Contact & Community</div>
             <div class="settings-row">
                 <span class="label">WeChat</span>
                 <span class="value">haowu999_quant</span>
             </div>
             <div class="settings-row">
                 <span class="label">Telegram</span>
-                <span class="value">@haowu999</span>
+                <span class="value" style="cursor:pointer;color:var(--accent-cyan)" onclick="window.open('https://t.me/haowu999','_blank')">@haowu999 ↗</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Website</span>
+                <span class="value" style="cursor:pointer;color:var(--accent-cyan)" onclick="window.open('https://wuhao007.github.io/haowu999','_blank')">wuhao007.github.io/haowu999 ↗</span>
             </div>
         </div>
 
-        <div class="version-text">© 2026 Alpha Hub Quant Studio</div>
+        <div class="version-text">
+            © 2026 Alpha Hub Quant Studio
+            · <a href="privacy.html" style="color:var(--text-muted);text-decoration:none;">Privacy Policy</a>
+        </div>
     </div>
 
+    <!-- ==================== POSTER MODAL ==================== -->
     <div id="poster-modal" class="poster-modal">
         <div class="poster-canvas-wrap">
             <canvas id="poster-canvas"></canvas>
@@ -495,6 +537,7 @@
         </div>
     </div>
 
+    <!-- ==================== NAVIGATION ==================== -->
     <nav class="nav-bar">
         <div class="nav-item active" data-tab="home" onclick="switchTab('home', this)">
             <span class="nav-icon">📊</span>信号

@@ -18,7 +18,9 @@
 ## 🛠 Deployment & Tech
 - **Frontend**: PWA (Progressive Web App) with Chart.js & Bootstrap 5.
 - **Backend**: Python 3.9 + yfinance + Scikit-Learn (Log-Regression fitting).
-- **Monetization**: Integrated Google AdMob slots & License Key system.
+- **Monetization**: Integrated Google AdMob slots & Gumroad Pro License Key system.
+- **Live URL**: [https://wuhao007.github.io/haowu999](https://wuhao007.github.io/haowu999)
+- **Automation**: Daily scheduled updates via GitHub Actions workflow (running at 01:00 UTC).
 
 ---
 *© 2026 Alpha Hub Quant Studio. Institutional Grade Data for the Retail Investor.*

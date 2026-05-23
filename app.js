@@ -294,33 +294,82 @@
   };
 
   /* ===== SETTINGS ===== */
-  window.activateLicense = function () {
+  window.activateLicense = async function () {
     const input = document.getElementById('license-key-input');
+    const statusEl = document.getElementById('license-status');
+    const activateBtn = document.querySelector('button[onclick="activateLicense()"]');
     if (!input) return;
-    const key = input.value.trim().toUpperCase();
 
-    // Simple validation: keys are 16-char alphanumeric
-    if (key.length >= 12) {
-      localStorage.setItem('p', '1');
-      localStorage.setItem('license_key', key);
-      unlockPro();
-      const banner = document.getElementById('trial-banner');
-      if (banner) banner.style.display = 'none';
-      input.style.borderColor = 'var(--accent-green)';
-      const statusEl = document.getElementById('license-status');
-      if (statusEl) {
-        statusEl.textContent = '✅ License activated!';
-        statusEl.style.color = 'var(--accent-green)';
+    const key = input.value.trim().toUpperCase();
+    if (!key) {
+      showLicenseStatus('❌ Please enter a license key', 'var(--accent-red)');
+      return;
+    }
+
+    // Rate limiting: max 3 attempts per hour
+    const attempts = JSON.parse(localStorage.getItem('lic_attempts') || '{"count":0,"reset":0}');
+    if (Date.now() < attempts.reset && attempts.count >= 3) {
+      showLicenseStatus('⏳ Too many attempts. Try again in 1 hour.', 'var(--accent-amber)');
+      return;
+    }
+    if (Date.now() >= attempts.reset) {
+      attempts.count = 0;
+      attempts.reset = Date.now() + 3600000;
+    }
+    attempts.count++;
+    localStorage.setItem('lic_attempts', JSON.stringify(attempts));
+
+    // Show loading state
+    if (activateBtn) { activateBtn.disabled = true; activateBtn.textContent = 'Verifying...'; }
+    showLicenseStatus('🔍 Verifying with Gumroad...', 'var(--text-muted)');
+    input.style.borderColor = '';
+
+    try {
+      const PRODUCT_PERMALINK = 'alphahubpro'; // Your Gumroad product permalink
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          product_permalink: PRODUCT_PERMALINK,
+          license_key: key,
+          increment_uses_count: 'false'
+        })
+      });
+      const data = await res.json();
+
+      if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
+        localStorage.setItem('p', '1');
+        localStorage.setItem('license_key', key);
+        localStorage.setItem('license_email', data.purchase.email || '');
+        localStorage.setItem('lic_attempts', JSON.stringify({ count: 0, reset: 0 })); // reset on success
+        unlockPro();
+        const banner = document.getElementById('trial-banner');
+        if (banner) banner.style.display = 'none';
+        input.style.borderColor = 'var(--accent-green)';
+        showLicenseStatus('✅ License activated! Welcome to Alpha Apex.', 'var(--accent-green)');
+      } else {
+        const reason = data.message || (data.purchase?.refunded ? 'Refunded key' : 'Invalid key');
+        input.style.borderColor = 'var(--accent-red)';
+        showLicenseStatus('❌ ' + reason, 'var(--accent-red)');
       }
-    } else {
-      input.style.borderColor = 'var(--accent-red)';
-      const statusEl = document.getElementById('license-status');
-      if (statusEl) {
-        statusEl.textContent = '❌ Invalid key format';
-        statusEl.style.color = 'var(--accent-red)';
+    } catch (err) {
+      // Network error — fallback: allow offline use if key was valid before
+      const savedKey = localStorage.getItem('license_key');
+      if (savedKey && key === savedKey && localStorage.getItem('p') === '1') {
+        unlockPro();
+        showLicenseStatus('✅ Offline mode: using cached license.', 'var(--accent-green)');
+      } else {
+        showLicenseStatus('🌐 Network error. Please check connection and retry.', 'var(--accent-red)');
       }
+    } finally {
+      if (activateBtn) { activateBtn.disabled = false; activateBtn.textContent = 'Activate'; }
     }
   };
+
+  function showLicenseStatus(msg, color) {
+    const el = document.getElementById('license-status');
+    if (el) { el.textContent = msg; el.style.color = color; }
+  }
 
   window.resetLicense = function () {
     localStorage.removeItem('p');
@@ -454,7 +503,7 @@
     ctx.textAlign = 'right';
     ctx.fillStyle = '#667eea';
     ctx.font = '700 11px Inter, sans-serif';
-    ctx.fillText('haowu999.github.io', W - 40, y + 25);
+    ctx.fillText('wuhao007.github.io/haowu999', W - 40, y + 25);
     ctx.textAlign = 'left';
 
     // Weather summary

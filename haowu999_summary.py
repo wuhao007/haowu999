@@ -325,8 +325,38 @@ final_html = f"""<!DOCTYPE html>
         <h2 class="vault-header" style="text-align:center;">⚙️ Settings</h2>
 
         <div class="settings-section">
+            <div class="section-title">🚀 Upgrade to Alpha Apex Pro</div>
+            <div class="pricing-grid">
+                <div class="pricing-card" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">
+                    <div class="pricing-label">Monthly</div>
+                    <div class="pricing-price">$9.99</div>
+                    <div class="pricing-sub">/month</div>
+                    <div class="pricing-features">
+                        <div>✅ All PRO signals</div>
+                        <div>✅ NVIDIA, Tesla, Tencent</div>
+                        <div>✅ Alibaba, Moutai, Pop Mart</div>
+                        <div>✅ No ads</div>
+                    </div>
+                </div>
+                <div class="pricing-card pricing-card-best" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro-yearly','_blank')">
+                    <div class="pricing-badge-best">BEST VALUE</div>
+                    <div class="pricing-label">Annual</div>
+                    <div class="pricing-price">$49.99</div>
+                    <div class="pricing-sub">/year · Save 58%</div>
+                    <div class="pricing-features">
+                        <div>✅ Everything in Monthly</div>
+                        <div>✅ Priority support</div>
+                        <div>✅ Early access features</div>
+                        <div>✅ Webhook alerts (coming)</div>
+                    </div>
+                </div>
+            </div>
+            <button class="buy-btn" onclick="window.open('https://wuhao007.gumroad.com/l/alphahubpro','_blank')">💳 Buy Pro — Get License Key</button>
+        </div>
+
+        <div class="settings-section">
             <div class="section-title">🔑 Pro License</div>
-            <input id="license-key-input" class="license-input" type="text" placeholder="Enter License Key" maxlength="20" spellcheck="false">
+            <input id="license-key-input" class="license-input" type="text" placeholder="Enter License Key" maxlength="36" spellcheck="false">
             <div id="license-status" style="text-align:center; font-size:0.75rem; margin-top:8px; min-height:18px;"></div>
             <div style="display:flex; gap:8px; margin-top:12px;">
                 <button class="poster-btn" style="flex:1; margin:0;" onclick="activateLicense()">Activate</button>
@@ -359,18 +389,25 @@ final_html = f"""<!DOCTYPE html>
         </div>
 
         <div class="settings-section">
-            <div class="section-title">📬 Contact</div>
+            <div class="section-title">📬 Contact & Community</div>
             <div class="settings-row">
                 <span class="label">WeChat</span>
                 <span class="value">{config.get('contact_wechat', 'N/A')}</span>
             </div>
             <div class="settings-row">
                 <span class="label">Telegram</span>
-                <span class="value">{config.get('contact_telegram', 'N/A')}</span>
+                <span class="value" style="cursor:pointer;color:var(--accent-cyan)" onclick="window.open('https://t.me/haowu999','_blank')">@haowu999 ↗</span>
+            </div>
+            <div class="settings-row">
+                <span class="label">Website</span>
+                <span class="value" style="cursor:pointer;color:var(--accent-cyan)" onclick="window.open('https://wuhao007.github.io/haowu999','_blank')">wuhao007.github.io/haowu999 ↗</span>
             </div>
         </div>
 
-        <div class="version-text">© {datetime.now().year} Alpha Hub Quant Studio</div>
+        <div class="version-text">
+            © {datetime.now().year} Alpha Hub Quant Studio
+            · <a href="privacy.html" style="color:var(--text-muted);text-decoration:none;">Privacy Policy</a>
+        </div>
     </div>
 
     <!-- ==================== POSTER MODAL ==================== -->

@@ -662,6 +662,106 @@ body {
   box-shadow: 0 0 0 3px hsla(230, 60%, 60%, 0.15);
 }
 
+/* --- Pricing Section --- */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  margin-top: 10px;
+}
+
+@media (min-width: 480px) {
+  .pricing-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pricing-card {
+  position: relative;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.pricing-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 16px hsla(230, 60%, 50%, 0.15);
+}
+
+.pricing-card-best {
+  border: 2px solid var(--accent-primary);
+  background: hsla(230, 60%, 50%, 0.04);
+}
+
+.pricing-badge-best {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-gradient);
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.5px;
+}
+
+.pricing-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.pricing-price {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-cyan);
+}
+
+.pricing-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.pricing-features {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-align: left;
+  display: inline-block;
+}
+
+.pricing-features div {
+  margin-bottom: 4px;
+}
+
+.buy-btn {
+  width: 100%;
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  margin-top: 8px;
+}
+
+.buy-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px hsla(230, 60%, 50%, 0.25);
+}
+
 /* --- Trial Banner --- */
 .trial-banner {
   background: linear-gradient(90deg, var(--accent-amber), #ff9500);
