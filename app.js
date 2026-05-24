@@ -294,6 +294,22 @@
   };
 
   /* ===== SETTINGS ===== */
+  window.openPaymentModal = function () {
+    const modal = document.getElementById('payment-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('active'), 10);
+    }
+  };
+
+  window.closePaymentModal = function () {
+    const modal = document.getElementById('payment-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+  };
+
   window.openCheckout = function (plan) {
     const gumroad = CLIENT_CFG.gumroad || {};
     const url = plan === 'annual' ? gumroad.annual_url : gumroad.monthly_url;
@@ -303,9 +319,8 @@
       return;
     }
 
-    // Gumroad not configured — open manual payment panel instead
-    switchTab('settings');
-    toggleManualPayment(true);
+    // Gumroad not configured — open manual payment modal instead
+    openPaymentModal();
   };
 
   window.activateLicense = async function () {
@@ -426,6 +441,129 @@
     const el = document.getElementById('license-status');
     if (el) { el.textContent = msg; el.style.color = color; }
   }
+
+  window.activateModalLicense = async function () {
+    const modalInput = document.getElementById('modal-license-key-input');
+    const modalStatusEl = document.getElementById('modal-license-status');
+    if (!modalInput || !modalStatusEl) return;
+
+    const key = modalInput.value.trim().toUpperCase();
+    if (!key) {
+      modalStatusEl.style.color = 'var(--accent-red)';
+      modalStatusEl.textContent = '❌ Please enter a license key';
+      return;
+    }
+
+    // Rate limiting: max 3 attempts per hour
+    const attempts = JSON.parse(localStorage.getItem('lic_attempts') || '{"count":0,"reset":0}');
+    if (Date.now() < attempts.reset && attempts.count >= 3) {
+      modalStatusEl.style.color = 'var(--accent-amber)';
+      modalStatusEl.textContent = '⏳ Too many attempts. Try again in 1 hour.';
+      return;
+    }
+    if (Date.now() >= attempts.reset) {
+      attempts.count = 0;
+      attempts.reset = Date.now() + 3600000;
+    }
+    attempts.count++;
+    localStorage.setItem('lic_attempts', JSON.stringify(attempts));
+
+    // Show loading state
+    modalStatusEl.style.color = 'var(--text-muted)';
+    modalStatusEl.textContent = 'Verifying...';
+
+    // Helper to update license activation in the modal status
+    function showModalStatus(msg, color) {
+      modalStatusEl.style.color = color;
+      modalStatusEl.textContent = msg;
+    }
+
+    // Check if it is a local offline custom Pro license key
+    if (key.startsWith('AH-PRO-')) {
+      const parts = key.split('-');
+      if (parts.length >= 4 && parts[0] === 'AH' && parts[1] === 'PRO') {
+        const hashPart = parts[parts.length - 1];
+        const emailPart = parts.slice(2, parts.length - 1).join('-');
+        try {
+          const salt = "haowu999-quant-secret-salt-2026";
+          const dataStr = `AH-PRO-${emailPart}-${salt}`;
+          const msgUint8 = new TextEncoder().encode(dataStr);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+          const expectedHash = hashHex.substring(0, 8);
+
+          if (hashPart === expectedHash) {
+            localStorage.setItem('p', '1');
+            localStorage.setItem('license_key', key);
+            localStorage.setItem('license_email', emailPart.toLowerCase());
+            localStorage.setItem('lic_attempts', JSON.stringify({ count: 0, reset: 0 }));
+            unlockPro();
+            const banner = document.getElementById('trial-banner');
+            if (banner) banner.style.display = 'none';
+            modalInput.style.borderColor = 'var(--accent-green)';
+            showModalStatus('✅ Custom offline license activated successfully!', 'var(--accent-green)');
+            setTimeout(() => { closePaymentModal(); }, 1500);
+            return;
+          }
+        } catch (e) {
+          console.error("Local license validation failed", e);
+        }
+      }
+    }
+
+    showModalStatus('🔍 Verifying with Gumroad...', 'var(--text-muted)');
+
+    try {
+      const gumroad = CLIENT_CFG.gumroad || {};
+      const productId = (gumroad.product_id || '').trim();
+      const productPermalink = (gumroad.product_permalink || 'alphahubpro').trim();
+      const body = new URLSearchParams({
+        license_key: key,
+        increment_uses_count: 'false'
+      });
+
+      if (productId) body.set('product_id', productId);
+      else body.set('product_permalink', productPermalink);
+
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+      });
+      const data = await res.json();
+
+      if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
+        localStorage.setItem('p', '1');
+        localStorage.setItem('license_key', key);
+        localStorage.setItem('license_email', data.purchase.email || '');
+        localStorage.setItem('lic_attempts', JSON.stringify({ count: 0, reset: 0 }));
+        unlockPro();
+        const banner = document.getElementById('trial-banner');
+        if (banner) banner.style.display = 'none';
+        modalInput.style.borderColor = 'var(--accent-green)';
+        showModalStatus('✅ License activated! Welcome to Alpha Apex.', 'var(--accent-green)');
+        setTimeout(() => { closePaymentModal(); }, 1500);
+      } else {
+        const reason = data.message || (data.purchase?.refunded ? 'Refunded key' : 'Invalid key');
+        modalInput.style.borderColor = 'var(--accent-red)';
+        showModalStatus('❌ ' + reason, 'var(--accent-red)');
+      }
+    } catch (err) {
+      const savedKey = localStorage.getItem('license_key');
+      if (savedKey && key === savedKey && localStorage.getItem('p') === '1') {
+        unlockPro();
+        const banner = document.getElementById('trial-banner');
+        if (banner) banner.style.display = 'none';
+        modalInput.style.borderColor = 'var(--accent-green)';
+        showModalStatus('✅ Offline check passed. Welcome back.', 'var(--accent-green)');
+        setTimeout(() => { closePaymentModal(); }, 1500);
+      } else {
+        modalInput.style.borderColor = 'var(--accent-red)';
+        showModalStatus('❌ Network error. Verification failed.', 'var(--accent-red)');
+      }
+    }
+  };
 
   window.resetLicense = function () {
     localStorage.removeItem('p');
