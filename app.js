@@ -565,6 +565,138 @@
     }
   };
 
+  window.verifyCryptoPayment = async function (type) {
+    const txInput = document.getElementById(type + '-tx-input');
+    const statusEl = document.getElementById(type + '-verify-status');
+    const verifyBtn = document.querySelector(`button[onclick="verifyCryptoPayment('${type}')"]`);
+    if (!txInput || !statusEl) return;
+
+    const txid = txInput.value.trim();
+    if (!txid) {
+      statusEl.style.color = 'var(--accent-red)';
+      statusEl.textContent = '❌ Please enter the Transaction ID / Hash';
+      return;
+    }
+
+    // Prevents double activation in same browser session
+    const usedTxs = JSON.parse(localStorage.getItem('used_txids') || '[]');
+    if (usedTxs.includes(txid)) {
+      statusEl.style.color = 'var(--accent-amber)';
+      statusEl.textContent = '⚠️ This Transaction ID was already verified.';
+      return;
+    }
+
+    if (verifyBtn) { verifyBtn.disabled = true; verifyBtn.textContent = 'Checking Chain...'; }
+    statusEl.style.color = 'var(--text-muted)';
+    statusEl.textContent = 'Querying blockchain node...';
+
+    try {
+      if (type === 'btc') {
+        const res = await fetch(`https://blockstream.info/api/tx/${txid}`);
+        if (!res.ok) throw new Error('Transaction not found. Check ID format.');
+        const tx = await res.json();
+        
+        // 1. Check receiver address & value
+        const targetAddress = "bc1q6detsdqch0faa44xh9es77p9uyf8nkdhskxjet";
+        let paidSats = 0;
+        if (tx.vout) {
+          tx.vout.forEach(out => {
+            if (out.scriptpubkey_address === targetAddress) {
+              paidSats += out.value;
+            }
+          });
+        }
+        
+        // 2. Check time window (within 3 hours)
+        let txTime = Date.now();
+        if (tx.status && tx.status.confirmed && tx.status.block_time) {
+          txTime = tx.status.block_time * 1000;
+        }
+        const hoursAgo = (Date.now() - txTime) / 3600000;
+
+        if (paidSats < 9000) { // ~0.00009 BTC threshold (around $7 USD)
+          throw new Error(`Insufficient payment amount. Found: ${(paidSats / 1e8).toFixed(5)} BTC.`);
+        }
+        if (hoursAgo > 3) {
+          throw new Error('Transaction is too old. Payment must be verified within 3 hours.');
+        }
+
+        // Validated!
+        activateProFromCrypto(txid, 'BTC', (paidSats / 1e8).toFixed(5));
+      } else if (type === 'eth') {
+        const res = await fetch('https://cloudflare-eth.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_getTransactionByHash',
+            params: [txid],
+            id: 1
+          })
+        });
+        if (!res.ok) throw new Error('Failed to fetch from Ethereum node.');
+        const data = await res.json();
+        const tx = data.result;
+        if (!tx) throw new Error('Transaction hash not found on Ethereum chain.');
+
+        // 1. Check receiver
+        const targetAddress = "0xc430d6C09eE821351874D9310Bf4edBe1d6625ec".toLowerCase();
+        if (!tx.to || tx.to.toLowerCase() !== targetAddress) {
+          throw new Error('Transaction recipient does not match our ETH wallet.');
+        }
+
+        // 2. Check value (hex to decimal wei)
+        const weiVal = BigInt(tx.value);
+        const ethVal = Number(weiVal) / 1e18;
+        if (ethVal < 0.002) { // ~0.002 ETH threshold (around $6 USD)
+          throw new Error(`Insufficient ETH payment. Found: ${ethVal.toFixed(4)} ETH.`);
+        }
+
+        // 3. Check time window
+        if (tx.blockNumber) {
+          const blockRes = await fetch('https://cloudflare-eth.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'eth_getBlockByNumber',
+              params: [tx.blockNumber, false],
+              id: 2
+            })
+          });
+          const blockData = await blockRes.json();
+          if (blockData.result && blockData.result.timestamp) {
+            const blockTime = Number(blockData.result.timestamp) * 1000;
+            const hoursAgo = (Date.now() - blockTime) / 3600000;
+            if (hoursAgo > 3) {
+              throw new Error('Transaction is too old. ETH payment must be verified within 3 hours.');
+            }
+          }
+        }
+
+        activateProFromCrypto(txid, 'ETH', ethVal.toFixed(4));
+      }
+    } catch (err) {
+      statusEl.style.color = 'var(--accent-red)';
+      statusEl.textContent = '❌ ' + err.message;
+    } finally {
+      if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify'; }
+    }
+
+    function activateProFromCrypto(hash, chainName, amountStr) {
+      usedTxs.push(hash);
+      localStorage.setItem('used_txids', JSON.stringify(usedTxs));
+      localStorage.setItem('p', '1');
+      localStorage.setItem('license_key', `AH-CRYPTO-${chainName}-${hash.substring(0, 8)}`);
+      unlockPro();
+      const banner = document.getElementById('trial-banner');
+      if (banner) banner.style.display = 'none';
+      statusEl.style.color = 'var(--accent-green)';
+      statusEl.textContent = `✅ Payment verified! Received ${amountStr} ${chainName}. Pro activated!`;
+      setTimeout(() => { closePaymentModal(); }, 2000);
+    }
+  };
+
   window.resetLicense = function () {
     localStorage.removeItem('p');
     localStorage.removeItem('license_key');

@@ -713,11 +713,21 @@ final_html = f"""<!DOCTYPE html>
                     <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
                         <span style="color:#f7931a;">₿</span> Bitcoin (BTC)
                     </label>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                         <input id="btc-address-input" readonly value="bc1q6detsdqch0faa44xh9es77p9uyf8nkdhskxjet" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
                         <button onclick="copyCryptoAddress('btc')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
                     </div>
-                    <div id="copy-confirm-btc" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">BTC address copied!</div>
+                    <div id="copy-confirm-btc" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; margin-bottom: 6px; display: none;">BTC address copied!</div>
+
+                    <!-- Auto-Activation Sub-Section -->
+                    <div style="border-top: 1px dashed var(--border-subtle); padding-top: 8px; margin-top: 8px;">
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">⚡ Instant Auto-Activation (自动激活)</div>
+                        <div style="display: flex; gap: 6px;">
+                            <input id="btc-tx-input" placeholder="Paste TxID / Transaction Hash" style="flex: 1; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.58rem; padding: 4px 6px; border-radius: var(--radius-sm); outline: none;">
+                            <button onclick="verifyCryptoPayment('btc')" style="background: var(--accent-gradient); border: none; color: white; font-size: 0.58rem; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700;">Verify</button>
+                        </div>
+                        <div id="btc-verify-status" style="font-size: 0.55rem; margin-top: 4px; font-weight: 600;"></div>
+                    </div>
                 </div>
 
                 <!-- ETH -->
@@ -725,11 +735,21 @@ final_html = f"""<!DOCTYPE html>
                     <label style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
                         <span style="color:#627eea;">⟠</span> Ethereum (ETH)
                     </label>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                         <input id="eth-address-input" readonly value="0xc430d6C09eE821351874D9310Bf4edBe1d6625ec" style="flex: 1; background: var(--surface-1); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); outline: none;">
                         <button onclick="copyCryptoAddress('eth')" style="background: var(--surface-3); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.6rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">Copy</button>
                     </div>
-                    <div id="copy-confirm-eth" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; display: none;">ETH address copied!</div>
+                    <div id="copy-confirm-eth" style="font-size: 0.6rem; color: var(--accent-green); margin-top: 2px; margin-bottom: 6px; display: none;">ETH address copied!</div>
+
+                    <!-- Auto-Activation Sub-Section -->
+                    <div style="border-top: 1px dashed var(--border-subtle); padding-top: 8px; margin-top: 8px;">
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">⚡ Instant Auto-Activation (自动激活)</div>
+                        <div style="display: flex; gap: 6px;">
+                            <input id="eth-tx-input" placeholder="Paste Transaction Hash" style="flex: 1; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.58rem; padding: 4px 6px; border-radius: var(--radius-sm); outline: none;">
+                            <button onclick="verifyCryptoPayment('eth')" style="background: var(--accent-gradient); border: none; color: white; font-size: 0.58rem; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700;">Verify</button>
+                        </div>
+                        <div id="eth-verify-status" style="font-size: 0.55rem; margin-top: 4px; font-weight: 600;"></div>
+                    </div>
                 </div>
 
                 <!-- Activation Section -->
