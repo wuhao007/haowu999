@@ -1,0 +1,12 @@
+# Cache files (BTC/ETH price data cached locally)
+*_cache.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
